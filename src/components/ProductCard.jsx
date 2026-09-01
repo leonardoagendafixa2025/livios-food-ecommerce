@@ -77,8 +77,11 @@ export default function ProductCard({ product }) {
           <motion.img
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.4 }}
-            src={product.images && product.images[0] ? product.images[0] : "/header-bg.jpg"}
+            src={product.images && product.images[0] && !product.images[0].includes('header-bg') ? product.images[0] : "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=800&q=80"}
             alt={product.name}
+            onError={(e) => {
+              e.target.src = "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=800&q=80";
+            }}
             loading="lazy"
           />
         </Link>

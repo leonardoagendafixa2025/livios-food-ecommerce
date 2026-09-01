@@ -114,7 +114,10 @@ const initialData = {
         { label: "Carboidratos", value: "7.8g" },
         { label: "Sódio", value: "85mg" }
       ],
-      images: ["/header-bg.jpg"],
+      images: [
+        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isBestSeller: false,
       isNew: false,
@@ -144,7 +147,10 @@ const initialData = {
         { label: "Valor Energético", value: "30 kcal (15g)" },
         { label: "Carboidratos", value: "7.2g" }
       ],
-      images: ["/header-bg.jpg"],
+      images: [
+        "https://images.unsplash.com/photo-1583182332473-b0d5f308a883?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isBestSeller: false,
       isNew: false,
@@ -173,7 +179,10 @@ const initialData = {
       nutritionInfo: [
         { label: "Valor Energético", value: "38 kcal (15g)" }
       ],
-      images: ["/header-bg.jpg"],
+      images: [
+        "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isBestSeller: false,
       isNew: true,

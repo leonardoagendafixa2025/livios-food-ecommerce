@@ -136,8 +136,11 @@ export default function ProductDetail() {
           <div>
             <div style={{ width: '100%', aspectRatio: '1', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: '#FAF8F5', border: '1px solid var(--light-border)', marginBottom: '1.25rem', position: 'relative' }}>
               <img
-                src={productData.images && productData.images[selectedImage] ? productData.images[selectedImage] : "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"}
+                src={productData.images && productData.images[selectedImage] && !productData.images[selectedImage].includes('header-bg') ? productData.images[selectedImage] : "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"}
                 alt={productData.name}
+                onError={(e) => {
+                  e.target.src = "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80";
+                }}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <button
