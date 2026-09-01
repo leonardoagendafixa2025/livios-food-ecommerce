@@ -68,43 +68,10 @@
     {
       "id": "usr_admin_1",
       "name": "Rômulo Lívio Medeiros",
-      "email": "admin@liviosfood.com",
+      "email": "liviomedeiros@hotmail.com",
       "passwordHash": "admin123",
       "role": "super_admin",
       "createdAt": "2024-01-10T10:00:00Z"
-    },
-    {
-      "id": "usr_operator_1",
-      "name": "Carlos Eduardo (Operador)",
-      "email": "operador@liviosfood.com",
-      "passwordHash": "operador123",
-      "role": "operator",
-      "createdAt": "2024-02-01T14:00:00Z"
-    },
-    {
-      "id": "usr_cust_1",
-      "name": "Ana Beatriz Oliveira",
-      "email": "ana.oliveira@gmail.com",
-      "phone": "(11) 98765-4321",
-      "cpf": "123.456.789-00",
-      "passwordHash": "cliente123",
-      "role": "customer",
-      "createdAt": "2024-03-15T11:20:00Z",
-      "addresses": [
-        {
-          "id": "addr_1",
-          "name": "Residencial Principal",
-          "recipient": "Ana Beatriz Oliveira",
-          "cep": "01310-100",
-          "street": "Av. Paulista",
-          "number": "1500",
-          "complement": "Apto 82",
-          "neighborhood": "Bela Vista",
-          "city": "São Paulo",
-          "state": "SP",
-          "isDefault": true
-        }
-      ]
     }
   ],
   "categories": [
@@ -610,129 +577,9 @@
       "description": "R$ 20,00 de desconto em pedidos acima de R$ 120,00"
     }
   ],
-  "reviews": [
-    {
-      "id": "rev_1",
-      "productId": "prod_1",
-      "customerName": "Ricardo S. Alencar",
-      "rating": 5,
-      "comment": "Simplesmente incrível! O equilíbrio agridoce do Fine Recipe Original é impecável. Uso no churrasco e todo mundo pede a garrafa.",
-      "date": "2024-04-10T14:30:00Z",
-      "approved": true
-    },
-    {
-      "id": "rev_2",
-      "productId": "prod_2",
-      "customerName": "Mariana M. Paiva",
-      "rating": 5,
-      "comment": "A ardência do Extra Picante é marcante mas extremamente gostosa, não queima a boca à toa. Nota 10!",
-      "date": "2024-04-18T09:15:00Z",
-      "approved": true
-    },
-    {
-      "id": "rev_3",
-      "productId": "prod_3",
-      "customerName": "Chef Gustavo Lima",
-      "rating": 5,
-      "comment": "Trabalho em restaurante e esse molho de chocolate picante é uma inovação genial. Harmoniza incrivelmente com carnes de caça e brie.",
-      "date": "2024-05-02T18:40:00Z",
-      "approved": true
-    }
-  ],
-  "orders": [
-    {
-      "id": "ORD-2024-8841",
-      "customerId": "usr_cust_1",
-      "customerName": "Ana Beatriz Oliveira",
-      "customerEmail": "ana.oliveira@gmail.com",
-      "customerPhone": "(11) 98765-4321",
-      "customerCpf": "123.456.789-00",
-      "shippingAddress": {
-        "recipient": "Ana Beatriz Oliveira",
-        "cep": "01310-100",
-        "street": "Av. Paulista",
-        "number": "1500",
-        "complement": "Apto 82",
-        "neighborhood": "Bela Vista",
-        "city": "São Paulo",
-        "state": "SP"
-      },
-      "items": [
-        {
-          "productId": "prod_1",
-          "name": "Molho Agridoce Fine Recipe Original 250ml",
-          "unitPrice": 26.9,
-          "quantity": 2,
-          "totalPrice": 53.8,
-          "image": "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=400&q=80"
-        },
-        {
-          "productId": "prod_5",
-          "name": "Molho Agridoce de Abacaxi Fine Recipe 250ml",
-          "unitPrice": 24.9,
-          "quantity": 1,
-          "totalPrice": 24.9,
-          "image": "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=400&q=80"
-        }
-      ],
-      "subtotal": 78.7,
-      "discount": 7.87,
-      "couponCode": "BEMVINDO10",
-      "shippingFee": 18.9,
-      "total": 89.73,
-      "paymentMethod": "pix",
-      "paymentStatus": "approved",
-      "status": "shipped",
-      "statusHistory": [
-        {
-          "status": "received",
-          "date": "2024-05-10T10:00:00Z",
-          "note": "Pedido recebido com sucesso no sistema"
-        },
-        {
-          "status": "payment_approved",
-          "date": "2024-05-10T10:02:15Z",
-          "note": "Pagamento aprovado via PIX"
-        },
-        {
-          "status": "in_preparation",
-          "date": "2024-05-10T14:30:00Z",
-          "note": "Produtos embalados no centro de distribuição"
-        },
-        {
-          "status": "shipped",
-          "date": "2024-05-11T09:00:00Z",
-          "note": "Código de rastreamento enviado: BR987654321PT"
-        }
-      ],
-      "trackingCode": "BR987654321PT",
-      "createdAt": "2024-05-10T10:00:00Z"
-    }
-  ],
-  "inventoryMovements": [
-    {
-      "id": "mov_1",
-      "productId": "prod_1",
-      "type": "entry",
-      "quantity": 150,
-      "previousStock": 0,
-      "newStock": 150,
-      "reason": "Lote inicial de produção",
-      "user": "Rômulo Lívio Medeiros",
-      "date": "2024-01-15T09:00:00Z"
-    },
-    {
-      "id": "mov_2",
-      "productId": "prod_1",
-      "type": "exit",
-      "quantity": 10,
-      "previousStock": 150,
-      "newStock": 140,
-      "reason": "Venda Pedido ORD-2024-8841",
-      "user": "Sistema Automatico",
-      "date": "2024-05-10T10:00:00Z"
-    }
-  ],
+  "reviews": [],
+  "orders": [],
+  "inventoryMovements": [],
   "gallery": [
     {
       "id": "gal_1",
@@ -745,12 +592,13 @@
       "title": "Linha Fine Recipe em Vidro Gourmet",
       "category": "Produtos",
       "imageUrl": "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
-    },
-    {
-      "id": "gal_3",
-      "title": "Degustação em Feira Internacional",
-      "category": "Eventos",
-      "imageUrl": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80"
     }
-  ]
+  ],
+  "waitlist": [],
+  "customerNotes": [],
+  "customerEvents": [],
+  "campaigns": [],
+  "popups": [],
+  "promotionalBars": []
+}
 }

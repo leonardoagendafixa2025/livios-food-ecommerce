@@ -49,68 +49,6 @@ const initialData = {
       role: "super_admin",
       createdAt: "2024-01-10T10:00:00Z",
       marketingConsent: true
-    },
-    {
-      id: "usr_operator_1",
-      name: "Carlos Eduardo (Operador)",
-      email: "operador@liviosfood.com",
-      passwordHash: "operador123",
-      role: "operator",
-      createdAt: "2024-02-01T14:00:00Z",
-      marketingConsent: true
-    },
-    {
-      id: "usr_cust_1",
-      name: "Ana Beatriz Oliveira",
-      email: "ana.oliveira@gmail.com",
-      phone: "(31) 98765-4321",
-      cpf: "123.456.789-00",
-      passwordHash: "cliente123",
-      role: "customer",
-      createdAt: "2024-03-15T11:20:00Z",
-      marketingConsent: true,
-      tags: ["VIP", "Cliente Recorrente", "Prefere Picante"],
-      addresses: [
-        {
-          id: "addr_1",
-          name: "Residencial Principal",
-          recipient: "Ana Beatriz Oliveira",
-          cep: "32370-000",
-          street: "Av. João César de Oliveira",
-          number: "1200",
-          complement: "Apto 502",
-          neighborhood: "Eldorado",
-          city: "Contagem",
-          state: "MG",
-          isDefault: true
-        }
-      ]
-    },
-    {
-      id: "usr_cust_2",
-      name: "Ricardo Silva Alencar",
-      email: "ricardo.alencar@hotmail.com",
-      phone: "(31) 99876-1234",
-      cpf: "987.654.321-11",
-      passwordHash: "cliente123",
-      role: "customer",
-      createdAt: "2024-04-02T09:15:00Z",
-      marketingConsent: true,
-      tags: ["Novo", "Primeira Compra"],
-      addresses: [
-        {
-          id: "addr_2",
-          name: "Casa",
-          recipient: "Ricardo Silva Alencar",
-          cep: "30130-000",
-          street: "Rua da Bahia",
-          number: "800",
-          neighborhood: "Centro",
-          city: "Belo Horizonte",
-          state: "MG",
-          isDefault: true
-        }
-      ]
     }
   ],
 
@@ -289,57 +227,7 @@ const initialData = {
 
   recipes: [],
   reviews: [],
-  orders: [
-    {
-      id: "ORD-2024-8841",
-      customerId: "usr_cust_1",
-      customerName: "Ana Beatriz Oliveira",
-      customerEmail: "ana.oliveira@gmail.com",
-      customerPhone: "(31) 98765-4321",
-      customerCpf: "123.456.789-00",
-      shippingAddress: {
-        recipient: "Ana Beatriz Oliveira",
-        cep: "32370-000",
-        street: "Av. João César de Oliveira",
-        number: "1200",
-        complement: "Apto 502",
-        neighborhood: "Eldorado",
-        city: "Contagem",
-        state: "MG"
-      },
-      items: [
-        {
-          productId: "prod_1",
-          name: "Molho Agridoce Fine Recipe Original 250ml",
-          unitPrice: 26.90,
-          quantity: 2,
-          totalPrice: 53.80,
-          image: "/header-bg.jpg"
-        },
-        {
-          productId: "prod_2",
-          name: "Molho Agridoce Extra Picante Fine Recipe 250ml",
-          unitPrice: 28.90,
-          quantity: 1,
-          totalPrice: 28.90,
-          image: "/header-bg.jpg"
-        }
-      ],
-      subtotal: 82.70,
-      discount: 8.27,
-      couponCode: "BEMVINDO10",
-      shippingFee: 18.90,
-      total: 93.33,
-      paymentMethod: "pix",
-      paymentStatus: "approved",
-      status: "delivered",
-      statusHistory: [
-        { status: "received", date: "2024-05-10T10:00:00Z", note: "Pedido efetuado" },
-        { status: "delivered", date: "2024-05-12T14:30:00Z", note: "Entregue com sucesso" }
-      ],
-      createdAt: "2024-05-10T10:00:00Z"
-    }
-  ],
+  orders: [],
 
   inventoryMovements: [],
   gallery: [],
@@ -350,66 +238,10 @@ const initialData = {
   automations: [],
   marketingEvents: [],
 
-  // ==========================================
-  // RECURSOS AVANÇADOS (LISTA ESPERA, CRM, TIMELINE)
-  // ==========================================
-
-  // 1. LISTA DE ESPERA ("AVISE-ME QUANDO CHEGAR")
-  waitlist: [
-    {
-      id: "wait_1",
-      productId: "prod_3",
-      productName: "Molho Agridoce Chocolate Mega Picante 250ml",
-      productSku: "LIV-FIN-003",
-      customerName: "Carlos Henrique Medeiros",
-      customerEmail: "carlos.medeiros@gmail.com",
-      customerPhone: "(31) 98711-2233",
-      channels: ["email", "whatsapp"],
-      status: "Aguardando", // 'Aguardando', 'Notificado', 'Comprou', 'Cancelado'
-      quantity: 2,
-      createdAt: "2024-08-28T14:20:00Z",
-      notifiedAt: null
-    }
-  ],
-
-  // 5. CRM — NOTAS INTERNAS DOS ADMINISTRADORES
-  customerNotes: [
-    {
-      id: "cnote_1",
-      customerId: "usr_cust_1",
-      note: "Cliente é apreciadora de molhos com ardência média/alta e prefere ser contactada via WhatsApp.",
-      author: "Rômulo Lívio Medeiros",
-      createdAt: "2024-05-15T11:00:00Z"
-    }
-  ],
-
-  // 5.7 TIMELINE E HISTÓRICO CRONOLÓGICO DE EVENTOS DO CLIENTE
-  customerEvents: [
-    {
-      id: "cevent_1",
-      customerId: "usr_cust_1",
-      type: "order_created",
-      title: "Realizou o Pedido #ORD-2024-8841",
-      description: "Compos 2x Molho Original e 1x Extra Picante no valor total de R$ 93,33.",
-      date: "2024-05-10T10:00:00Z"
-    },
-    {
-      id: "cevent_2",
-      customerId: "usr_cust_1",
-      type: "coupon_used",
-      title: "Utilizou o cupom BEMVINDO10",
-      description: "Obteve R$ 8,27 de desconto no checkout.",
-      date: "2024-05-10T10:01:00Z"
-    },
-    {
-      id: "cevent_3",
-      customerId: "usr_cust_1",
-      type: "campaign_opened",
-      title: "Abriu a campanha Festival do Sabor",
-      description: "Visualizou a mensagem via WhatsApp oficial.",
-      date: "2024-09-01T09:15:00Z"
-    }
-  ],
+  // RECURSOS (LISTA ESPERA, CRM, TIMELINE)
+  waitlist: [],
+  customerNotes: [],
+  customerEvents: [],
 
   // 5.4 SEGMENTOS DE CRM CONFIGURADOS
   customerSegments: [
