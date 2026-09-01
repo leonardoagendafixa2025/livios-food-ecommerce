@@ -107,8 +107,6 @@
       "name": "Linha Extra Picante",
       "slug": "linha-extra-picante",
       "description": "Para os amantes da verdadeira ardência combinada com notas agridoces.",
-      "image": "https://images.unsplash.com/photo-1583182332473-b0d5f308a883?auto=format&fit=crop&w=800&q=80",
-      "order": 4,
       "active": true
     }
   ],
@@ -123,9 +121,9 @@
       "fullDescription": "O Molho Agridoce Fine Recipe Original é a criação insígnia de Rômulo Lívio Medeiros. Desenvolvido após mais de uma década de pesquisas gastronômicas, este molho une o amargor sutil de pimentas nobres, o dulçor das frutas e uma acidez elegante que harmoniza perfeitamente com carnes vermelhas, queijos e petiscos.",
       "price": 29.9,
       "promotionalPrice": 26.9,
-      "costPrice": 8.5,
-      "stock": 140,
-      "minStock": 20,
+      "costPrice": 0,
+      "stock": 0,
+      "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
         "length": 8,
@@ -173,9 +171,9 @@
       "fullDescription": "Para quem busca uma experiência picante inesquecível. O Extra Picante da Livio's Food traz um blend exclusivo de Habanero e pimenta cumari, equilibrado por uma base agridoce perfumada.",
       "price": 32.9,
       "promotionalPrice": 28.9,
-      "costPrice": 9.2,
-      "stock": 85,
-      "minStock": 15,
+      "costPrice": 0,
+      "stock": 0,
+      "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
         "length": 8,
@@ -205,8 +203,8 @@
       "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 5,
-      "reviewCount": 45,
+      "rating": 0,
+      "reviewCount": 0,
       "active": false
     },
     {
@@ -219,8 +217,8 @@
       "fullDescription": "Uma revolução gastronômica! Inspirado nas tradicionais receitas de mole mexicano aperfeiçoadas com a técnica britânica, este molho mescla as notas aveludadas do cacau puro com uma intensidade ardente provocante.",
       "price": 36.9,
       "promotionalPrice": 32.9,
-      "costPrice": 11,
-      "stock": 40,
+      "costPrice": 0,
+      "stock": 0,
       "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
@@ -251,8 +249,8 @@
       "isBestSeller": false,
       "isNew": true,
       "isOffer": true,
-      "rating": 4.8,
-      "reviewCount": 22,
+      "rating": 0,
+      "reviewCount": 0,
       "active": false
     },
     {
@@ -265,8 +263,8 @@
       "fullDescription": "O equilíbrio perfeito entre a doçura aveludada do chocolate e o toque sutil de pimentas agridoces. Excelente para fondue de queijos, hambúrgueres gourmet com gorgonzola e assados.",
       "price": 34.9,
       "promotionalPrice": null,
-      "costPrice": 10.2,
-      "stock": 60,
+      "costPrice": 0,
+      "stock": 0,
       "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
@@ -292,9 +290,9 @@
       "isBestSeller": false,
       "isNew": true,
       "isOffer": false,
-      "rating": 4.7,
-      "reviewCount": 16,
-      "active": true
+      "rating": 0,
+      "reviewCount": 0,
+      "active": false
     },
     {
       "id": "prod_5",
@@ -306,9 +304,9 @@
       "fullDescription": "Elaborado com polpa de abacaxis selecionados no ponto certo de maturação. Harmoniza incrivelmente com carne suína, peixes grelhados, saladas refrescantes e aves.",
       "price": 28.9,
       "promotionalPrice": 24.9,
-      "costPrice": 7.8,
-      "stock": 110,
-      "minStock": 20,
+      "costPrice": 0,
+      "stock": 0,
+      "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
         "length": 8,
@@ -333,9 +331,9 @@
       "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 4.9,
-      "reviewCount": 31,
-      "active": true
+      "rating": 0,
+      "reviewCount": 0,
+      "active": false
     },
     {
       "id": "prod_6",
@@ -347,9 +345,9 @@
       "fullDescription": "Ideal para quem ama a riqueza de aroma e sabor da pimenta biquinho, mas prefere um molho suave e extremamente saboroso. Crianças e adultos aprovam!",
       "price": 29.9,
       "promotionalPrice": null,
-      "costPrice": 8,
-      "stock": 95,
-      "minStock": 15,
+      "costPrice": 0,
+      "stock": 0,
+      "minStock": 10,
       "weightKg": 0.45,
       "dimensionsCm": {
         "length": 8,
@@ -374,9 +372,9 @@
       "isBestSeller": false,
       "isNew": false,
       "isOffer": false,
-      "rating": 4.9,
-      "reviewCount": 19,
-      "active": true
+      "rating": 0,
+      "reviewCount": 0,
+      "active": false
     },
     {
       "id": "prod_7",
@@ -388,9 +386,9 @@
       "fullDescription": "Embalagem PET squeeze com válvula dosadora antigota. Perfeita para levar ao churrasco da família, hamburguerias em casa e mesas casuais.",
       "price": 22.9,
       "promotionalPrice": 19.9,
-      "costPrice": 6.2,
-      "stock": 200,
-      "minStock": 30,
+      "costPrice": 0,
+      "stock": 0,
+      "minStock": 10,
       "weightKg": 0.38,
       "dimensionsCm": {
         "length": 7,
@@ -415,9 +413,9 @@
       "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 4.8,
-      "reviewCount": 52,
-      "active": true
+      "rating": 0,
+      "reviewCount": 0,
+      "active": false
     },
     {
       "id": "prod_8",
@@ -429,8 +427,8 @@
       "fullDescription": "A seleção suprema dos mestres molheiros Livio's Food. Acompanha caixa de presente exclusiva de colecionador e um livreto de harmonização com vinhos e receitas.",
       "price": 119.9,
       "promotionalPrice": 99.9,
-      "costPrice": 34,
-      "stock": 35,
+      "costPrice": 0,
+      "stock": 0,
       "minStock": 5,
       "weightKg": 1.9,
       "dimensionsCm": {
@@ -450,11 +448,11 @@
       ],
       "isFeatured": true,
       "isBestSeller": true,
-      "isNew": true,
+      "isNew": false,
       "isOffer": true,
-      "rating": 5,
-      "reviewCount": 29,
-      "active": true
+      "rating": 0,
+      "reviewCount": 0,
+      "active": false
     }
   ],
   "recipes": [
@@ -600,5 +598,4 @@
   "campaigns": [],
   "popups": [],
   "promotionalBars": []
-}
 }
