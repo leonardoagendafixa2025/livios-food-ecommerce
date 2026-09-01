@@ -317,7 +317,7 @@ app.get('/api/products/:slugOrId', (req, res) => {
 
   const category = db.categories.find(c => c.id === product.categoryId);
   const reviews = db.reviews.filter(r => r.productId === product.id && r.approved);
-  const relatedProducts = db.products.filter(p => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
+  const relatedProducts = db.products.filter(p => p.active && p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
 
   res.json({
     success: true,

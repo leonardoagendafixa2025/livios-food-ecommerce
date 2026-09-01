@@ -487,13 +487,13 @@ export default function ProductDetail() {
         </div>
 
         {/* Produtos Relacionados */}
-        {productData.relatedProducts && productData.relatedProducts.length > 0 && (
+        {productData.relatedProducts && productData.relatedProducts.filter(p => p.active !== false).length > 0 && (
           <div>
             <h3 style={{ fontSize: '1.8rem', fontWeight: '800', fontFamily: 'var(--font-serif)', marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
               VOCÊ TAMBÉM PODE GOSTAR
             </h3>
             <div className="grid-4">
-              {productData.relatedProducts.map(p => (
+              {productData.relatedProducts.filter(p => p.active !== false).map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
