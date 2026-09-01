@@ -130,6 +130,23 @@ export default function AdminProducts() {
     }
   };
 
+  const handleToggleActive = async (product) => {
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: !product.active })
+      });
+      const d = await res.json();
+      if (d.success) {
+        addToast(`Produto ${!product.active ? 'ativado' : 'desativado na loja'}!`, "success");
+        fetchProducts();
+      }
+    } catch (err) {
+      addToast("Erro ao alterar status do produto.", "error");
+    }
+  };
+
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -171,13 +188,14 @@ export default function AdminProducts() {
               <th>Categoria</th>
               <th>Preço</th>
               <th>Estoque</th>
+              <th>Status na Loja</th>
               <th>Selos</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(p => (
-              <tr key={p.id}>
+              <tr key={p.id} style={{ opacity: p.active ? 1 : 0.6 }}>
                 <td>
                   <img src={p.images && p.images[0] ? p.images[0] : ''} alt={p.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                 </td>
@@ -202,17 +220,27 @@ export default function AdminProducts() {
                   </span>
                 </td>
                 <td>
+                  <button
+                    onClick={() => handleToggleActive(p)}
+                    className={`badge ${p.active ? 'badge-in-stock' : 'badge-out-of-stock'}`}
+                    style={{ border: 'none', cursor: 'pointer', fontSize: '0.78rem', padding: '4px 10px' }}
+                  >
+                    {p.active ? '● Ativo na Loja' : '○ Inativo'}
+                  </button>
+                </td>
+                <td>
                   <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                    {p.isFeatured && <span className="badge badge-bestseller" style={{ fontSize: '0.65rem' }}>Destaque</span>}
                     {p.isBestSeller && <span className="badge badge-bestseller" style={{ fontSize: '0.65rem' }}>Mais Vendido</span>}
                     {p.isOffer && <span className="badge badge-offer" style={{ fontSize: '0.65rem' }}>Oferta</span>}
                   </div>
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => handleOpenEdit(p)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3B82F6' }}>
+                    <button onClick={() => handleOpenEdit(p)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3B82F6' }} title="Editar">
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(p.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
+                    <button onClick={() => handleDelete(p.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EF4444' }} title="Remover">
                       <Trash2 size={18} />
                     </button>
                   </div>

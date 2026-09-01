@@ -28,14 +28,19 @@ export default function Home() {
           fetch('/api/recipes')
         ]);
 
-        const dataBanners = await resBanners.json();
-        const dataCats = await resCats.json();
-        const dataProds = await resProds.json();
-        const dataRecipes = await resRecipes.json();
+        let dataProds = await resProds.json();
+        let featuredList = dataProds.success ? dataProds.products : [];
+
+        // Se não houver produtos marcados como destaque, carrega todos os produtos ativos do catálogo
+        if (featuredList.length === 0) {
+          const resAll = await fetch('/api/products');
+          const dataAll = await resAll.json();
+          if (dataAll.success) featuredList = dataAll.products;
+        }
 
         if (dataBanners.success) setBanners(dataBanners.banners);
         if (dataCats.success) setCategories(dataCats.categories);
-        if (dataProds.success) setFeaturedProducts(dataProds.products);
+        setFeaturedProducts(featuredList);
         if (dataRecipes.success) setRecipes(dataRecipes.recipes);
 
         if (user && user.email) {
@@ -233,7 +238,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 320px))', gap: '2rem', justifyContent: 'center' }}>
             {featuredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}

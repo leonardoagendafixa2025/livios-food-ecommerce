@@ -151,7 +151,7 @@ const initialData = {
       isOffer: true,
       rating: 5.0,
       reviewCount: 45,
-      active: true
+      active: false
     },
     {
       id: "prod_3",
@@ -164,7 +164,7 @@ const initialData = {
       price: 36.90,
       promotionalPrice: 32.90,
       costPrice: 11.00,
-      stock: 0, // Produto esgotado para demonstrar Lista de Espera "Avise-me quando chegar"
+      stock: 0,
       minStock: 10,
       weightKg: 0.45,
       volumeMl: 250,
@@ -180,7 +180,7 @@ const initialData = {
       isOffer: true,
       rating: 4.8,
       reviewCount: 22,
-      active: true
+      active: false
     }
   ],
 

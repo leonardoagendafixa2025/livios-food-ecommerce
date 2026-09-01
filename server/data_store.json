@@ -207,7 +207,7 @@
       "isOffer": true,
       "rating": 5,
       "reviewCount": 45,
-      "active": true
+      "active": false
     },
     {
       "id": "prod_3",
@@ -253,7 +253,7 @@
       "isOffer": true,
       "rating": 4.8,
       "reviewCount": 22,
-      "active": true
+      "active": false
     },
     {
       "id": "prod_4",
