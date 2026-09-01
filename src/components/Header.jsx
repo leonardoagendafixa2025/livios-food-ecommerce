@@ -11,6 +11,7 @@ import HeaderSearch from './HeaderSearch.jsx';
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { getItemCount, setIsDrawerOpen } = useCart();
   const { wishlist } = useWishlist();
@@ -41,17 +42,17 @@ export default function Header() {
 
   return (
     <>
-      {/* Topbar */}
+      {/* Topbar Institucional */}
       <div className="topbar">
         <div className="container topbar-content">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem' }}>
-            <Flame size={15} color="#FF9800" />
-            <span><strong>Frete Grátis</strong> para todo o Brasil acima de R$ 150!</span>
+          <div className="topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Flame size={14} color="#FFB74D" />
+            <span><strong>Frete Grátis</strong> para todo o Brasil em compras acima de R$ 150!</span>
           </div>
-          <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.82rem' }}>
-            <span className="hide-mobile"> Atendimento: (31) 99567-5327</span>
+          <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <span className="hide-mobile" style={{ opacity: 0.9 }}>📞 WhatsApp: (31) 99567-5327</span>
             {isAdmin && (
-              <Link to="/admin" style={{ color: '#FFD700', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Link to="/admin" style={{ color: '#FFD700', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,215,0,0.15)', padding: '2px 8px', borderRadius: '4px' }}>
                 <ShieldAlert size={14} /> Painel Admin
               </Link>
             )}
@@ -59,41 +60,41 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main Header */}
+      {/* Main Header Navegação */}
       <header className={`main-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="container header-inner">
-          {/* Logo Oficial Livio's Food */}
-          <Link to="/" className="logo-brand" style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Logo Marca Livio's Food */}
+          <Link to="/" className="logo-brand">
             <img
               src="/logo.png"
-              alt="Livio's Food Innovation — Fine Recipe"
-              style={{ height: '62px', width: 'auto', objectFit: 'contain' }}
+              alt="Livio's Food Innovation"
+              style={{ height: '48px', width: 'auto', objectFit: 'contain' }}
             />
           </Link>
 
-          {/* Navigation Links Desktop */}
+          {/* Nav Links Desktop */}
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Início</Link>
-            <Link to="/produtos" className={`nav-link ${location.pathname === '/produtos' ? 'active' : ''}`}>Produtos</Link>
+            <Link to="/produtos" className={`nav-link ${location.pathname === '/produtos' && !location.search.includes('ofertas') ? 'active' : ''}`}>Produtos</Link>
             <Link to="/produtos?ofertas=true" className={`nav-link ${location.search.includes('ofertas') ? 'active' : ''}`}>Ofertas</Link>
             <Link to="/receitas" className={`nav-link ${location.pathname === '/receitas' ? 'active' : ''}`}>Receitas</Link>
             <Link to="/sobre" className={`nav-link ${location.pathname === '/sobre' ? 'active' : ''}`}>Sobre nós</Link>
             <Link to="/contato" className={`nav-link ${location.pathname === '/contato' ? 'active' : ''}`}>Contato</Link>
           </nav>
 
-          {/* Busca em Tempo Real e Ações */}
-          <div className="header-actions" style={{ gap: '1.25rem' }}>
-            <div className="hide-mobile" style={{ width: '320px' }}>
+          {/* Busca e Ações Rápidas */}
+          <div className="header-actions">
+            <div className="hide-mobile" style={{ width: '220px' }}>
               <HeaderSearch />
             </div>
 
             <Link to="/comparar" className="icon-badge-btn hide-mobile" title="Comparar Produtos">
-              <Columns3 size={22} />
+              <Columns3 size={20} />
               {compareList.length > 0 && <span className="badge-count" style={{ background: 'var(--accent-gold)', color: '#000' }}>{compareList.length}</span>}
             </Link>
 
             <Link to="/favoritos" className="icon-badge-btn hide-mobile" title="Favoritos">
-              <Heart size={22} />
+              <Heart size={20} />
               {wishlist.length > 0 && <span className="badge-count">{wishlist.length}</span>}
             </Link>
 
@@ -102,23 +103,19 @@ export default function Header() {
               className="icon-badge-btn"
               title="Carrinho de Compras"
             >
-              <ShoppingBag size={22} />
+              <ShoppingBag size={20} />
               {getItemCount() > 0 && <span className="badge-count">{getItemCount()}</span>}
             </button>
 
             {user ? (
-              <Link to="/minha-conta" className="btn btn-outline hide-mobile" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                <User size={16} /> Minha Conta
+              <Link to="/minha-conta" className="btn btn-outline hide-mobile" style={{ padding: '0.45rem 0.9rem', fontSize: '0.82rem', gap: '6px' }}>
+                <User size={15} /> Minha Conta
               </Link>
             ) : (
-              <Link to="/login" className="btn btn-outline hide-mobile" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                <User size={16} /> Entrar
+              <Link to="/login" className="btn btn-outline hide-mobile" style={{ padding: '0.45rem 0.9rem', fontSize: '0.82rem', gap: '6px' }}>
+                <User size={15} /> Entrar
               </Link>
             )}
-
-            <Link to="/produtos" className="btn btn-primary hide-mobile" style={{ padding: '0.6rem 1.2rem', fontSize: '0.88rem' }}>
-              COMPRAR AGORA
-            </Link>
 
             {/* Hamburguer Toggle no Mobile */}
             <button
@@ -126,7 +123,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               title="Abrir Menu"
             >
-              {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
