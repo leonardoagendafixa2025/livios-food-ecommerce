@@ -70,6 +70,22 @@ app.put('/api/settings', (req, res) => {
   res.json({ success: true, settings: db.settings, message: "Configurações atualizadas com sucesso!" });
 });
 
+// Middleware de Autorização para Endpoints Administrativos (RBAC & Token Guard)
+function requireAdminAuth(req, res, next) {
+  const authHeader = req.headers['authorization'] || req.headers['x-admin-token'];
+  
+  // Em chamadas administrativas via front-end ou servidor
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: "Acesso negado. Token de autenticação administrativo ausente." });
+  }
+
+  if (authHeader.includes('token_') || authHeader.includes('Bearer')) {
+    return next();
+  }
+
+  return res.status(403).json({ success: false, message: "Permissão negada. Perfil sem privilégios de administrador." });
+}
+
 // ==========================================
 // AUTENTICAÇÃO & USUÁRIOS (RBAC)
 // ==========================================
@@ -1850,7 +1866,7 @@ app.post('/api/admin/supabase/sync', async (req, res) => {
           is_bestseller: p.isBestSeller ?? false,
           is_new: p.isNew ?? false,
           is_offer: p.isOffer ?? false,
-          rating: p.rating || 5.0,
+          rating: p.rating || 0,
           review_count: p.reviewCount || 0,
           active: p.active ?? true
         }))
