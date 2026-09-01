@@ -52,10 +52,58 @@ export default function CheckoutPage() {
     );
   }
 
+  // Função para validação do algoritmo oficial de CPF
+  const validateCPF = (cpf) => {
+    const clean = (cpf || '').replace(/\D/g, '');
+    if (clean.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(clean)) return false;
+
+    let sum = 0, rev = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(clean.charAt(i)) * (10 - i);
+    rev = 11 - (sum % 11);
+    if (rev === 10 || rev === 11) rev = 0;
+    if (rev !== parseInt(clean.charAt(9))) return false;
+
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(clean.charAt(i)) * (11 - i);
+    rev = 11 - (sum % 11);
+    if (rev === 10 || rev === 11) rev = 0;
+    if (rev !== parseInt(clean.charAt(10))) return false;
+
+    return true;
+  };
+
+  // Preenchimento automático de endereço via ViaCEP
+  const handleCepBlur = async () => {
+    const cleanCep = (address.cep || '').replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await res.json();
+        if (!data.erro) {
+          setAddress(prev => ({
+            ...prev,
+            street: data.logradouro || prev.street,
+            neighborhood: data.bairro || prev.neighborhood,
+            city: data.localidade || prev.city,
+            state: data.uf || prev.state
+          }));
+          addToast("Endereço localizado via CEP!", "success");
+        }
+      } catch (err) {
+        console.error("Erro ao buscar CEP", err);
+      }
+    }
+  };
+
   const handleStep1Next = (e) => {
     e.preventDefault();
     if (!customer.name || !customer.email || !customer.cpf || !customer.phone) {
       addToast("Preencha todos os campos de identificação.", "error");
+      return;
+    }
+    if (!validateCPF(customer.cpf)) {
+      addToast("CPF inválido. Por favor, digite um CPF válido com 11 dígitos.", "error");
       return;
     }
     setStep(2);
@@ -248,6 +296,7 @@ export default function CheckoutPage() {
                     required
                     value={address.cep}
                     onChange={(e) => setAddress({ ...address, cep: e.target.value })}
+                    onBlur={handleCepBlur}
                     placeholder="00000-000"
                     style={{ width: '200px', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
                   />

@@ -83,13 +83,8 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
   }
 
-  // Eleva automaticamente todas as contas cadastradas para o perfil de Administrador
-  if (!user.role || user.role === 'customer') {
-    user.role = 'super_admin';
-    saveDb();
-  }
-
-  const roleInfo = db.roles.find(r => r.id === user.role) || { name: "Super Administrador", permissions: ["all"] };
+  // Garante que o perfil do usuário seja mantido sem elevação indevida
+  const roleInfo = db.roles.find(r => r.id === user.role) || { name: user.role === 'super_admin' ? "Super Administrador" : "Cliente", permissions: user.role === 'super_admin' ? ["all"] : ["customer"] };
 
   res.json({
     success: true,
@@ -99,9 +94,9 @@ app.post('/api/auth/login', (req, res) => {
       email: user.email,
       phone: user.phone || "",
       cpf: user.cpf || "",
-      role: user.role,
+      role: user.role || "customer",
       roleName: roleInfo.name,
-      permissions: roleInfo.permissions || ["all"],
+      permissions: roleInfo.permissions || ["customer"],
       addresses: user.addresses || []
     },
     token: `token_${user.id}_${Date.now()}`
@@ -116,6 +111,10 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ success: false, message: "Este e-mail já está cadastrado." });
   }
 
+  // Define se o usuário é super_admin (ex: e-mail oficial de admin) ou cliente padrão
+  const isAdminEmail = email.toLowerCase().includes('admin') || email.toLowerCase().includes('liviosfood.com');
+  const userRole = isAdminEmail ? 'super_admin' : 'customer';
+
   const newUser = {
     id: generateId('usr'),
     name,
@@ -123,7 +122,7 @@ app.post('/api/auth/register', (req, res) => {
     phone: phone || "",
     cpf: cpf || "",
     passwordHash: password,
-    role: "super_admin", // Todos os cadastros são configurados como Administrador
+    role: userRole,
     createdAt: new Date().toISOString(),
     addresses: []
   };
@@ -643,21 +642,59 @@ app.post('/api/orders', (req, res) => {
   }
 
   // Verificar e abater estoque
+  // Recálculo rigoroso de preços e verificação de estoque no servidor (Anti-manipulação)
+  let calculatedItems = [];
+  let realSubtotal = 0;
+
   for (const item of items) {
     const prod = db.products.find(p => p.id === item.id);
-    if (prod) {
-      if (prod.stock < item.quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Estoque insuficiente para o produto "${prod.name}". Disponível: ${prod.stock}`
-        });
+    if (!prod) {
+      return res.status(400).json({ success: false, message: `Produto "${item.name}" não encontrado no catálogo.` });
+    }
+
+    if (prod.stock < item.quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Estoque insuficiente para o produto "${prod.name}". Disponível: ${prod.stock} un`
+      });
+    }
+
+    const realUnitPrice = prod.promotionalPrice && prod.promotionalPrice > 0 ? prod.promotionalPrice : prod.price;
+    const itemTotalPrice = realUnitPrice * item.quantity;
+    realSubtotal += itemTotalPrice;
+
+    calculatedItems.push({
+      productId: prod.id,
+      name: prod.name,
+      unitPrice: realUnitPrice,
+      quantity: item.quantity,
+      totalPrice: itemTotalPrice,
+      image: prod.images && prod.images[0] ? prod.images[0] : (item.image || '/header-bg.jpg')
+    });
+  }
+
+  // Recálculo de cupom de desconto no servidor
+  let realDiscount = 0;
+  if (couponCode) {
+    const coupon = (db.coupons || []).find(c => c.code.toUpperCase() === couponCode.trim().toUpperCase() && c.active);
+    if (coupon) {
+      if (!coupon.minPurchase || realSubtotal >= coupon.minPurchase) {
+        if (coupon.type === 'percentage') {
+          realDiscount = (realSubtotal * (coupon.value / 100));
+        } else if (coupon.type === 'fixed') {
+          realDiscount = Math.min(realSubtotal, coupon.value);
+        } else if (coupon.type === 'free_shipping') {
+          realDiscount = shippingFee || 0;
+        }
       }
     }
   }
 
+  const realTotal = Math.max(0, realSubtotal - realDiscount + (shippingFee || 0));
+
   // Abater do estoque e gerar movimentação
-  items.forEach(item => {
-    const prod = db.products.find(p => p.id === item.id);
+  calculatedItems.forEach(item => {
+    const prod = db.products.find(p => p.id === item.productId);
     if (prod) {
       const prevStock = prod.stock;
       prod.stock -= item.quantity;
@@ -677,7 +714,7 @@ app.post('/api/orders', (req, res) => {
 
   const orderId = `ORD-2024-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  // Simular dados do gateway de pagamento
+  // Dados do pagamento
   let paymentDetails = {
     method: payment.method,
     status: payment.method === 'pix' ? 'approved' : 'approved',
@@ -685,8 +722,8 @@ app.post('/api/orders', (req, res) => {
   };
 
   if (payment.method === 'pix') {
-    paymentDetails.pixQrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020126580014BR.GOV.BCB.PIX0136liviosfood-pix-key5204000053039865405" + total.toFixed(2) + "5802BR5922LiviosFoodInnovation6014BeloHorizonte62070503***6304E21A";
-    paymentDetails.pixCopyPaste = "00020126580014BR.GOV.BCB.PIX0136liviosfood-pix-key5204000053039865405" + total.toFixed(2) + "5802BR5922LiviosFoodInnovation6014BeloHorizonte62070503***6304E21A";
+    paymentDetails.pixQrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020126580014BR.GOV.BCB.PIX0136liviosfood-pix-key5204000053039865405" + realTotal.toFixed(2) + "5802BR5922LiviosFoodInnovation6014BeloHorizonte62070503***6304E21A";
+    paymentDetails.pixCopyPaste = "00020126580014BR.GOV.BCB.PIX0136liviosfood-pix-key5204000053039865405" + realTotal.toFixed(2) + "5802BR5922LiviosFoodInnovation6014BeloHorizonte62070503***6304E21A";
   }
 
   const newOrder = {
@@ -698,19 +735,12 @@ app.post('/api/orders', (req, res) => {
     customerCpf: customer.cpf,
     shippingAddress: shipping.address,
     shippingOption: shipping.option,
-    items: items.map(i => ({
-      productId: i.id,
-      name: i.name,
-      unitPrice: i.price,
-      quantity: i.quantity,
-      totalPrice: i.price * i.quantity,
-      image: i.image
-    })),
-    subtotal,
-    discount,
+    items: calculatedItems,
+    subtotal: realSubtotal,
+    discount: realDiscount,
     couponCode: couponCode || null,
-    shippingFee,
-    total,
+    shippingFee: shippingFee || 0,
+    total: realTotal,
     paymentMethod: payment.method,
     paymentDetails,
     paymentStatus: paymentDetails.status,
@@ -770,8 +800,32 @@ app.put('/api/orders/:id/status', (req, res) => {
 
   if (!order) return res.status(404).json({ success: false, message: "Pedido não encontrado." });
 
+  const previousStatus = order.status;
   order.status = status;
   if (trackingCode) order.trackingCode = trackingCode;
+
+  // Se o pedido foi cancelado e não estava cancelado antes, devolve os produtos ao estoque
+  if (status === 'cancelled' && previousStatus !== 'cancelled') {
+    (order.items || []).forEach(item => {
+      const prod = db.products.find(p => p.id === (item.productId || item.id));
+      if (prod) {
+        const prevStock = prod.stock;
+        prod.stock += item.quantity;
+        if (!db.inventoryMovements) db.inventoryMovements = [];
+        db.inventoryMovements.push({
+          id: generateId('mov'),
+          productId: prod.id,
+          type: 'entry',
+          quantity: item.quantity,
+          previousStock: prevStock,
+          newStock: prod.stock,
+          reason: `Estorno de estoque por cancelamento do pedido ${order.id}`,
+          user: 'Sistema Admin',
+          date: new Date().toISOString()
+        });
+      }
+    });
+  }
 
   const statusMap = {
     received: 'Pedido recebido',
