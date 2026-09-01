@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('livios_user', JSON.stringify(data.user));
         localStorage.setItem('livios_token', data.token);
         addToast(`Bem-vindo(a) de volta, ${data.user.name.split(' ')[0]}!`, 'success');
-        return true;
+        return data.user;
       } else {
         addToast(data.message || 'Erro ao efetuar login', 'error');
         return false;
