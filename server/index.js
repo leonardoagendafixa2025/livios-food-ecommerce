@@ -217,9 +217,25 @@ app.put('/api/categories/:id', (req, res) => {
   const cat = db.categories.find(c => c.id === req.params.id);
   if (!cat) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
 
-  Object.assign(cat, req.body);
+  if (req.body.name) cat.name = req.body.name;
+  if (req.body.slug) cat.slug = req.body.slug;
+  if (req.body.description !== undefined) cat.description = req.body.description;
+  if (req.body.image) cat.image = req.body.image;
+  if (req.body.order !== undefined) cat.order = parseInt(req.body.order);
+  if (req.body.active !== undefined) cat.active = !!req.body.active;
+
   saveDb();
   res.json({ success: true, category: cat, message: "Categoria atualizada com sucesso!" });
+});
+
+app.delete('/api/categories/:id', (req, res) => {
+  const db = getDb();
+  const index = db.categories.findIndex(c => c.id === req.params.id);
+  if (index === -1) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
+
+  db.categories.splice(index, 1);
+  saveDb();
+  res.json({ success: true, message: "Categoria removida com sucesso!" });
 });
 
 // ==========================================
