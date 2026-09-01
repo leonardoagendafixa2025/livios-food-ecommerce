@@ -22,8 +22,7 @@ export default function AdminSidebar() {
     { path: '/admin/marketing', label: 'Visão Geral Marketing', icon: Sparkles },
     { path: '/admin/marketing/campanhas', label: 'Campanhas Promocionais', icon: Megaphone },
     { path: '/admin/marketing/popups', label: 'Pop-ups no Site', icon: Layers },
-    { path: '/admin/marketing/barras', label: 'Barras do Topo', icon: BellRing },
-    { path: '/admin/marketing/automacoes', label: 'Automações & Triggers', icon: Sparkles }
+    { path: '/admin/marketing/barras', label: 'Barras do Topo', icon: BellRing }
   ];
 
   const secondaryNav = [

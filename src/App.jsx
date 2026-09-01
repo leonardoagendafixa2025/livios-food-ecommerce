@@ -57,7 +57,6 @@ import AdminMarketingDashboard from './pages/admin/AdminMarketingDashboard.jsx';
 import AdminCampaigns from './pages/admin/AdminCampaigns.jsx';
 import AdminPopups from './pages/admin/AdminPopups.jsx';
 import AdminPromotionalBars from './pages/admin/AdminPromotionalBars.jsx';
-import AdminAutomations from './pages/admin/AdminAutomations.jsx';
 
 // Guard de Proteção do Admin
 function ProtectedAdminRoute({ children }) {
@@ -162,7 +161,6 @@ export default function App() {
                   <Route path="/admin/marketing/campanhas" element={<ProtectedAdminRoute><AdminLayout><AdminCampaigns /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/marketing/popups" element={<ProtectedAdminRoute><AdminLayout><AdminPopups /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/marketing/barras" element={<ProtectedAdminRoute><AdminLayout><AdminPromotionalBars /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/marketing/automacoes" element={<ProtectedAdminRoute><AdminLayout><AdminAutomations /></AdminLayout></ProtectedAdminRoute>} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/" replace />} />

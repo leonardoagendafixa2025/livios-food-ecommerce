@@ -867,8 +867,7 @@ app.get('/api/admin/marketing/dashboard', (req, res) => {
     },
     campaigns,
     popups: db.popups || [],
-    promotionalBars: db.promotionalBars || [],
-    automations: db.automations || []
+    promotionalBars: db.promotionalBars || []
   });
 });
 

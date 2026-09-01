@@ -31,7 +31,7 @@ export default function AdminMarketingDashboard() {
             <Sparkles size={16} /> CENTRAL DE MARKETING E CAMPANHAS
           </span>
           <h2 style={{ fontSize: '1.8rem', fontWeight: '800', fontFamily: 'var(--font-serif)', marginTop: '4px' }}>
-            Aumente suas vendas com campanhas segmentadas e automações
+            Aumente suas vendas com campanhas segmentadas e ofertas exclusivas
           </h2>
           <p style={{ color: '#D0D0E0', fontSize: '0.92rem', maxWidth: '640px', marginTop: '4px' }}>
             Crie disparos via WhatsApp e E-mail, ative pop-ups promocionais na Home e configure barras com contagem regressiva em tempo real.
