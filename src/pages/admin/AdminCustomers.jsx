@@ -5,16 +5,13 @@ export default function AdminCustomers() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Carrega clientes da API
-    fetch('/api/admin/dashboard')
+    // Carrega clientes da API real
+    fetch('/api/admin/crm/dashboard')
       .then(res => res.json())
-      .then(() => {
-        // Simulando lista de clientes cadastrados
-        setUsers([
-          { id: 'usr_cust_1', name: 'Ana Beatriz Oliveira', email: 'ana.oliveira@gmail.com', phone: '(11) 98765-4321', cpf: '123.456.789-00', role: 'customer', ordersCount: 3, totalSpent: 268.90, createdAt: '2024-03-15' },
-          { id: 'usr_cust_2', name: 'Ricardo S. Alencar', email: 'ricardo.alencar@gmail.com', phone: '(31) 99123-8899', cpf: '987.654.321-11', role: 'customer', ordersCount: 5, totalSpent: 489.50, createdAt: '2024-04-02' }
-        ]);
-      });
+      .then(d => {
+        if (d.success) setUsers(d.customers || []);
+      })
+      .catch(err => console.error(err));
   }, []);
 
   return (

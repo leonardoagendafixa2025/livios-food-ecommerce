@@ -1240,7 +1240,7 @@ app.get('/api/customer/reorder-suggestions', (req, res) => {
   const db = getDb();
 
   if (!customerEmail) {
-    return res.json({ success: true, suggestedProducts: db.products.slice(0, 4) });
+    return res.json({ success: true, suggestedProducts: [] });
   }
 
   const customerOrders = db.orders.filter(o => o.customerEmail.toLowerCase() === customerEmail.toLowerCase());
@@ -1251,9 +1251,8 @@ app.get('/api/customer/reorder-suggestions', (req, res) => {
   });
 
   const boughtProducts = db.products.filter(p => boughtProductIds.has(p.id) && p.active);
-  const result = boughtProducts.length > 0 ? boughtProducts : db.products.slice(0, 4);
 
-  res.json({ success: true, suggestedProducts: result });
+  res.json({ success: true, suggestedProducts: boughtProducts });
 });
 
 // ==========================================
