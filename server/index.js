@@ -24,12 +24,14 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 const generateId = (prefix) => `${prefix}_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
 
 // ==========================================
-// ROTA DE UPLOAD DE IMAGENS
+// ROTA DE UPLOAD DE IMAGENS (SUPABASE STORAGE & FALLBACK VERCEL)
 // ==========================================
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', async (req, res) => {
   try {
     const { image } = req.body;
     if (!image) return res.status(400).json({ success: false, message: "Nenhuma imagem enviada." });
+
+    const supabase = getSupabase();
 
     if (image.startsWith('data:image')) {
       const matches = image.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
@@ -38,19 +40,58 @@ app.post('/api/upload', (req, res) => {
       const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
       const buffer = Buffer.from(matches[2], 'base64');
       const name = `img_${Date.now()}_${Math.random().toString(36).substr(2, 6)}.${ext}`;
-      const uploadDir = path.join(__dirname, '../public/uploads');
 
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      // 1. Tenta Upload no Supabase Storage Bucket se o Supabase estiver ativo
+      if (supabase) {
+        try {
+          const { data, error } = await supabase.storage
+            .from('products')
+            .upload(name, buffer, {
+              contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+              upsert: true
+            });
+
+          if (!error && data) {
+            const { data: publicUrlData } = supabase.storage
+              .from('products')
+              .getPublicUrl(name);
+
+            if (publicUrlData && publicUrlData.publicUrl) {
+              console.log("🟢 Imagem salva no Supabase Storage:", publicUrlData.publicUrl);
+              return res.json({ success: true, url: publicUrlData.publicUrl, message: "Imagem enviada para o Supabase Storage com sucesso!" });
+            }
+          } else {
+            // Tenta bucket alternativo 'images'
+            const { data: dataImg, error: errImg } = await supabase.storage
+              .from('images')
+              .upload(name, buffer, {
+                contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+                upsert: true
+              });
+
+            if (!errImg && dataImg) {
+              const { data: publicUrlImg } = supabase.storage
+                .from('images')
+                .getPublicUrl(name);
+
+              if (publicUrlImg && publicUrlImg.publicUrl) {
+                return res.json({ success: true, url: publicUrlImg.publicUrl, message: "Imagem enviada para o Supabase Storage!" });
+              }
+            }
+          }
+        } catch (supabaseErr) {
+          console.warn("⚠️ Supabase Storage não disponível ou com restrição RLS. Utilizando DataURL persistente:", supabaseErr.message);
+        }
       }
 
-      fs.writeFileSync(path.join(uploadDir, name), buffer);
-      return res.json({ success: true, url: `/uploads/${name}`, message: "Imagem enviada com sucesso!" });
+      // 2. Fallback de Persistência Universal para Vercel Serverless (Data URL otimizada)
+      // Evita erro 404 de pastas locais efêmeras no ambiente serverless
+      return res.json({ success: true, url: image, message: "Imagem processada com sucesso!" });
     }
 
     res.json({ success: true, url: image });
   } catch (err) {
-    console.error("Erro ao salvar imagem:", err);
+    console.error("Erro ao processar upload da imagem:", err);
     res.status(500).json({ success: false, message: "Erro no servidor ao processar o upload da imagem." });
   }
 });

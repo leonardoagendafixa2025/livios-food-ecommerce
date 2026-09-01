@@ -6,7 +6,41 @@ export default function ImageUploader({ value, onChange, label = "Selecione ou A
   const [uploading, setUploading] = useState(false);
   const { addToast } = useToast();
 
-  const handleFileChange = (e) => {
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => resolve(event.target.result);
+      };
+    });
+  };
+
+  const handleFileChange = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
@@ -15,36 +49,28 @@ export default function ImageUploader({ value, onChange, label = "Selecione ou A
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      addToast("O tamanho da imagem deve ser menor que 10MB.", "error");
-      return;
-    }
-
     setUploading(true);
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const base64Data = reader.result;
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Data })
-        });
-        const d = await res.json();
-        if (d.success && d.url) {
-          onChange(d.url);
-          addToast("Upload da imagem concluído com sucesso!", "success");
-        } else {
-          addToast("Falha ao fazer upload da imagem.", "error");
-        }
-      } catch (err) {
-        addToast("Erro na comunicação durante o upload.", "error");
-      } finally {
-        setUploading(false);
+    try {
+      const compressedBase64 = await compressImage(file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: compressedBase64 })
+      });
+      const d = await res.json();
+      if (d.success && d.url) {
+        onChange(d.url);
+        addToast(d.message || "Upload da imagem concluído com sucesso!", "success");
+      } else {
+        addToast(d.message || "Falha ao fazer upload da imagem.", "error");
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Erro no upload da imagem:", err);
+      addToast("Erro na comunicação durante o upload da imagem.", "error");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
