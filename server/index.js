@@ -403,6 +403,93 @@ app.delete('/api/products/:id', (req, res) => {
 });
 
 // ==========================================
+// CONTROLE DE ESTOQUE & INVENTÁRIO
+// ==========================================
+app.get('/api/admin/inventory', (req, res) => {
+  const db = getDb();
+
+  const products = db.products || [];
+  const movements = db.inventoryMovements || [];
+
+  const totalStockUnits = products.reduce((acc, p) => acc + (p.stock || 0), 0);
+  const totalStockValueCost = products.reduce((acc, p) => acc + ((p.stock || 0) * (p.costPrice || 0)), 0);
+  const lowStockCount = products.filter(p => p.stock <= p.minStock && p.stock > 0).length;
+  const outOfStockCount = products.filter(p => p.stock <= 0).length;
+
+  res.json({
+    success: true,
+    kpis: {
+      totalStockUnits,
+      totalProductsCount: products.length,
+      totalStockValueCost,
+      lowStockCount,
+      outOfStockCount
+    },
+    products,
+    movements: movements.slice(-50).reverse().map(m => {
+      const prod = products.find(p => p.id === m.productId);
+      return {
+        ...m,
+        productName: prod ? prod.name : 'Produto Removido',
+        productSku: prod ? prod.sku : 'SKU'
+      };
+    })
+  });
+});
+
+app.post('/api/admin/inventory/movement', (req, res) => {
+  const db = getDb();
+  const { productId, type, quantity, reason, user } = req.body;
+
+  const product = (db.products || []).find(p => p.id === productId);
+  if (!product) return res.status(404).json({ success: false, message: "Produto não encontrado." });
+
+  const qty = parseInt(quantity || 0);
+  const previousStock = product.stock || 0;
+  let newStock = previousStock;
+
+  if (type === 'entry') {
+    newStock = previousStock + qty;
+  } else if (type === 'exit' || type === 'damage') {
+    newStock = Math.max(0, previousStock - qty);
+  } else if (type === 'adjustment') {
+    newStock = qty;
+  }
+
+  product.stock = newStock;
+
+  if (!db.inventoryMovements) db.inventoryMovements = [];
+  const newMov = {
+    id: generateId('mov'),
+    productId: product.id,
+    type,
+    quantity: type === 'adjustment' ? Math.abs(newStock - previousStock) : qty,
+    previousStock,
+    newStock,
+    reason: reason || 'Movimentação manual de estoque',
+    user: user || 'Administrador',
+    date: new Date().toISOString()
+  };
+
+  db.inventoryMovements.push(newMov);
+  saveDb();
+
+  res.json({ success: true, movement: newMov, product, message: "Movimentação de estoque registrada com sucesso!" });
+});
+
+app.put('/api/admin/inventory/quick-update/:id', (req, res) => {
+  const db = getDb();
+  const product = (db.products || []).find(p => p.id === req.params.id);
+  if (!product) return res.status(404).json({ success: false, message: "Produto não encontrado." });
+
+  if (req.body.minStock !== undefined) product.minStock = parseInt(req.body.minStock);
+  if (req.body.costPrice !== undefined) product.costPrice = parseFloat(req.body.costPrice);
+
+  saveDb();
+  res.json({ success: true, product, message: "Parâmetros de estoque atualizados!" });
+});
+
+// ==========================================
 // CÁLCULO DE FRETE E CUPONS
 // ==========================================
 app.post('/api/shipping/calculate', (req, res) => {
