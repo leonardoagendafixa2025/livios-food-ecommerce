@@ -41,9 +41,9 @@ export default function AboutPage() {
 
           <div>
             <img
-              src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1000&q=80"
-              alt="Mestre Gastronômico Rômulo Lívio Medeiros"
-              style={{ width: '100%', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-lg)' }}
+              src="/romulo-livio-fundadores.jpg"
+              alt="Rômulo Lívio Medeiros e Equipe Livio's Food Artesanal"
+              style={{ width: '100%', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-lg)', objectFit: 'cover' }}
             />
           </div>
         </div>
