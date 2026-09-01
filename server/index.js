@@ -457,6 +457,38 @@ app.post('/api/coupons', (req, res) => {
   res.json({ success: true, coupon: newCoupon, message: "Cupom criado com sucesso!" });
 });
 
+app.put('/api/coupons/:id', (req, res) => {
+  const db = getDb();
+  const coupon = (db.coupons || []).find(c => c.id === req.params.id);
+  if (!coupon) return res.status(404).json({ success: false, message: "Cupom não encontrado." });
+
+  if (req.body.code && req.body.code.trim().toUpperCase() !== coupon.code) {
+    const duplicate = db.coupons.find(c => c.id !== coupon.id && c.code.toUpperCase() === req.body.code.trim().toUpperCase());
+    if (duplicate) return res.status(400).json({ success: false, message: "Já existe outro cupom com este código." });
+    coupon.code = req.body.code.trim().toUpperCase();
+  }
+
+  if (req.body.type !== undefined) coupon.type = req.body.type;
+  if (req.body.value !== undefined) coupon.value = parseFloat(req.body.value);
+  if (req.body.minPurchase !== undefined) coupon.minPurchase = parseFloat(req.body.minPurchase);
+  if (req.body.usageLimit !== undefined) coupon.usageLimit = parseInt(req.body.usageLimit);
+  if (req.body.description !== undefined) coupon.description = req.body.description;
+  if (req.body.active !== undefined) coupon.active = !!req.body.active;
+
+  saveDb();
+  res.json({ success: true, coupon, message: "Cupom atualizado com sucesso!" });
+});
+
+app.delete('/api/coupons/:id', (req, res) => {
+  const db = getDb();
+  const index = (db.coupons || []).findIndex(c => c.id === req.params.id);
+  if (index === -1) return res.status(404).json({ success: false, message: "Cupom não encontrado." });
+
+  db.coupons.splice(index, 1);
+  saveDb();
+  res.json({ success: true, message: "Cupom removido com sucesso!" });
+});
+
 app.post('/api/coupons/validate', (req, res) => {
   const { code, cartSubtotal } = req.body;
   const db = getDb();
