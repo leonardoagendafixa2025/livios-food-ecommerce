@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#8B0000"/>
+  <path d="M50 15 C55 30, 75 45, 65 70 C57 90, 43 90, 35 70 C25 45, 45 30, 50 15 Z" fill="#FF4500"/>
+  <path d="M50 25 C53 35, 65 48, 58 65 C52 78, 48 78, 42 65 C35 48, 47 35, 50 25 Z" fill="#FFD700"/>
+  <text x="50" y="93" font-family="'Playfair Display', Georgia, serif" font-size="14" font-weight="bold" fill="#FFFFFF" text-anchor="middle">LIVIO'S</text>
+</svg>
