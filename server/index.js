@@ -1382,6 +1382,15 @@ app.post('/api/waitlist', (req, res) => {
 
   if (!db.waitlist) db.waitlist = [];
 
+  const existing = db.waitlist.find(w => w.productId === productId && w.customerEmail.toLowerCase() === email.toLowerCase());
+  if (existing) {
+    return res.json({
+      success: true,
+      waitlist: existing,
+      message: `Você já está cadastrado na Lista de Espera de "${product.name}". Avisaremos assim que o produto voltar ao estoque!`
+    });
+  }
+
   const newEntry = {
     id: generateId('wait'),
     productId: product.id,
