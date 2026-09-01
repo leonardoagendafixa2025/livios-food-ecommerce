@@ -86,9 +86,15 @@ export default function ProductCard({ product }) {
         {/* Corpo do Card */}
         <div className="product-card-body">
           <div className="product-rating">
-            <Star size={14} fill="#F59E0B" />
-            <span>{product.rating || "5.0"}</span>
-            <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({product.reviewCount || 0})</span>
+            {product.reviewCount > 0 ? (
+              <>
+                <Star size={14} fill="#F59E0B" />
+                <span>{product.rating}</span>
+                <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({product.reviewCount})</span>
+              </>
+            ) : (
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Sem avaliações ainda</span>
+            )}
           </div>
 
           <Link to={`/produto/${product.slug}`}>

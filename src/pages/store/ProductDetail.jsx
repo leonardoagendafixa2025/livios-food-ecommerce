@@ -186,15 +186,19 @@ export default function ProductDetail() {
 
             {/* Avaliação */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', color: '#F59E0B' }}>
-                <Star size={18} fill="#F59E0B" />
-                <Star size={18} fill="#F59E0B" />
-                <Star size={18} fill="#F59E0B" />
-                <Star size={18} fill="#F59E0B" />
-                <Star size={18} fill="#F59E0B" />
-              </div>
-              <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{productData.rating || "5.0"}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>({productData.reviews ? productData.reviews.length : 0} avaliações)</span>
+              {productData.reviews && productData.reviews.length > 0 ? (
+                <>
+                  <div style={{ display: 'flex', color: '#F59E0B' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={18} fill={i < Math.round(productData.rating || 5) ? "#F59E0B" : "none"} color="#F59E0B" />
+                    ))}
+                  </div>
+                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{productData.rating}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>({productData.reviews.length} avaliações)</span>
+                </>
+              ) : (
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Nenhuma avaliação registrada ainda</span>
+              )}
             </div>
 
             {/* Bloco de Preço */}

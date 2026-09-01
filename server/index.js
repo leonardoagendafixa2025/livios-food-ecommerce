@@ -426,6 +426,37 @@ app.post('/api/shipping/calculate', (req, res) => {
   });
 });
 
+app.get('/api/coupons', (req, res) => {
+  const db = getDb();
+  res.json({ success: true, coupons: db.coupons || [] });
+});
+
+app.post('/api/coupons', (req, res) => {
+  const db = getDb();
+  const { code, type, value, minPurchase, usageLimit, description } = req.body;
+  
+  if (!db.coupons) db.coupons = [];
+  if (db.coupons.some(c => c.code.toUpperCase() === code.trim().toUpperCase())) {
+    return res.status(400).json({ success: false, message: "Já existe um cupom com este código." });
+  }
+
+  const newCoupon = {
+    id: generateId('coup'),
+    code: code.trim().toUpperCase(),
+    type: type || 'percentage',
+    value: parseFloat(value || 0),
+    minPurchase: parseFloat(minPurchase || 0),
+    usageLimit: parseInt(usageLimit || 100),
+    usedCount: 0,
+    active: true,
+    description: description || ''
+  };
+
+  db.coupons.push(newCoupon);
+  saveDb();
+  res.json({ success: true, coupon: newCoupon, message: "Cupom criado com sucesso!" });
+});
+
 app.post('/api/coupons/validate', (req, res) => {
   const { code, cartSubtotal } = req.body;
   const db = getDb();
@@ -1097,15 +1128,25 @@ app.get('/api/admin/dashboard', (req, res) => {
   const outOfStockProducts = db.products.filter(p => p.stock === 0);
   const pendingOrders = db.orders.filter(o => o.status === 'received' || o.status === 'in_preparation');
 
-  // Vendas ordenadas por data simples para gráfico
+  // Vendas calculadas em tempo real a partir dos pedidos reais
+  const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const dayTotals = { Dom: 0, Seg: 0, Ter: 0, Qua: 0, Qui: 0, Sex: 0, Sáb: 0 };
+
+  db.orders.forEach(o => {
+    if (o.status !== 'cancelled' && o.createdAt) {
+      const dayName = daysOfWeek[new Date(o.createdAt).getDay()];
+      if (dayName) dayTotals[dayName] += (o.total || 0);
+    }
+  });
+
   const salesChartData = [
-    { label: 'Seg', v: 1250.00 },
-    { label: 'Ter', v: 2400.00 },
-    { label: 'Qua', v: 1890.00 },
-    { label: 'Qui', v: 3100.00 },
-    { label: 'Sex', v: 4200.00 },
-    { label: 'Sáb', v: 5100.00 },
-    { label: 'Dom', v: 3800.00 }
+    { label: 'Seg', v: dayTotals['Seg'] },
+    { label: 'Ter', v: dayTotals['Ter'] },
+    { label: 'Qua', v: dayTotals['Qua'] },
+    { label: 'Qui', v: dayTotals['Qui'] },
+    { label: 'Sex', v: dayTotals['Sex'] },
+    { label: 'Sáb', v: dayTotals['Sáb'] },
+    { label: 'Dom', v: dayTotals['Dom'] }
   ];
 
   res.json({

@@ -14,7 +14,7 @@ export default function AdminAutomations() {
       status: 'Ativo',
       template: 'Olá {{primeiro_nome}}! Notamos que você deixou molhos especiais no seu carrinho na {{nome_loja}}. Conclua seu pedido com frete grátis usando o cupom {{codigo_cupom}}!',
       couponCode: 'FRETEGRATIS',
-      stats: { triggeredCount: 45, recoveredCount: 12, recoveredRevenue: 1080.00 }
+      stats: { triggeredCount: 0, recoveredCount: 0, recoveredRevenue: 0 }
     },
     {
       id: 'auto_2',
@@ -25,7 +25,7 @@ export default function AdminAutomations() {
       status: 'Ativo',
       template: 'Sentimos sua falta, {{primeiro_nome}}! Que tal experimentar nosso lançamento Molho Chocolate Mega Picante com 10% OFF?',
       couponCode: 'BEMVINDO10',
-      stats: { triggeredCount: 80, recoveredCount: 14, recoveredRevenue: 1350.00 }
+      stats: { triggeredCount: 0, recoveredCount: 0, recoveredRevenue: 0 }
     },
     {
       id: 'auto_3',

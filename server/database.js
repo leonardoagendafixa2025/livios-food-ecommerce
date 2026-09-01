@@ -119,8 +119,8 @@ const initialData = {
       isBestSeller: true,
       isNew: false,
       isOffer: true,
-      rating: 4.9,
-      reviewCount: 38,
+      rating: 0,
+      reviewCount: 0,
       active: true
     },
     {
@@ -149,8 +149,8 @@ const initialData = {
       isBestSeller: true,
       isNew: false,
       isOffer: true,
-      rating: 5.0,
-      reviewCount: 45,
+      rating: 0,
+      reviewCount: 0,
       active: false
     },
     {
@@ -178,8 +178,8 @@ const initialData = {
       isBestSeller: false,
       isNew: true,
       isOffer: true,
-      rating: 4.8,
-      reviewCount: 22,
+      rating: 0,
+      reviewCount: 0,
       active: false
     }
   ],
@@ -208,7 +208,7 @@ const initialData = {
       value: 10,
       minPurchase: 50.00,
       usageLimit: 500,
-      usedCount: 42,
+      usedCount: 0,
       active: true,
       description: "10% de desconto na sua primeira compra!"
     },
@@ -219,7 +219,7 @@ const initialData = {
       value: 10,
       minPurchase: 60.00,
       usageLimit: 1000,
-      usedCount: 115,
+      usedCount: 0,
       active: true,
       description: "10% OFF especial da campanha de Setembro!"
     }

@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Plus } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
 
 export default function AdminCoupons() {
-  const [coupons, setCoupons] = useState([
-    { id: 'coup_1', code: 'BEMVINDO10', type: 'percentage', value: 10, minPurchase: 50.00, usageLimit: 500, usedCount: 42, active: true, description: '10% de desconto na primeira compra' },
-    { id: 'coup_2', code: 'FRETEGRATIS', type: 'free_shipping', value: 0, minPurchase: 100.00, usageLimit: 200, usedCount: 88, active: true, description: 'Frete grátis em compras acima de R$ 100' },
-    { id: 'coup_3', code: 'LIVIOS20', type: 'fixed', value: 20.00, minPurchase: 120.00, usageLimit: 100, usedCount: 15, active: true, description: 'R$ 20 de desconto em pedidos de R$ 120+' }
-  ]);
+  const [coupons, setCoupons] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/coupons')
+      .then(res => res.json())
+      .then(d => {
+        if (d.success) setCoupons(d.coupons || []);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <div>

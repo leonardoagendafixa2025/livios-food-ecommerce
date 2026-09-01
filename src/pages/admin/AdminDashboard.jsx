@@ -63,8 +63,8 @@ export default function AdminDashboard() {
             <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-dark)', marginTop: '2px' }}>
               R$ {kpis.totalRevenue.toFixed(2).replace('.', ',')}
             </div>
-            <div style={{ fontSize: '0.78rem', color: '#10B981', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '2px', marginTop: '4px' }}>
-              <ArrowUpRight size={14} /> +18.4% vs mês anterior
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Faturamento acumulado em tempo real
             </div>
           </div>
         </motion.div>
