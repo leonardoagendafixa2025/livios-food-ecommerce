@@ -4,6 +4,7 @@ import { Flame, ShieldCheck, Truck, Award, ArrowRight, Star, CheckCircle2 } from
 import { motion } from 'framer-motion';
 import ProductCard from '../../components/ProductCard.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
+import { useToast } from '../../contexts/ToastContext.jsx';
 import { RefreshCw } from 'lucide-react';
 
 export default function Home() {

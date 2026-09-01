@@ -5,8 +5,12 @@ const CompareContext = createContext();
 
 export function CompareProvider({ children }) {
   const [compareList, setCompareList] = useState(() => {
-    const saved = localStorage.getItem('livios_compare');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('livios_compare');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   const { addToast } = useToast();
