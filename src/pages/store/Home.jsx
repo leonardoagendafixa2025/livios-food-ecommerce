@@ -28,7 +28,11 @@ export default function Home() {
           fetch('/api/recipes')
         ]);
 
-        let dataProds = await resProds.json();
+        const dataBanners = await resBanners.json();
+        const dataCats = await resCats.json();
+        const dataProds = await resProds.json();
+        const dataRecipes = await resRecipes.json();
+
         let featuredList = dataProds.success ? dataProds.products : [];
 
         // Se não houver produtos marcados como destaque, carrega todos os produtos ativos do catálogo
@@ -38,10 +42,10 @@ export default function Home() {
           if (dataAll.success) featuredList = dataAll.products;
         }
 
-        if (dataBanners.success) setBanners(dataBanners.banners);
-        if (dataCats.success) setCategories(dataCats.categories);
-        setFeaturedProducts(featuredList);
-        if (dataRecipes.success) setRecipes(dataRecipes.recipes);
+        if (dataBanners.success) setBanners(dataBanners.banners || []);
+        if (dataCats.success) setCategories(dataCats.categories || []);
+        setFeaturedProducts(featuredList || []);
+        if (dataRecipes.success) setRecipes(dataRecipes.recipes || []);
 
         if (user && user.email) {
           const resReorder = await fetch(`/api/customer/reorder-suggestions?customerEmail=${encodeURIComponent(user.email)}`);
