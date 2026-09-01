@@ -494,15 +494,17 @@ button, input, select, textarea {
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  height: 220px;
+  height: 280px;
   cursor: pointer;
+  background: #111;
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  display: block;
 }
 
 .category-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 15px 30px rgba(139, 0, 0, 0.2);
 }
 
 .category-card img {
@@ -510,6 +512,7 @@ button, input, select, textarea {
   height: 100%;
   object-fit: cover;
   transition: transform 0.6s ease;
+  display: block;
 }
 
 .category-card:hover img {
@@ -519,24 +522,29 @@ button, input, select, textarea {
 .category-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+  background: linear-gradient(to top, rgba(14, 14, 20, 0.95) 0%, rgba(14, 14, 20, 0.55) 55%, rgba(14, 14, 20, 0.2) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 1.5rem;
   color: #FFF;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .category-card-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+  color: #FFFFFF;
+  font-family: var(--font-serif);
+  letter-spacing: -0.3px;
 }
 
 .category-card-count {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--accent-gold);
   font-weight: 600;
+  line-height: 1.35;
 }
 
 /* Product Card */

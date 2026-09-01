@@ -58,7 +58,7 @@ const initialData = {
       name: "Molhos Fine Recipe",
       slug: "molho-fine-recipe",
       description: "Nossa linha premium em garrafas de vidro gourmet de 250ml.",
-      image: "/header-bg.jpg",
+      image: "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80",
       order: 1,
       active: true
     },
