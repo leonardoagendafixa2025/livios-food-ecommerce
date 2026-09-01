@@ -1846,6 +1846,10 @@ app.post('/api/admin/supabase/sync', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(` Servidor Livio's Food API rodando com sucesso na porta ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(` Servidor Livio's Food API rodando com sucesso na porta ${PORT}`);
+  });
+}
+
+export default app;

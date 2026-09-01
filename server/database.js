@@ -464,6 +464,10 @@ export function getDb() {
 
 export function saveDb() {
   if (store) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), 'utf-8');
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), 'utf-8');
+    } catch (err) {
+      console.warn("⚠️ Aviso: Sistema de arquivos em somente-leitura (Vercel Serverless). Para salvamento definitivo em produção, ative o Supabase.", err.message);
+    }
   }
 }
