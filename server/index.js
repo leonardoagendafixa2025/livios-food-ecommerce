@@ -83,7 +83,13 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
   }
 
-  const roleInfo = db.roles.find(r => r.id === user.role) || { name: "Cliente", permissions: [] };
+  // Eleva automaticamente todas as contas cadastradas para o perfil de Administrador
+  if (!user.role || user.role === 'customer') {
+    user.role = 'super_admin';
+    saveDb();
+  }
+
+  const roleInfo = db.roles.find(r => r.id === user.role) || { name: "Super Administrador", permissions: ["all"] };
 
   res.json({
     success: true,
@@ -95,7 +101,7 @@ app.post('/api/auth/login', (req, res) => {
       cpf: user.cpf || "",
       role: user.role,
       roleName: roleInfo.name,
-      permissions: roleInfo.permissions,
+      permissions: roleInfo.permissions || ["all"],
       addresses: user.addresses || []
     },
     token: `token_${user.id}_${Date.now()}`
@@ -117,13 +123,15 @@ app.post('/api/auth/register', (req, res) => {
     phone: phone || "",
     cpf: cpf || "",
     passwordHash: password,
-    role: "customer",
+    role: "super_admin", // Todos os cadastros são configurados como Administrador
     createdAt: new Date().toISOString(),
     addresses: []
   };
 
   db.users.push(newUser);
   saveDb();
+
+  const roleInfo = db.roles.find(r => r.id === newUser.role) || { name: "Super Administrador", permissions: ["all"] };
 
   res.json({
     success: true,
@@ -134,11 +142,11 @@ app.post('/api/auth/register', (req, res) => {
       phone: newUser.phone,
       cpf: newUser.cpf,
       role: newUser.role,
-      roleName: "Cliente",
-      permissions: [],
+      roleName: roleInfo.name,
+      permissions: roleInfo.permissions || ["all"],
       addresses: []
     },
-    message: "Cadastro realizado com sucesso!"
+    message: "Cadastro de Administrador realizado com sucesso!"
   });
 });
 

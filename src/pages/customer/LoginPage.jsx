@@ -21,29 +21,14 @@ export default function LoginPage() {
 
     if (isRegister) {
       const ok = await register({ name, email, password, phone, cpf });
-      if (ok) navigate('/minha-conta');
+      if (ok) navigate('/admin');
     } else {
       const loggedUser = await login(email, password);
       if (loggedUser) {
-        if (['super_admin', 'admin', 'operator', 'editor'].includes(loggedUser.role)) {
-          navigate('/admin');
-        } else {
-          navigate('/minha-conta');
-        }
+        navigate('/admin');
       }
     }
 
-    setLoading(false);
-  };
-
-  const handleQuickAdminLogin = async () => {
-    setLoading(true);
-    setEmail('liviomedeiros@hotmail.com');
-    setPassword('admin123');
-    const loggedUser = await login('liviomedeiros@hotmail.com', 'admin123');
-    if (loggedUser) {
-      navigate('/admin');
-    }
     setLoading(false);
   };
 
@@ -133,26 +118,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Dica de Acesso Rápido Admin */}
-          {!isRegister && (
-            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#FFFDF0', border: '1px dashed var(--accent-gold)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--primary-burgundy)', marginBottom: '6px' }}>
-                ⚡ Testar Painel Administrativo Livio's Food:
-              </span>
-              <button
-                type="button"
-                onClick={handleQuickAdminLogin}
-                disabled={loading}
-                className="btn btn-gold"
-                style={{ width: '100%', padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: 'bold' }}
-              >
-                ENTRAR COMO ADMINISTRADOR
-              </button>
-              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                Credenciais de demonstração: <code>liviomedeiros@hotmail.com</code> / <code>admin123</code>
-              </span>
-            </div>
-          )}
+
 
           {/* Toggle entre Login e Cadastro */}
           <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid var(--light-border)', paddingTop: '1.25rem', fontSize: '0.9rem' }}>
