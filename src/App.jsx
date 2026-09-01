@@ -46,6 +46,7 @@ import AdminOrders from './pages/admin/AdminOrders.jsx';
 import AdminCustomers from './pages/admin/AdminCustomers.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import AdminBanners from './pages/admin/AdminBanners.jsx';
+import AdminRecipes from './pages/admin/AdminRecipes.jsx';
 import AdminCoupons from './pages/admin/AdminCoupons.jsx';
 import AdminSettings from './pages/admin/AdminSettings.jsx';
 
@@ -153,6 +154,7 @@ export default function App() {
                   <Route path="/admin/crm/segmentos" element={<ProtectedAdminRoute><AdminLayout><AdminCRMSegments /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/categorias" element={<ProtectedAdminRoute><AdminLayout><AdminCategories /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/banners" element={<ProtectedAdminRoute><AdminLayout><AdminBanners /></AdminLayout></ProtectedAdminRoute>} />
+                  <Route path="/admin/receitas" element={<ProtectedAdminRoute><AdminLayout><AdminRecipes /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/cupons" element={<ProtectedAdminRoute><AdminLayout><AdminCoupons /></AdminLayout></ProtectedAdminRoute>} />
                   <Route path="/admin/configuracoes" element={<ProtectedAdminRoute><AdminLayout><AdminSettings /></AdminLayout></ProtectedAdminRoute>} />
 

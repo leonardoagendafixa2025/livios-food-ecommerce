@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Warehouse, ShoppingCart, Users, FolderTree, Image, Tag, Settings, LogOut, Megaphone, Sparkles, ChevronDown, Shield, BellRing, Layers } from 'lucide-react';
+import { LayoutDashboard, Package, Warehouse, ShoppingCart, Users, FolderTree, Image, Tag, Settings, LogOut, Megaphone, Sparkles, ChevronDown, Shield, BellRing, Layers, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function AdminSidebar() {
@@ -27,6 +27,7 @@ export default function AdminSidebar() {
 
   const secondaryNav = [
     { path: '/admin/banners', label: 'Banners Home', icon: Image },
+    { path: '/admin/receitas', label: 'Gestão de Receitas', icon: BookOpen },
     { path: '/admin/cupons', label: 'Cupons & Descontos', icon: Tag },
     { path: '/admin/configuracoes', label: 'Configurações', icon: Settings }
   ];
