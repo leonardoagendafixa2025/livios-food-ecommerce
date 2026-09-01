@@ -154,7 +154,7 @@
         }
       ],
       "isFeatured": true,
-      "isBestSeller": true,
+      "isBestSeller": false,
       "isNew": false,
       "isOffer": true,
       "rating": 0,
@@ -200,7 +200,7 @@
         }
       ],
       "isFeatured": true,
-      "isBestSeller": true,
+      "isBestSeller": false,
       "isNew": false,
       "isOffer": true,
       "rating": 0,
@@ -328,7 +328,7 @@
         }
       ],
       "isFeatured": true,
-      "isBestSeller": true,
+      "isBestSeller": false,
       "isNew": false,
       "isOffer": true,
       "rating": 0,
@@ -410,7 +410,7 @@
         }
       ],
       "isFeatured": true,
-      "isBestSeller": true,
+      "isBestSeller": false,
       "isNew": false,
       "isOffer": true,
       "rating": 0,
@@ -447,7 +447,7 @@
         }
       ],
       "isFeatured": true,
-      "isBestSeller": true,
+      "isBestSeller": false,
       "isNew": false,
       "isOffer": true,
       "rating": 0,
