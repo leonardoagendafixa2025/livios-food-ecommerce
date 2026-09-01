@@ -90,6 +90,12 @@ export function AuthProvider({ children }) {
     return false;
   };
 
+  const hasPermission = (perm) => {
+    if (!user) return false;
+    if (user.role === 'super_admin') return true;
+    return user.permissions && user.permissions.includes(perm);
+  };
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem('livios_token') || (user ? `token_${user.id}` : 'token_guest');
     return {
