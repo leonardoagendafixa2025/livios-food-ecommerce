@@ -448,14 +448,27 @@ app.put('/api/products/:id', (req, res) => {
   res.json({ success: true, product: prod, message: "Produto atualizado com sucesso!" });
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', requireAdminAuth, async (req, res) => {
   const db = getDb();
   const index = db.products.findIndex(p => p.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: "Produto não encontrado." });
 
+  const deletedProd = db.products[index];
   db.products.splice(index, 1);
+
+  // Exclui permanentemente do banco Supabase PostgreSQL se conectado
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('products').delete().eq('id', req.params.id);
+      console.log("🟢 Produto excluído do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao excluir produto no Supabase:", err);
+    }
+  }
+
   saveDb();
-  res.json({ success: true, message: "Produto removido com sucesso." });
+  res.json({ success: true, message: `Produto "${deletedProd.name}" removido com sucesso.` });
 });
 
 // ==========================================

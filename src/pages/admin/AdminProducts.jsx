@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, Package, Star } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import ImageUploader from '../../components/ImageUploader.jsx';
 
 export default function AdminProducts() {
@@ -12,6 +13,7 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const { addToast } = useToast();
+  const { getAuthHeaders } = useAuth();
 
   const initialForm = {
     name: '',
@@ -36,7 +38,7 @@ export default function AdminProducts() {
   const [formData, setFormData] = useState(initialForm);
 
   const fetchProducts = () => {
-    fetch('/api/products?admin=true')
+    fetch('/api/products?admin=true', { headers: getAuthHeaders() })
       .then(res => res.json())
       .then(d => {
         if (d.success) setProducts(d.products);
@@ -92,11 +94,17 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente remover este produto?")) return;
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
       const d = await res.json();
       if (d.success) {
-        addToast("Produto removido!", "success");
+        addToast(d.message || "Produto removido com sucesso!", "success");
+        setProducts(prev => prev.filter(p => p.id !== id));
         fetchProducts();
+      } else {
+        addToast(d.message || "Erro ao remover produto.", "error");
       }
     } catch (err) {
       addToast("Erro ao remover produto.", "error");
@@ -116,7 +124,7 @@ export default function AdminProducts() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const d = await res.json();
@@ -124,6 +132,8 @@ export default function AdminProducts() {
         addToast(d.message, "success");
         setModalOpen(false);
         fetchProducts();
+      } else {
+        addToast(d.message || "Erro ao salvar produto.", "error");
       }
     } catch (err) {
       addToast("Erro ao salvar produto.", "error");
@@ -134,7 +144,7 @@ export default function AdminProducts() {
     try {
       const res = await fetch(`/api/products/${product.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !product.active })
       });
       const d = await res.json();
