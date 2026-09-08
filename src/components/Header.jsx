@@ -76,6 +76,9 @@ export default function Header() {
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Início</Link>
             <Link to="/produtos" className={`nav-link ${location.pathname === '/produtos' && !location.search.includes('ofertas') ? 'active' : ''}`}>Produtos</Link>
+            <Link to="/monte-seu-kit" className={`nav-link ${location.pathname === '/monte-seu-kit' ? 'active' : ''}`} style={{ color: 'var(--accent-gold-hover)', fontWeight: 'bold' }}>
+              🎁 Monte seu Kit
+            </Link>
             <Link to="/produtos?ofertas=true" className={`nav-link ${location.search.includes('ofertas') ? 'active' : ''}`}>Ofertas</Link>
             <Link to="/receitas" className={`nav-link ${location.pathname === '/receitas' ? 'active' : ''}`}>Receitas</Link>
             <Link to="/sobre" className={`nav-link ${location.pathname === '/sobre' ? 'active' : ''}`}>Sobre nós</Link>
@@ -179,6 +182,9 @@ export default function Header() {
                 </Link>
                 <Link to="/produtos" className="mobile-link-item">
                   <span>Catálogo de Produtos</span> <ChevronRight size={18} />
+                </Link>
+                <Link to="/monte-seu-kit" className="mobile-link-item" style={{ color: 'var(--accent-gold-hover)', fontWeight: 'bold' }}>
+                  <span>🎁 Monte seu Kit Degustação</span> <ChevronRight size={18} />
                 </Link>
                 <Link to="/produtos?categoria=cat_fine_recipe" className="mobile-link-item">
                   <span>Linha Fine Recipe (Vidro)</span> <ChevronRight size={18} />

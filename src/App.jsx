@@ -37,6 +37,7 @@ import LoginPage from './pages/customer/LoginPage.jsx';
 // Páginas dos Recursos Avançados do Prompt Complementar
 import SearchPage from './pages/store/SearchPage.jsx';
 import ComparePage from './pages/store/ComparePage.jsx';
+import CustomBundleBuilder from './pages/store/CustomBundleBuilder.jsx';
 import InstitutionalPages from './pages/store/InstitutionalPages.jsx';
 
 // Páginas do Admin
@@ -135,6 +136,7 @@ export default function App() {
                     <Route path="/produto/:slug" element={<StoreLayout><ProductDetail /></StoreLayout>} />
                     <Route path="/buscar" element={<StoreLayout><SearchPage /></StoreLayout>} />
                     <Route path="/comparar" element={<StoreLayout><ComparePage /></StoreLayout>} />
+                    <Route path="/monte-seu-kit" element={<StoreLayout><CustomBundleBuilder /></StoreLayout>} />
                     <Route path="/receitas" element={<StoreLayout><RecipesPage /></StoreLayout>} />
                     <Route path="/sobre" element={<StoreLayout><AboutPage /></StoreLayout>} />
                     <Route path="/contato" element={<StoreLayout><ContactPage /></StoreLayout>} />

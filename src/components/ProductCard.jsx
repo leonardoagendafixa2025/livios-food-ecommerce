@@ -7,6 +7,8 @@ import { useWishlist } from '../contexts/WishlistContext.jsx';
 import { useCompare } from '../contexts/CompareContext.jsx';
 import WaitlistModal from './WaitlistModal.jsx';
 
+import ScovilleMeter from './ScovilleMeter.jsx';
+
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -89,15 +91,20 @@ export default function ProductCard({ product }) {
 
         {/* Corpo do Card */}
         <div className="product-card-body">
-          <div className="product-rating">
-            {product.reviewCount > 0 ? (
-              <>
-                <Star size={14} fill="#F59E0B" />
-                <span>{product.rating}</span>
-                <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({product.reviewCount})</span>
-              </>
-            ) : (
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Sem avaliações ainda</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <div className="product-rating" style={{ marginBottom: 0 }}>
+              {product.reviewCount > 0 ? (
+                <>
+                  <Star size={13} fill="#F59E0B" />
+                  <span>{product.rating}</span>
+                </>
+              ) : (
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Gourmet</span>
+              )}
+            </div>
+
+            {product.heatLevel && (
+              <ScovilleMeter heatLevel={product.heatLevel} compact={true} showLabel={false} />
             )}
           </div>
 

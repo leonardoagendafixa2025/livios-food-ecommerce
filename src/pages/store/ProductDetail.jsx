@@ -5,6 +5,7 @@ import { useCart } from '../../contexts/CartContext.jsx';
 import { useWishlist } from '../../contexts/WishlistContext.jsx';
 import { useToast } from '../../contexts/ToastContext.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
+import ScovilleMeter from '../../components/ScovilleMeter.jsx';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -260,9 +261,14 @@ export default function ProductDetail() {
             </div>
 
             {/* Descrição Curta */}
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1rem' }}>
               {productData.shortDescription}
             </p>
+
+            {/* Medidor Scoville de Ardência */}
+            {productData.heatLevel && (
+              <ScovilleMeter heatLevel={productData.heatLevel} />
+            )}
 
             {/* Status do Estoque */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.75rem', fontSize: '0.9rem', fontWeight: 'bold' }}>

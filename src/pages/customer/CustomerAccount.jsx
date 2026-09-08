@@ -129,6 +129,25 @@ export default function CustomerAccount() {
               </button>
 
               <button
+                onClick={() => setActiveTab('vip_club')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: 'var(--radius-md)',
+                  border: 'none',
+                  background: activeTab === 'vip_club' ? 'var(--primary-burgundy)' : 'transparent',
+                  color: activeTab === 'vip_club' ? '#FFF' : 'var(--text-dark)',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '0.92rem'
+                }}
+              >
+                <Shield size={18} color={activeTab === 'vip_club' ? '#FFF' : 'var(--accent-gold-hover)'} /> Clube VIP & Pontos
+              </button>
+
+              <button
                 onClick={() => setActiveTab('wishlist')}
                 style={{
                   display: 'flex',
@@ -284,6 +303,72 @@ export default function CustomerAccount() {
                   SALVAR ALTERAÇÕES
                 </button>
               </form>
+            )}
+
+            {/* CLUBE VIP & PONTOS FIDELIDADE */}
+            {activeTab === 'vip_club' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)' }}>
+                      Clube VIP Livio's & Pontos
+                    </h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                      Acumule pontos em cada compra e troque por descontos especiais e molhos exclusivos.
+                    </p>
+                  </div>
+                  <div style={{ background: '#FAF8F4', border: '1.5px solid var(--accent-gold)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1.25rem', textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-gold-hover)', textTransform: 'uppercase' }}>Seu Saldo de Pontos</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--primary-burgundy)' }}>
+                      {Math.round(myOrders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total : 0), 0))} Pts
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cards de Nível e Vantagens */}
+                <div className="grid-3" style={{ marginBottom: '2rem' }}>
+                  <div style={{ background: '#FAF8F5', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'var(--primary-burgundy)', marginBottom: '4px' }}>
+                      🌟 Regra de Acúmulo
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      Ganhe <strong>1 Ponto</strong> a cada R$ 1,00 gasto em pedidos aprovados.
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#FAF8F5', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>
+                      👑 Nível de Fidelidade
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      {myOrders.length >= 2 ? 'Ouro VIP (Descontos Exclusivos)' : 'Membro Bronze'}
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#FAF8F5', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#10B981', marginBottom: '4px' }}>
+                      🎁 Resgate de Cupons
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      Use o cupom <code>LIVIO10</code> ou <code>BEMVINDO10</code> no seu checkout!
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, var(--primary-burgundy), #0E0E14)', color: '#FFF', borderRadius: 'var(--radius-md)', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)' }}>
+                      Quer turbinar seus pontos?
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: '#D0D0E0', marginTop: '2px' }}>
+                      Experimente nosso construtor de Kits Personalizados com até 15% OFF imediato!
+                    </p>
+                  </div>
+                  <button onClick={() => navigate('/monte-seu-kit')} className="btn btn-gold" style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}>
+                    MONTE SEU KIT AGORA
+                  </button>
+                </div>
+              </div>
             )}
 
             {/* FAVORITOS */}
