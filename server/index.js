@@ -1834,6 +1834,32 @@ app.put('/api/orders/:id/status', async (req, res) => {
   res.json({ success: true, order, message: "Status do pedido atualizado!" });
 });
 
+app.delete('/api/orders/:id', async (req, res) => {
+  const db = getDb();
+  const orderId = req.params.id;
+  const index = (db.orders || []).findIndex(o => o.id === orderId);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: "Pedido não encontrado." });
+  }
+
+  const deletedOrder = db.orders.splice(index, 1)[0];
+  saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('orders').delete().eq('id', orderId);
+      if (error) console.error("Erro ao excluir pedido no Supabase:", error);
+      else console.log("🟢 Pedido excluído no Supabase PostgreSQL:", orderId);
+    } catch (err) {
+      console.error("Erro ao deletar pedido no Supabase:", err);
+    }
+  }
+
+  res.json({ success: true, message: `Pedido #${orderId} excluído com sucesso!`, order: deletedOrder });
+});
+
 // ==========================================
 // AVALIAÇÕES DE PRODUTOS
 // ==========================================
