@@ -178,14 +178,19 @@ export default function AdminCampaigns() {
   const handleDeleteCampaign = async (id) => {
     if (!window.confirm("Deseja realmente excluir esta campanha?")) return;
     try {
+      setCampaigns(prev => prev.filter(c => c.id !== id));
       const res = await fetch(`/api/admin/campaigns/${id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
         addToast("Campanha excluída com sucesso!", "success");
         fetchCampaigns();
+      } else {
+        addToast(d.message || "Erro ao excluir campanha.", "error");
+        fetchCampaigns();
       }
     } catch (err) {
       addToast("Erro ao excluir campanha.", "error");
+      fetchCampaigns();
     }
   };
 

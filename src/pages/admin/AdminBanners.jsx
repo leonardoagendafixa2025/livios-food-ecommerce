@@ -108,14 +108,19 @@ export default function AdminBanners() {
   const handleDeleteBanner = async (bannerId) => {
     if (!window.confirm("Tem certeza que deseja excluir este banner?")) return;
     try {
+      setBanners(prev => prev.filter(b => b.id !== bannerId));
       const res = await fetch(`/api/admin/banners/${bannerId}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
         addToast("Banner excluído com sucesso!", "success");
         fetchBanners();
+      } else {
+        addToast(d.message || "Erro ao excluir banner.", "error");
+        fetchBanners();
       }
     } catch (err) {
       addToast("Erro ao excluir banner.", "error");
+      fetchBanners();
     }
   };
 

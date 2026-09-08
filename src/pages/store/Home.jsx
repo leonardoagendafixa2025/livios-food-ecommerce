@@ -61,32 +61,52 @@ export default function Home() {
     fetchData();
   }, [user]);
 
-  const banner = banners[0] || {
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentBannerIndex(prev => (prev + 1) % banners.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  const activeBanners = banners.length > 0 ? banners : [{
+    id: 'default',
     title: "O SABOR QUE TRANSFORMA SEUS PRATOS",
     subtitle: "Molhos especiais agridoces desenvolvidos para criar experiências gastronômicas inesquecíveis.",
+    buttonText: "COMPRAR AGORA",
+    buttonLink: "/produtos",
+    secondaryButtonText: "CONHEÇA NOSSOS PRODUTOS",
+    secondaryButtonLink: "/produtos",
     imageDesktop: "/header-bg.jpg"
-  };
+  }];
+
+  const currentBanner = activeBanners[currentBannerIndex % activeBanners.length] || activeBanners[0];
 
   return (
     <div>
       {/* Hero Banner Principal com a Linha de Produtos Oficial Livio's Food */}
-      <section className="hero-slider">
+      <section className="hero-slider" style={{ position: 'relative' }}>
         <div className="hero-bg-wrapper">
           <motion.img
+            key={currentBanner.id || currentBanner.imageDesktop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.7 }}
-            transition={{ duration: 1 }}
-            src={banner.imageDesktop || "/header-bg.jpg"}
-            alt={banner.title}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            src={currentBanner.imageDesktop || "/header-bg.jpg"}
+            alt={currentBanner.title}
             className="hero-bg-img"
           />
           <div className="hero-bg-overlay" />
         </div>
         <div className="container">
           <motion.div
+            key={currentBanner.id || currentBanner.title}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8 }}
             className="hero-content"
           >
             <motion.div
@@ -99,28 +119,52 @@ export default function Home() {
             </motion.div>
 
             <h1 className="hero-title">
-              O SABOR QUE <span>TRANSFORMA</span> SEUS PRATOS
+              {currentBanner.title}
             </h1>
 
             <p className="hero-subtitle">
-              {banner.subtitle}
+              {currentBanner.subtitle}
             </p>
 
             <div className="hero-actions">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/produtos" className="btn btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem' }}>
-                  COMPRAR AGORA <ArrowRight size={20} />
+                <Link to={currentBanner.buttonLink || "/produtos"} className="btn btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem' }}>
+                  {currentBanner.buttonText || "COMPRAR AGORA"} <ArrowRight size={20} />
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/produtos" className="btn btn-gold" style={{ padding: '0.9rem 1.8rem', fontSize: '1.05rem' }}>
-                  CONHEÇA NOSSOS PRODUTOS
-                </Link>
-              </motion.div>
+              {currentBanner.secondaryButtonText && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link to={currentBanner.secondaryButtonLink || "/produtos"} className="btn btn-gold" style={{ padding: '0.9rem 1.8rem', fontSize: '1.05rem' }}>
+                    {currentBanner.secondaryButtonText}
+                  </Link>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>
+
+        {/* Indicadores de Slide quando há mais de 1 Banner ativo */}
+        {activeBanners.length > 1 && (
+          <div style={{ position: 'absolute', bottom: '25px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+            {activeBanners.map((b, idx) => (
+              <button
+                key={b.id || idx}
+                onClick={() => setCurrentBannerIndex(idx)}
+                style={{
+                  width: idx === (currentBannerIndex % activeBanners.length) ? '28px' : '10px',
+                  height: '10px',
+                  borderRadius: '10px',
+                  backgroundColor: idx === (currentBannerIndex % activeBanners.length) ? 'var(--accent-gold)' : 'rgba(255,255,255,0.4)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                aria-label={`Slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Destaques e Diferenciais da Marca */}

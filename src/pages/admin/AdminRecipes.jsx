@@ -69,6 +69,7 @@ export default function AdminRecipes() {
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente excluir esta receita do site?")) return;
     try {
+      setRecipes(prev => prev.filter(r => r.id !== id));
       const res = await fetch(`/api/admin/recipes/${id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
@@ -76,9 +77,11 @@ export default function AdminRecipes() {
         fetchData();
       } else {
         addToast(d.message || "Erro ao excluir receita.", "error");
+        fetchData();
       }
     } catch (err) {
       addToast("Erro ao remover receita.", "error");
+      fetchData();
     }
   };
 

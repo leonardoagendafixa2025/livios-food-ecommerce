@@ -69,14 +69,19 @@ export default function AdminPromotionalBars() {
   const handleDeleteBar = async (id) => {
     if (!window.confirm("Excluir esta barra promocional?")) return;
     try {
+      setBars(prev => prev.filter(b => b.id !== id));
       const res = await fetch(`/api/admin/promotional-bars/${id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
         addToast("Barra excluída com sucesso!", "success");
         fetchBars();
+      } else {
+        addToast(d.message || "Erro ao excluir barra.", "error");
+        fetchBars();
       }
     } catch (err) {
       addToast("Erro ao excluir barra.", "error");
+      fetchBars();
     }
   };
 

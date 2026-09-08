@@ -77,14 +77,19 @@ export default function AdminCoupons() {
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente excluir este cupom de desconto?")) return;
     try {
+      setCoupons(prev => prev.filter(c => c.id !== id));
       const res = await fetch(`/api/coupons/${id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
         addToast("Cupom excluído!", "success");
         fetchCoupons();
+      } else {
+        addToast(d.message || "Erro ao excluir cupom.", "error");
+        fetchCoupons();
       }
     } catch (err) {
       addToast("Erro ao remover cupom.", "error");
+      fetchCoupons();
     }
   };
 

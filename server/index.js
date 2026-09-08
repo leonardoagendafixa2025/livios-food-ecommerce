@@ -448,6 +448,122 @@ function mapCouponFromSupabase(row) {
   };
 }
 
+function mapPopupToSupabase(p) {
+  return {
+    id: p.id,
+    title: p.title || '',
+    description: p.description || '',
+    type: p.type || 'CUPOM',
+    status: p.status || (p.active ? 'Ativo' : 'Inativo'),
+    coupon_code: p.couponCode || null,
+    button_text: p.buttonText || 'COPIAR CUPOM E COMPRAR',
+    button_link: p.buttonLink || '/produtos',
+    image: p.image || '/header-bg.jpg',
+    position: p.position || 'center',
+    trigger: p.trigger || 'time_delay',
+    trigger_delay_seconds: Number(p.triggerDelaySeconds || 5),
+    frequency: p.frequency || 'once_per_day',
+    active: p.active ?? true,
+    stats: p.stats || { viewsCount: 0, clicksCount: 0, conversionsCount: 0 },
+    created_at: p.createdAt || new Date().toISOString()
+  };
+}
+
+function mapPopupFromSupabase(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    type: row.type,
+    status: row.status,
+    couponCode: row.coupon_code,
+    buttonText: row.button_text,
+    buttonLink: row.button_link,
+    image: row.image,
+    position: row.position,
+    trigger: row.trigger,
+    triggerDelaySeconds: row.trigger_delay_seconds,
+    frequency: row.frequency,
+    active: row.active ?? true,
+    stats: row.stats || { viewsCount: 0, clicksCount: 0, conversionsCount: 0 },
+    createdAt: row.created_at
+  };
+}
+
+function mapPromotionalBarToSupabase(b) {
+  return {
+    id: b.id,
+    text: b.text || '',
+    coupon_code: b.couponCode || null,
+    button_text: b.buttonText || '',
+    button_link: b.buttonLink || '/produtos',
+    background_color: b.backgroundColor || '#8B0000',
+    text_color: b.textColor || '#FFFFFF',
+    countdown_end_date: b.countdownEndDate || null,
+    active: b.active ?? true,
+    stats: b.stats || { viewsCount: 0, clicksCount: 0 },
+    created_at: b.createdAt || new Date().toISOString()
+  };
+}
+
+function mapPromotionalBarFromSupabase(row) {
+  return {
+    id: row.id,
+    text: row.text,
+    couponCode: row.coupon_code,
+    buttonText: row.button_text,
+    buttonLink: row.button_link,
+    backgroundColor: row.background_color,
+    textColor: row.text_color,
+    countdownEndDate: row.countdown_end_date,
+    active: row.active ?? true,
+    stats: row.stats || { viewsCount: 0, clicksCount: 0 },
+    createdAt: row.created_at
+  };
+}
+
+function mapCampaignToSupabase(c) {
+  return {
+    id: c.id,
+    name: c.name || '',
+    title: c.title || '',
+    description: c.description || '',
+    type: c.type || 'PROMOÇÃO',
+    status: c.status || 'Ativa',
+    channels: c.channels || ["email", "whatsapp"],
+    segment: c.segment || {},
+    message: c.message || {},
+    coupon_code: c.couponCode || null,
+    linked_product_id: c.linkedProductId || null,
+    image: c.image || null,
+    start_date: c.startDate || null,
+    end_date: c.endDate || null,
+    stats: c.stats || { reachedCount: 0, conversionsCount: 0, totalRevenue: 0 },
+    created_at: c.createdAt || new Date().toISOString()
+  };
+}
+
+function mapCampaignFromSupabase(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    title: row.title,
+    description: row.description,
+    type: row.type,
+    status: row.status,
+    channels: row.channels || [],
+    segment: row.segment || {},
+    message: row.message || {},
+    couponCode: row.coupon_code,
+    linkedProductId: row.linked_product_id,
+    image: row.image,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    stats: row.stats || { reachedCount: 0, conversionsCount: 0, totalRevenue: 0 },
+    createdAt: row.created_at
+  };
+}
+
 // Sincronização inicial em segundo plano ao iniciar o servidor
 async function syncInitialFromSupabase() {
   const supabase = getSupabase();
@@ -457,31 +573,46 @@ async function syncInitialFromSupabase() {
     if (catData && Array.isArray(catData)) {
       const db = getDb();
       db.categories = catData.map(mapCategoryFromSupabase);
-      console.log(`🟢 Supabase sincronizado: ${catData.length} categorias carregadas na inicialização.`);
+      console.log(`🟢 Supabase sincronizado: ${catData.length} categorias carregadas.`);
     }
     const { data: prodData } = await supabase.from('products').select('*');
-    if (prodData && prodData.length > 0) {
+    if (prodData && Array.isArray(prodData)) {
       const db = getDb();
       db.products = prodData.map(mapProductFromSupabase);
-      console.log(`🟢 Supabase sincronizado: ${prodData.length} produtos carregados na inicialização.`);
+      console.log(`🟢 Supabase sincronizado: ${prodData.length} produtos carregados.`);
     }
     const { data: ordData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-    if (ordData && ordData.length > 0) {
+    if (ordData && Array.isArray(ordData)) {
       const db = getDb();
       db.orders = ordData.map(mapOrderFromSupabase);
-      console.log(`🟢 Supabase sincronizado: ${ordData.length} pedidos carregados na inicialização.`);
+      console.log(`🟢 Supabase sincronizado: ${ordData.length} pedidos carregados.`);
     }
     const { data: banData } = await supabase.from('banners').select('*').order('order', { ascending: true });
-    if (banData && banData.length > 0) {
+    if (banData && Array.isArray(banData)) {
       const db = getDb();
       db.banners = banData.map(mapBannerFromSupabase);
-      console.log(`🟢 Supabase sincronizado: ${banData.length} banners carregados na inicialização.`);
+      console.log(`🟢 Supabase sincronizado: ${banData.length} banners carregados.`);
     }
     const { data: coupData } = await supabase.from('coupons').select('*');
-    if (coupData && coupData.length > 0) {
+    if (coupData && Array.isArray(coupData)) {
       const db = getDb();
       db.coupons = coupData.map(mapCouponFromSupabase);
-      console.log(`🟢 Supabase sincronizado: ${coupData.length} cupons carregados na inicialização.`);
+      console.log(`🟢 Supabase sincronizado: ${coupData.length} cupons carregados.`);
+    }
+    const { data: popData } = await supabase.from('popups').select('*');
+    if (popData && Array.isArray(popData)) {
+      const db = getDb();
+      db.popups = popData.map(mapPopupFromSupabase);
+    }
+    const { data: barData } = await supabase.from('promotional_bars').select('*');
+    if (barData && Array.isArray(barData)) {
+      const db = getDb();
+      db.promotionalBars = barData.map(mapPromotionalBarFromSupabase);
+    }
+    const { data: campData } = await supabase.from('campaigns').select('*');
+    if (campData && Array.isArray(campData)) {
+      const db = getDb();
+      db.campaigns = campData.map(mapCampaignFromSupabase);
     }
   } catch (err) {
     console.warn("⚠️ Aviso ao sincronizar inicialmente do Supabase:", err.message);
@@ -1145,12 +1276,34 @@ app.post('/api/shipping/calculate', (req, res) => {
   });
 });
 
-app.get('/api/coupons', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, coupons: db.coupons || [] });
+app.get('/api/coupons', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('coupons').select('*');
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapCouponFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.coupons = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar cupons no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.coupons || [])];
+  }
+
+  res.json({ success: true, coupons: list });
 });
 
-app.post('/api/coupons', (req, res) => {
+app.post('/api/coupons', async (req, res) => {
   const db = getDb();
   const { code, type, value, minPurchase, usageLimit, description } = req.body;
   
@@ -1176,22 +1329,21 @@ app.post('/api/coupons', (req, res) => {
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('coupons').insert(mapCouponToSupabase(newCoupon));
-        console.log("🟢 Cupom salvo no Supabase PostgreSQL:", newCoupon.code);
-      } catch (err) {
-        console.error("Erro ao salvar cupom no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('coupons').insert(mapCouponToSupabase(newCoupon));
+      console.log("🟢 Cupom salvo no Supabase PostgreSQL:", newCoupon.code);
+    } catch (err) {
+      console.error("Erro ao salvar cupom no Supabase:", err);
+    }
   }
 
   res.json({ success: true, coupon: newCoupon, message: "Cupom criado com sucesso!" });
 });
 
-app.put('/api/coupons/:id', (req, res) => {
+app.put('/api/coupons/:id', async (req, res) => {
   const db = getDb();
-  const coupon = (db.coupons || []).find(c => c.id === req.params.id);
+  if (!db.coupons) db.coupons = [];
+  const coupon = db.coupons.find(c => c.id === req.params.id);
   if (!coupon) return res.status(404).json({ success: false, message: "Cupom não encontrado." });
 
   if (req.body.code && req.body.code.trim().toUpperCase() !== coupon.code) {
@@ -1211,37 +1363,34 @@ app.put('/api/coupons/:id', (req, res) => {
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('coupons').update(mapCouponToSupabase(coupon)).eq('id', req.params.id);
-        console.log("🟢 Cupom atualizado no Supabase PostgreSQL:", coupon.code);
-      } catch (err) {
-        console.error("Erro ao atualizar cupom no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('coupons').update(mapCouponToSupabase(coupon)).eq('id', req.params.id);
+      console.log("🟢 Cupom atualizado no Supabase PostgreSQL:", coupon.code);
+    } catch (err) {
+      console.error("Erro ao atualizar cupom no Supabase:", err);
+    }
   }
 
   res.json({ success: true, coupon, message: "Cupom atualizado com sucesso!" });
 });
 
-app.delete('/api/coupons/:id', (req, res) => {
+app.delete('/api/coupons/:id', async (req, res) => {
   const db = getDb();
-  const index = (db.coupons || []).findIndex(c => c.id === req.params.id);
-  if (index === -1) return res.status(404).json({ success: false, message: "Cupom não encontrado." });
-
-  db.coupons.splice(index, 1);
-  saveDb();
+  if (!db.coupons) db.coupons = [];
+  const index = db.coupons.findIndex(c => c.id === req.params.id);
+  if (index !== -1) {
+    db.coupons.splice(index, 1);
+    saveDb();
+  }
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('coupons').delete().eq('id', req.params.id);
-        console.log("🟢 Cupom removido do Supabase PostgreSQL:", req.params.id);
-      } catch (err) {
-        console.error("Erro ao remover cupom no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('coupons').delete().eq('id', req.params.id);
+      console.log("🟢 Cupom removido do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover cupom no Supabase:", err);
+    }
   }
 
   res.json({ success: true, message: "Cupom removido com sucesso!" });
@@ -1667,51 +1816,95 @@ app.delete('/api/admin/recipes/:id', (req, res) => {
   res.json({ success: true, message: 'Receita excluída com sucesso!' });
 });
 
-app.get('/api/banners', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, banners: db.banners.filter(b => b.active) });
+app.get('/api/banners', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('banners').select('*').order('order', { ascending: true });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapBannerFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.banners = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar banners no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.banners || [])];
+  }
+
+  res.json({ success: true, banners: list.filter(b => b.active) });
 });
 
-app.get('/api/admin/banners', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, banners: db.banners });
+app.get('/api/admin/banners', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('banners').select('*').order('order', { ascending: true });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapBannerFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.banners = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar banners no Supabase (admin):", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.banners || [])];
+  }
+
+  res.json({ success: true, banners: list });
 });
 
-app.post('/api/admin/banners', (req, res) => {
+app.post('/api/admin/banners', async (req, res) => {
   const db = getDb();
+  if (!db.banners) db.banners = [];
   const newBanner = {
     id: generateId('ban'),
     title: req.body.title || 'Novo Banner Promocional',
-    subtitle: req.body.subtitle || 'Subtítulo do banner',
+    subtitle: req.body.subtitle || '',
     buttonText: req.body.buttonText || 'COMPRAR AGORA',
     buttonLink: req.body.buttonLink || '/produtos',
-    secondaryButtonText: req.body.secondaryButtonText || 'SAIBA MAIS',
-    secondaryButtonLink: req.body.secondaryButtonLink || '/sobre',
+    secondaryButtonText: req.body.secondaryButtonText || '',
+    secondaryButtonLink: req.body.secondaryButtonLink || '',
     imageDesktop: req.body.imageDesktop || '/header-bg.jpg',
-    imageMobile: req.body.imageMobile || '/header-bg.jpg',
+    imageMobile: req.body.imageMobile || req.body.imageDesktop || '/header-bg.jpg',
     active: req.body.active ?? true,
-    order: db.banners.length + 1
+    order: (db.banners.length || 0) + 1
   };
   db.banners.push(newBanner);
   saveDb();
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('banners').insert(mapBannerToSupabase(newBanner));
-        console.log("🟢 Banner salvo no Supabase PostgreSQL:", newBanner.id);
-      } catch (err) {
-        console.error("Erro ao salvar banner no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('banners').insert(mapBannerToSupabase(newBanner));
+      console.log("🟢 Banner salvo no Supabase PostgreSQL:", newBanner.id);
+    } catch (err) {
+      console.error("Erro ao salvar banner no Supabase:", err);
+    }
   }
 
   res.json({ success: true, banner: newBanner, message: 'Banner criado com sucesso!' });
 });
 
-app.put('/api/admin/banners/:id', (req, res) => {
+app.put('/api/admin/banners/:id', async (req, res) => {
   const db = getDb();
+  if (!db.banners) db.banners = [];
   const banner = db.banners.find(b => b.id === req.params.id);
   if (!banner) return res.status(404).json({ success: false, message: 'Banner não encontrado.' });
   Object.assign(banner, req.body);
@@ -1719,41 +1912,39 @@ app.put('/api/admin/banners/:id', (req, res) => {
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('banners').update(mapBannerToSupabase(banner)).eq('id', req.params.id);
-        console.log("🟢 Banner atualizado no Supabase PostgreSQL:", req.params.id);
-      } catch (err) {
-        console.error("Erro ao atualizar banner no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('banners').update(mapBannerToSupabase(banner)).eq('id', req.params.id);
+      console.log("🟢 Banner atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar banner no Supabase:", err);
+    }
   }
 
   res.json({ success: true, banner, message: 'Banner atualizado com sucesso!' });
 });
 
-app.delete('/api/admin/banners/:id', (req, res) => {
+app.delete('/api/admin/banners/:id', async (req, res) => {
   const db = getDb();
+  if (!db.banners) db.banners = [];
   db.banners = db.banners.filter(b => b.id !== req.params.id);
   saveDb();
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('banners').delete().eq('id', req.params.id);
-        console.log("🟢 Banner removido do Supabase PostgreSQL:", req.params.id);
-      } catch (err) {
-        console.error("Erro ao remover banner no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('banners').delete().eq('id', req.params.id);
+      console.log("🟢 Banner removido do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover banner no Supabase:", err);
+    }
   }
 
   res.json({ success: true, message: 'Banner excluído com sucesso!' });
 });
 
-app.put('/api/admin/banners/:id/toggle', (req, res) => {
+app.put('/api/admin/banners/:id/toggle', async (req, res) => {
   const db = getDb();
+  if (!db.banners) db.banners = [];
   const banner = db.banners.find(b => b.id === req.params.id);
   if (!banner) return res.status(404).json({ success: false, message: 'Banner não encontrado.' });
   banner.active = !banner.active;
@@ -1761,14 +1952,12 @@ app.put('/api/admin/banners/:id/toggle', (req, res) => {
 
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        await supabase.from('banners').update({ active: banner.active }).eq('id', req.params.id);
-        console.log("🟢 Status do banner atualizado no Supabase PostgreSQL:", req.params.id);
-      } catch (err) {
-        console.error("Erro ao alternar status do banner no Supabase:", err);
-      }
-    })();
+    try {
+      await supabase.from('banners').update({ active: banner.active }).eq('id', req.params.id);
+      console.log("🟢 Status do banner atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao alternar status do banner no Supabase:", err);
+    }
   }
 
   res.json({ success: true, banner, message: `Banner ${banner.active ? 'ativado' : 'desativado'} com sucesso!` });
@@ -1887,13 +2076,36 @@ app.post('/api/admin/campaigns/estimate-reach', (req, res) => {
 });
 
 // CRUD de Campanhas
-app.get('/api/admin/campaigns', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, campaigns: db.campaigns || [] });
+app.get('/api/admin/campaigns', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapCampaignFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.campaigns = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar campanhas no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.campaigns || [])];
+  }
+
+  res.json({ success: true, campaigns: list });
 });
 
-app.post('/api/admin/campaigns', (req, res) => {
+app.post('/api/admin/campaigns', async (req, res) => {
   const db = getDb();
+  if (!db.campaigns) db.campaigns = [];
   const newCamp = {
     id: generateId('camp'),
     name: req.body.name || 'Nova Campanha Promocional',
@@ -1933,6 +2145,7 @@ app.post('/api/admin/campaigns', (req, res) => {
 
   // Se a campanha foi criada com pop-up atrelado ou barra, sincroniza automático
   if (req.body.createPopup) {
+    if (!db.popups) db.popups = [];
     db.popups.push({
       id: generateId('pop'),
       title: newCamp.title,
@@ -1952,33 +2165,91 @@ app.post('/api/admin/campaigns', (req, res) => {
   }
 
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('campaigns').insert(mapCampaignToSupabase(newCamp));
+      console.log("🟢 Campanha salva no Supabase PostgreSQL:", newCamp.id);
+    } catch (err) {
+      console.error("Erro ao salvar campanha no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, campaign: newCamp, message: 'Campanha criada e ativada com sucesso!' });
 });
 
-app.put('/api/admin/campaigns/:id', (req, res) => {
+app.put('/api/admin/campaigns/:id', async (req, res) => {
   const db = getDb();
+  if (!db.campaigns) db.campaigns = [];
   const camp = db.campaigns.find(c => c.id === req.params.id);
   if (!camp) return res.status(404).json({ success: false, message: 'Campanha não encontrada.' });
   Object.assign(camp, req.body);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('campaigns').update(mapCampaignToSupabase(camp)).eq('id', req.params.id);
+      console.log("🟢 Campanha atualizada no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar campanha no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, campaign: camp, message: 'Campanha atualizada com sucesso!' });
 });
 
-app.delete('/api/admin/campaigns/:id', (req, res) => {
+app.delete('/api/admin/campaigns/:id', async (req, res) => {
   const db = getDb();
+  if (!db.campaigns) db.campaigns = [];
   db.campaigns = db.campaigns.filter(c => c.id !== req.params.id);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('campaigns').delete().eq('id', req.params.id);
+      console.log("🟢 Campanha removida do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover campanha no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, message: 'Campanha excluída com sucesso!' });
 });
 
 // CRUD de Pop-ups Promocionais
-app.get('/api/admin/popups', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, popups: db.popups || [] });
+app.get('/api/admin/popups', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('popups').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapPopupFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.popups = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar popups no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.popups || [])];
+  }
+
+  res.json({ success: true, popups: list });
 });
 
-app.post('/api/admin/popups', (req, res) => {
+app.post('/api/admin/popups', async (req, res) => {
   const db = getDb();
+  if (!db.popups) db.popups = [];
   const newPop = {
     id: generateId('pop'),
     title: req.body.title || '🔥 OFERTA ESPECIAL',
@@ -1999,43 +2270,113 @@ app.post('/api/admin/popups', (req, res) => {
   };
   db.popups.unshift(newPop);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('popups').insert(mapPopupToSupabase(newPop));
+      console.log("🟢 Pop-up salvo no Supabase PostgreSQL:", newPop.id);
+    } catch (err) {
+      console.error("Erro ao salvar popup no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, popup: newPop, message: 'Pop-up promocional criado com sucesso!' });
 });
 
-app.put('/api/admin/popups/:id', (req, res) => {
+app.put('/api/admin/popups/:id', async (req, res) => {
   const db = getDb();
+  if (!db.popups) db.popups = [];
   const pop = db.popups.find(p => p.id === req.params.id);
   if (!pop) return res.status(404).json({ success: false, message: 'Pop-up não encontrado.' });
   Object.assign(pop, req.body);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('popups').update(mapPopupToSupabase(pop)).eq('id', req.params.id);
+      console.log("🟢 Pop-up atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar popup no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, popup: pop, message: 'Pop-up atualizado com sucesso!' });
 });
 
-app.delete('/api/admin/popups/:id', (req, res) => {
+app.delete('/api/admin/popups/:id', async (req, res) => {
   const db = getDb();
+  if (!db.popups) db.popups = [];
   db.popups = db.popups.filter(p => p.id !== req.params.id);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('popups').delete().eq('id', req.params.id);
+      console.log("🟢 Pop-up removido do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover popup no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, message: 'Pop-up excluído com sucesso!' });
 });
 
-app.put('/api/admin/popups/:id/toggle', (req, res) => {
+app.put('/api/admin/popups/:id/toggle', async (req, res) => {
   const db = getDb();
+  if (!db.popups) db.popups = [];
   const pop = db.popups.find(p => p.id === req.params.id);
   if (!pop) return res.status(404).json({ success: false, message: 'Pop-up não encontrado.' });
   pop.active = !pop.active;
   pop.status = pop.active ? 'Ativo' : 'Inativo';
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('popups').update({ active: pop.active, status: pop.status }).eq('id', req.params.id);
+      console.log("🟢 Status do pop-up atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao alternar status do popup no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, popup: pop, message: `Pop-up ${pop.active ? 'ativado' : 'desativado'} com sucesso!` });
 });
 
 // CRUD de Barras Promocionais
-app.get('/api/admin/promotional-bars', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, promotionalBars: db.promotionalBars || [] });
+app.get('/api/admin/promotional-bars', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('promotional_bars').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapPromotionalBarFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.promotionalBars = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar barras promocionais no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.promotionalBars || [])];
+  }
+
+  res.json({ success: true, promotionalBars: list });
 });
 
-app.post('/api/admin/promotional-bars', (req, res) => {
+app.post('/api/admin/promotional-bars', async (req, res) => {
   const db = getDb();
+  if (!db.promotionalBars) db.promotionalBars = [];
   const newBar = {
     id: generateId('pbar'),
     text: req.body.text || '🔥 OFERTA DA SEMANA DO SABOR:',
@@ -2051,22 +2392,57 @@ app.post('/api/admin/promotional-bars', (req, res) => {
   };
   db.promotionalBars.unshift(newBar);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('promotional_bars').insert(mapPromotionalBarToSupabase(newBar));
+      console.log("🟢 Barra promocional salva no Supabase PostgreSQL:", newBar.id);
+    } catch (err) {
+      console.error("Erro ao salvar barra promocional no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, promotionalBar: newBar, message: 'Barra promocional criada com sucesso!' });
 });
 
-app.put('/api/admin/promotional-bars/:id/toggle', (req, res) => {
+app.put('/api/admin/promotional-bars/:id/toggle', async (req, res) => {
   const db = getDb();
+  if (!db.promotionalBars) db.promotionalBars = [];
   const bar = db.promotionalBars.find(b => b.id === req.params.id);
   if (!bar) return res.status(404).json({ success: false, message: 'Barra não encontrada.' });
   bar.active = !bar.active;
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('promotional_bars').update({ active: bar.active }).eq('id', req.params.id);
+      console.log("🟢 Status da barra promocional atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao alternar barra promocional no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, promotionalBar: bar, message: `Barra promocional ${bar.active ? 'ativada' : 'desativada'}!` });
 });
 
-app.delete('/api/admin/promotional-bars/:id', (req, res) => {
+app.delete('/api/admin/promotional-bars/:id', async (req, res) => {
   const db = getDb();
+  if (!db.promotionalBars) db.promotionalBars = [];
   db.promotionalBars = db.promotionalBars.filter(b => b.id !== req.params.id);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('promotional_bars').delete().eq('id', req.params.id);
+      console.log("🟢 Barra promocional removida do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover barra promocional no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, message: 'Barra promocional excluída com sucesso!' });
 });
 

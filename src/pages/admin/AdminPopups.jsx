@@ -119,14 +119,19 @@ export default function AdminPopups() {
   const handleDeletePopup = async (id) => {
     if (!window.confirm("Deseja realmente excluir este pop-up?")) return;
     try {
+      setPopups(prev => prev.filter(p => p.id !== id));
       const res = await fetch(`/api/admin/popups/${id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.success) {
         addToast("Pop-up excluído com sucesso!", "success");
         fetchPopups();
+      } else {
+        addToast(d.message || "Erro ao excluir pop-up.", "error");
+        fetchPopups();
       }
     } catch (err) {
       addToast("Erro ao excluir pop-up.", "error");
+      fetchPopups();
     }
   };
 
