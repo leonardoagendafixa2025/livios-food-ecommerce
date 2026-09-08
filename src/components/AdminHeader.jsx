@@ -50,9 +50,9 @@ export default function AdminHeader() {
   const currentPage = pageTitles[location.pathname] || { title: 'Painel Administrativo', subtitle: 'Gerenciamento do e-commerce Livio\'s Food Innovation.' };
 
   // Buscar notificações reais da API
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (isInitial = false) => {
     try {
-      setLoading(true);
+      if (isInitial) setLoading(true);
       const res = await fetch('/api/admin/notifications');
       if (res.ok) {
         const data = await res.json();
@@ -60,23 +60,24 @@ export default function AdminHeader() {
           setNotifications(data.notifications);
           
           // Calcular não lidas com base no localStorage
-          const unread = data.notifications.filter(n => !readIds.includes(n.id)).length;
+          const savedRead = JSON.parse(localStorage.getItem('livios_read_notifications') || '[]');
+          const unread = data.notifications.filter(n => !savedRead.includes(n.id)).length;
           setUnreadCount(unread);
         }
       }
     } catch (err) {
       console.error('Erro ao buscar notificações do admin:', err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
-    // Polling a cada 30 segundos
-    const interval = setInterval(fetchNotifications, 30000);
+    fetchNotifications(true);
+    // Polling suave a cada 45 segundos
+    const interval = setInterval(() => fetchNotifications(false), 45000);
     return () => clearInterval(interval);
-  }, [readIds]);
+  }, []);
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {

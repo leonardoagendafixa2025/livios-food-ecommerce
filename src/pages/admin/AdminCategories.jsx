@@ -416,7 +416,10 @@ export default function AdminCategories() {
                     src={c.image || fallbackImg}
                     alt={c.name}
                     onClick={() => handleOpenEdit(c)}
-                    onError={(e) => { e.target.src = fallbackImg; }}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = fallbackImg;
+                    }}
                     style={{
                       width: '100px',
                       height: '100px',
@@ -570,7 +573,10 @@ export default function AdminCategories() {
                         src={c.image || fallbackImg}
                         alt={c.name}
                         onClick={() => handleOpenEdit(c)}
-                        onError={(e) => { e.target.src = fallbackImg; }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = fallbackImg;
+                        }}
                         style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--light-border)', cursor: 'pointer' }}
                       />
                     </td>

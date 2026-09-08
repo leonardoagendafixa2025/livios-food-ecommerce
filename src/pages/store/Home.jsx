@@ -177,19 +177,17 @@ export default function Home() {
 
           <div className="grid-4">
             {categories.map((cat, idx) => (
-              <motion.div
+              <div
                 key={cat.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                style={{ transition: 'transform 0.3s ease' }}
               >
                 <Link to={`/produtos?categoria=${cat.id}`} className="category-card">
                   <img 
                     src={cat.image || "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80"} 
                     alt={cat.name} 
                     onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80";
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80";
                     }}
                   />
                   <div className="category-card-overlay">
@@ -197,7 +195,7 @@ export default function Home() {
                     <span className="category-card-count">{cat.description}</span>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
