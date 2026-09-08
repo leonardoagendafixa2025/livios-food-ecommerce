@@ -27,7 +27,7 @@ export default function AdminProducts() {
     stock: '',
     minStock: '10',
     weightKg: '0.45',
-    images: '',
+    images: [],
     ingredients: '',
     isFeatured: false,
     isBestSeller: false,
@@ -81,7 +81,7 @@ export default function AdminProducts() {
       stock: p.stock.toString(),
       minStock: p.minStock.toString(),
       weightKg: p.weightKg ? p.weightKg.toString() : '0.45',
-      images: p.images ? p.images.join(', ') : '',
+      images: Array.isArray(p.images) ? p.images : (p.images ? [p.images] : []),
       ingredients: p.ingredients || '',
       isFeatured: !!p.isFeatured,
       isBestSeller: !!p.isBestSeller,
@@ -113,9 +113,21 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let finalImages = [];
+    if (Array.isArray(formData.images)) {
+      finalImages = formData.images.filter(Boolean);
+    } else if (typeof formData.images === 'string' && formData.images.trim()) {
+      if (formData.images.startsWith('data:image')) {
+        finalImages = [formData.images.trim()];
+      } else {
+        finalImages = formData.images.split(',').map(i => i.trim()).filter(Boolean);
+      }
+    }
+
     const payload = {
       ...formData,
-      images: formData.images ? formData.images.split(',').map(i => i.trim()).filter(Boolean) : []
+      images: finalImages
     };
 
     try {
@@ -207,7 +219,15 @@ export default function AdminProducts() {
             {filtered.map(p => (
               <tr key={p.id} style={{ opacity: p.active ? 1 : 0.6 }}>
                 <td>
-                  <img src={p.images && p.images[0] ? p.images[0] : ''} alt={p.name} style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                  <img 
+                    src={p.images && p.images[0] ? p.images[0] : 'https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=800&q=80'} 
+                    alt={p.name} 
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=800&q=80';
+                    }}
+                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }} 
+                  />
                 </td>
                 <td>
                   <strong>{p.name}</strong>
@@ -353,12 +373,26 @@ export default function AdminProducts() {
                 </div>
               </div>
 
-              <ImageUploader
-                label="Upload da Imagem Principal do Produto *"
-                value={formData.images ? formData.images.split(',')[0].trim() : ''}
-                onChange={(url) => setFormData({ ...formData, images: url })}
-                helpText="Selecione um arquivo de foto do produto no seu computador"
-              />
+              <div>
+                <ImageUploader
+                  label="Upload da Imagem Principal do Produto *"
+                  value={Array.isArray(formData.images) && formData.images[0] ? formData.images[0] : (typeof formData.images === 'string' ? formData.images : '')}
+                  onChange={(url) => setFormData(prev => ({ ...prev, images: url ? [url] : [] }))}
+                  helpText="Selecione um arquivo de foto do produto no seu computador"
+                />
+                <div style={{ marginTop: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '2px' }}>
+                    Ou insira/edite a URL direta da imagem:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={Array.isArray(formData.images) && formData.images[0] ? formData.images[0] : (typeof formData.images === 'string' ? formData.images : '')}
+                    onChange={(e) => setFormData(prev => ({ ...prev, images: e.target.value ? [e.target.value] : [] }))}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '4px' }}>Descrição Curta</label>
