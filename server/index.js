@@ -452,13 +452,15 @@ app.delete('/api/categories/:id', async (req, res) => {
 // ==========================================
 app.get('/api/products', async (req, res) => {
   let list = [];
+  let fetchedFromSupabase = false;
   const supabase = getSupabase();
 
   if (supabase) {
     try {
       const { data, error } = await supabase.from('products').select('*');
-      if (!error && data) {
+      if (!error && Array.isArray(data)) {
         list = data.map(mapProductFromSupabase);
+        fetchedFromSupabase = true;
         const db = getDb();
         db.products = list;
       } else if (error) {
@@ -469,8 +471,8 @@ app.get('/api/products', async (req, res) => {
     }
   }
 
-  // Fallback se o Supabase não estiver ativo ou sem dados
-  if (list.length === 0) {
+  // Fallback SOMENTE se o Supabase não estiver configurado ou falhar na conexão
+  if (!fetchedFromSupabase) {
     const db = getDb();
     list = [...db.products];
   }

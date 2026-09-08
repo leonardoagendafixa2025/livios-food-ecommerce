@@ -359,44 +359,6 @@
       "rating": 4.9,
       "reviewCount": 19,
       "active": true
-    },
-    {
-      "id": "prod_7",
-      "sku": "LIV-PET-001",
-      "name": "Molho Agridoce Original Bisnaga PET 350g",
-      "slug": "molho-agridoce-original-bisnaga-pet-350g",
-      "categoryId": "cat_pet",
-      "shortDescription": "A mesma receita consagrada na versão prática para churrascos e lanches.",
-      "fullDescription": "Embalagem PET squeeze com válvula dosadora antigota. Perfeita para levar ao churrasco da família, hamburguerias em casa e mesas casuais.",
-      "price": 22.9,
-      "promotionalPrice": 19.9,
-      "costPrice": 6.2,
-      "stock": 200,
-      "minStock": 30,
-      "weightKg": 0.38,
-      "volumeMl": 250,
-      "heatLevel": "Média",
-      "ingredients": "Pimentas vermelhas selecionadas, açúcar, vinagre, alho, goma xantana e conservante sorbato de potássio.",
-      "nutritionInfo": [
-        {
-          "label": "Valor Energético",
-          "value": "32 kcal (15g)"
-        },
-        {
-          "label": "Carboidratos",
-          "value": "7.8g"
-        }
-      ],
-      "images": [
-        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
-      ],
-      "isFeatured": true,
-      "isBestSeller": true,
-      "isNew": false,
-      "isOffer": true,
-      "rating": 4.8,
-      "reviewCount": 52,
-      "active": true
     }
   ],
   "recipes": [
