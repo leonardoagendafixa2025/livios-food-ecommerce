@@ -339,9 +339,10 @@ async function syncInitialFromSupabase() {
   if (!supabase) return;
   try {
     const { data: catData } = await supabase.from('categories').select('*').order('order', { ascending: true });
-    if (catData && catData.length > 0) {
+    if (catData && Array.isArray(catData)) {
       const db = getDb();
       db.categories = catData.map(mapCategoryFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${catData.length} categorias carregadas na inicialização.`);
     }
     const { data: prodData } = await supabase.from('products').select('*');
     if (prodData && prodData.length > 0) {
@@ -359,22 +360,33 @@ syncInitialFromSupabase();
 // CATEGORIAS
 // ==========================================
 app.get('/api/categories', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
   const supabase = getSupabase();
+
   if (supabase) {
     try {
       const { data, error } = await supabase.from('categories').select('*').order('order', { ascending: true });
-      if (!error && data && data.length > 0) {
-        const mapped = data.map(mapCategoryFromSupabase);
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapCategoryFromSupabase);
+        fetchedFromSupabase = true;
         const db = getDb();
-        db.categories = mapped;
-        return res.json({ success: true, categories: mapped });
+        db.categories = list;
+      } else if (error) {
+        console.warn("⚠️ Aviso ao consultar categorias no Supabase:", error.message);
       }
     } catch (err) {
-      console.error("Erro ao buscar categorias no Supabase:", err);
+      console.error("Erro ao buscar categorias no Supabase, usando fallback local:", err);
     }
   }
-  const db = getDb();
-  res.json({ success: true, categories: db.categories });
+
+  // Fallback SOMENTE se o Supabase não estiver conectado
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.categories || [])];
+  }
+
+  res.json({ success: true, categories: list });
 });
 
 app.post('/api/categories', async (req, res) => {
@@ -385,19 +397,22 @@ app.post('/api/categories', async (req, res) => {
     slug: req.body.slug || req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     description: req.body.description || "",
     image: req.body.image || "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80",
-    order: db.categories.length + 1,
+    order: parseInt(req.body.order) || ((db.categories?.length || 0) + 1),
     active: req.body.active ?? true
   };
 
   const supabase = getSupabase();
   if (supabase) {
     try {
-      await supabase.from('categories').insert(mapCategoryToSupabase(newCat));
+      const { error } = await supabase.from('categories').insert(mapCategoryToSupabase(newCat));
+      if (error) console.error("Erro ao inserir categoria no Supabase:", error.message);
+      else console.log("🟢 Categoria inserida no Supabase:", newCat.id);
     } catch (err) {
       console.error("Erro ao inserir categoria no Supabase:", err);
     }
   }
 
+  if (!db.categories) db.categories = [];
   db.categories.push(newCat);
   saveDb();
   res.json({ success: true, category: newCat, message: "Categoria criada com sucesso!" });
@@ -405,7 +420,16 @@ app.post('/api/categories', async (req, res) => {
 
 app.put('/api/categories/:id', async (req, res) => {
   const db = getDb();
-  const cat = db.categories.find(c => c.id === req.params.id);
+  let cat = db.categories?.find(c => c.id === req.params.id);
+
+  const supabase = getSupabase();
+  if (supabase && !cat) {
+    try {
+      const { data } = await supabase.from('categories').select('*').eq('id', req.params.id).maybeSingle();
+      if (data) cat = mapCategoryFromSupabase(data);
+    } catch (e) {}
+  }
+
   if (!cat) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
 
   if (req.body.name) cat.name = req.body.name;
@@ -415,36 +439,68 @@ app.put('/api/categories/:id', async (req, res) => {
   if (req.body.order !== undefined) cat.order = parseInt(req.body.order);
   if (req.body.active !== undefined) cat.active = !!req.body.active;
 
-  const supabase = getSupabase();
   if (supabase) {
     try {
-      await supabase.from('categories').update(mapCategoryToSupabase(cat)).eq('id', req.params.id);
+      const { error } = await supabase.from('categories').update(mapCategoryToSupabase(cat)).eq('id', req.params.id);
+      if (error) console.error("Erro ao atualizar categoria no Supabase:", error.message);
+      else console.log("🟢 Categoria atualizada no Supabase:", req.params.id);
     } catch (err) {
       console.error("Erro ao atualizar categoria no Supabase:", err);
     }
   }
 
+  if (db.categories) {
+    const idx = db.categories.findIndex(c => c.id === req.params.id);
+    if (idx !== -1) db.categories[idx] = cat;
+    else db.categories.push(cat);
+  }
   saveDb();
   res.json({ success: true, category: cat, message: "Categoria atualizada com sucesso!" });
 });
 
 app.delete('/api/categories/:id', async (req, res) => {
   const db = getDb();
-  const index = db.categories.findIndex(c => c.id === req.params.id);
-  if (index === -1) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
+  const index = db.categories ? db.categories.findIndex(c => c.id === req.params.id) : -1;
+  const deletedCat = index !== -1 ? db.categories[index] : null;
 
   const supabase = getSupabase();
+  let supabaseDeleted = false;
   if (supabase) {
     try {
-      await supabase.from('categories').delete().eq('id', req.params.id);
+      // 1. Desvincular produtos vinculados a esta categoria antes da exclusão
+      await supabase.from('products').update({ category_id: null }).eq('category_id', req.params.id);
+
+      // 2. Excluir permanentemente do banco Supabase PostgreSQL
+      const { error } = await supabase.from('categories').delete().eq('id', req.params.id);
+      if (!error) {
+        supabaseDeleted = true;
+        console.log("🟢 Categoria excluída permanentemente do Supabase PostgreSQL:", req.params.id);
+      } else {
+        console.error("Erro ao excluir categoria no Supabase:", error.message);
+      }
     } catch (err) {
       console.error("Erro ao excluir categoria no Supabase:", err);
     }
   }
 
-  db.categories.splice(index, 1);
+  if (index !== -1) {
+    db.categories.splice(index, 1);
+  }
+
+  // Desvincular produtos em memória
+  if (db.products) {
+    db.products.forEach(p => {
+      if (p.categoryId === req.params.id) p.categoryId = null;
+    });
+  }
   saveDb();
-  res.json({ success: true, message: "Categoria removida com sucesso!" });
+
+  if (!deletedCat && !supabaseDeleted) {
+    return res.status(404).json({ success: false, message: "Categoria não encontrada." });
+  }
+
+  const catName = deletedCat ? deletedCat.name : req.params.id;
+  res.json({ success: true, message: `Categoria "${catName}" removida definitivamente com sucesso.` });
 });
 
 // ==========================================

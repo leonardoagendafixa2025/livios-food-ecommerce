@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, FolderTree, Search, X, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
 import ImageUploader from '../../components/ImageUploader.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -11,6 +12,7 @@ export default function AdminCategories() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const { addToast } = useToast();
+  const { getAuthHeaders } = useAuth();
 
   const initialForm = {
     name: '',
@@ -24,7 +26,9 @@ export default function AdminCategories() {
   const [formData, setFormData] = useState(initialForm);
 
   const fetchCategories = () => {
-    fetch('/api/categories')
+    fetch('/api/categories', {
+      headers: getAuthHeaders ? getAuthHeaders() : {}
+    })
       .then(res => res.json())
       .then(d => {
         if (d.success) setCategories(d.categories || []);
@@ -63,7 +67,10 @@ export default function AdminCategories() {
     try {
       const res = await fetch(`/api/categories/${c.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getAuthHeaders ? getAuthHeaders() : {})
+        },
         body: JSON.stringify({ active: !c.active })
       });
       const d = await res.json();
@@ -79,16 +86,24 @@ export default function AdminCategories() {
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente excluir esta categoria? Os produtos vinculados precisarão ser reatribuídos.")) return;
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      // Remoção otimista imediata na interface
+      setCategories(prev => prev.filter(c => c.id !== id));
+
+      const res = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders ? getAuthHeaders() : {}
+      });
       const d = await res.json();
       if (d.success) {
-        addToast("Categoria excluída com sucesso!", "success");
+        addToast("Categoria excluída definitivamente com sucesso!", "success");
         fetchCategories();
       } else {
         addToast(d.message || "Erro ao excluir categoria.", "error");
+        fetchCategories();
       }
     } catch (err) {
       addToast("Erro ao remover categoria.", "error");
+      fetchCategories();
     }
   };
 
@@ -110,7 +125,10 @@ export default function AdminCategories() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getAuthHeaders ? getAuthHeaders() : {})
+        },
         body: JSON.stringify(payload)
       });
       const d = await res.json();
