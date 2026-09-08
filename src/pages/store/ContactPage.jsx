@@ -11,7 +11,12 @@ export default function ContactPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addToast("Sua mensagem foi enviada com sucesso! Responderemos em breve.", "success");
+    const formattedText = `Olá, Livio's Food!%0A%0A*Nome:* ${name}%0A*E-mail:* ${email}%0A*Telefone:* ${phone || 'Não informado'}%0A%0A*Mensagem:*%0A${message}`;
+    const whatsappUrl = `https://wa.me/5531995675327?text=${formattedText}`;
+    
+    addToast("Redirecionando para o WhatsApp oficial da Livio's Food...", "success");
+    window.open(whatsappUrl, '_blank');
+
     setName('');
     setEmail('');
     setPhone('');

@@ -123,13 +123,25 @@ export default function OrderConfirmation() {
             <span style={{ color: 'var(--primary-burgundy)' }}>R$ {order.total.toFixed(2).replace('.', ',')}</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-            <Link to="/minha-conta" className="btn btn-outline" style={{ flexGrow: 1 }}>
-              IR PARA MINHA CONTA
-            </Link>
-            <Link to="/produtos" className="btn btn-primary" style={{ flexGrow: 1 }}>
-              CONTINUAR COMPRANDO <ArrowRight size={18} />
-            </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '2rem' }}>
+            <a
+              href={`https://wa.me/5531995675327?text=${encodeURIComponent(`Olá, Livio's Food! Acabei de realizar o pedido #${order.id} no valor de R$ ${order.total.toFixed(2).replace('.', ',')} no site e gostaria de acompanhar o envio!`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+              style={{ background: '#25D366', color: '#FFF', width: '100%', padding: '0.9rem', fontSize: '1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}
+            >
+              💬 ACOMPANHAR OU ENVIAR COMPROVANTE VIA WHATSAPP
+            </a>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <Link to="/minha-conta" className="btn btn-outline" style={{ flexGrow: 1 }}>
+                IR PARA MINHA CONTA
+              </Link>
+              <Link to="/produtos" className="btn btn-primary" style={{ flexGrow: 1 }}>
+                CONTINUAR COMPRANDO <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
