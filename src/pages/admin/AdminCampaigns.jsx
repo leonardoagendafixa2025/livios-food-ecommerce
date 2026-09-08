@@ -11,7 +11,7 @@ export default function AdminCampaigns() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState(null);
   const [previewDevice, setPreviewDevice] = useState('mobile'); // 'mobile', 'desktop'
-  const [estimatedReach, setEstimatedReach] = useState(184);
+  const [estimatedReach, setEstimatedReach] = useState(0);
 
   const { addToast } = useToast();
 
@@ -43,6 +43,17 @@ export default function AdminCampaigns() {
         if (d.success) setCampaigns(d.campaigns);
       })
       .finally(() => setLoading(false));
+
+    fetch('/api/admin/campaigns/estimate-reach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ segmentType: 'all' })
+    })
+      .then(res => res.json())
+      .then(d => {
+        if (d.success) setEstimatedReach(d.estimatedCount);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {

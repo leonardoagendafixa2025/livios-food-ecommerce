@@ -254,7 +254,7 @@
       "value": 10,
       "minPurchase": 50,
       "usageLimit": 500,
-      "usedCount": 42,
+      "usedCount": 0,
       "active": true,
       "description": "10% de desconto na sua primeira compra!"
     },
@@ -265,7 +265,7 @@
       "value": 0,
       "minPurchase": 100,
       "usageLimit": 200,
-      "usedCount": 88,
+      "usedCount": 0,
       "active": true,
       "description": "Frete Grátis para compras acima de R$ 100,00"
     },
@@ -276,7 +276,7 @@
       "value": 20,
       "minPurchase": 120,
       "usageLimit": 100,
-      "usedCount": 15,
+      "usedCount": 0,
       "active": true,
       "description": "R$ 20,00 de desconto em pedidos acima de R$ 120,00"
     }
@@ -325,7 +325,7 @@
         "minSpent": 200,
         "minOrders": 1
       },
-      "memberCount": 127
+      "memberCount": 0
     },
     {
       "id": "seg_recurrent",
@@ -334,7 +334,7 @@
       "rules": {
         "minOrders": 2
       },
-      "memberCount": 84
+      "memberCount": 0
     },
     {
       "id": "seg_inactive_60",
@@ -343,7 +343,7 @@
       "rules": {
         "inactiveDays": 60
       },
-      "memberCount": 42
+      "memberCount": 0
     }
   ]
 }

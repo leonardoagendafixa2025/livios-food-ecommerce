@@ -5,24 +5,89 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext.jsx';
 
 export default function AdminCRMSegments() {
-  const [segments, setSegments] = useState([]);
-  const [minSpent, setMinSpent] = useState(1000);
-  const [minOrders, setMinOrders] = useState(5);
-  const [matchingCount, setMatchingCount] = useState(127);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [minSpent, setMinSpent] = useState(200);
+  const [minOrders, setMinOrders] = useState(1);
+  const [matchingCount, setMatchingCount] = useState(0);
   const navigate = useNavigate();
   const { addToast } = useToast();
 
   useEffect(() => {
-    // Simulação do calculador dinâmico de segmentos
-    const base = 127;
-    const calc = Math.max(12, Math.round(base * (1000 / (minSpent || 1000))));
-    setMatchingCount(calc);
-  }, [minSpent, minOrders]);
+    fetch('/api/admin/crm/dashboard')
+      .then(res => res.json())
+      .then(d => {
+        if (d.success && d.customers) {
+          setCustomers(d.customers);
+        }
+      })
+      .catch(err => console.error("Erro ao carregar clientes do CRM:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    // Cálculo 100% dinâmico baseado na lista real de clientes do banco
+    if (!customers || customers.length === 0) {
+      setMatchingCount(0);
+      return;
+    }
+    const filtered = customers.filter(c => 
+      (c.totalSpent || 0) >= (Number(minSpent) || 0) &&
+      (c.ordersCount || 0) >= (Number(minOrders) || 0)
+    );
+    setMatchingCount(filtered.length);
+  }, [minSpent, minOrders, customers]);
 
   const handleCreateCampaignForSegment = (segmentName) => {
     addToast(`Direcionando para o Módulo de Campanhas com o segmento "${segmentName}" selecionado!`, "info");
     navigate('/admin/marketing/campanhas');
   };
+
+  const now = Date.now();
+  const thirtyDaysAgo = new Date(now - 30 * 86400000);
+
+  const realSegments = [
+    { 
+      name: 'Todos os Clientes', 
+      count: customers.length, 
+      rule: 'Base total cadastrada no e-commerce' 
+    },
+    { 
+      name: 'Novos Clientes (30 dias)', 
+      count: customers.filter(c => new Date(c.createdAt) >= thirtyDaysAgo).length, 
+      rule: 'Cadastrados nos últimos 30 dias' 
+    },
+    { 
+      name: 'Primeira Compra', 
+      count: customers.filter(c => (c.ordersCount || 0) === 1).length, 
+      rule: 'Realizaram exatamente 1 pedido' 
+    },
+    { 
+      name: 'Clientes Recorrentes', 
+      count: customers.filter(c => (c.ordersCount || 0) >= 2).length, 
+      rule: 'Realizaram 2 ou mais pedidos' 
+    },
+    { 
+      name: 'Clientes VIP (LTV Alto)', 
+      count: customers.filter(c => (c.totalSpent || 0) >= 200).length, 
+      rule: 'Gasto acumulado > R$ 200' 
+    },
+    { 
+      name: 'Clientes Inativos (Sem compras)', 
+      count: customers.filter(c => (c.ordersCount || 0) === 0).length, 
+      rule: 'Sem histórico de pedidos registrados' 
+    },
+    { 
+      name: 'Clientes com Frequência Alta', 
+      count: customers.filter(c => (c.ordersCount || 0) >= 4).length, 
+      rule: 'Mais de 4 pedidos registrados' 
+    },
+    { 
+      name: 'Clientes com Aceite de Marketing', 
+      count: customers.filter(c => c.marketingConsent === true).length, 
+      rule: 'Consentiram com comunicações promocionais' 
+    }
+  ];
 
   return (
     <div>
@@ -35,27 +100,44 @@ export default function AdminCRMSegments() {
         </p>
       </div>
 
-      {/* 5.5 EXEMPLO DE SEGMENTAÇÃO DE CLIENTES VIP */}
+      {/* 5.5 FILTRO DINÂMICO DE CLIENTES VIP / PERSONALIZADO */}
       <div className="admin-card" style={{ background: '#FAF8F4', border: '2px solid var(--accent-gold)', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <span style={{ color: 'var(--accent-gold-hover)', fontWeight: '800', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              SEGMENTO DE ALTO VALOR
+              SEGMENTO PERSONALIZADO
             </span>
             <h3 style={{ fontSize: '1.5rem', fontWeight: '800', fontFamily: 'var(--font-serif)' }}>
-              Filtro Personalizado: CLIENTES VIP
+              Filtro por Comportamento de Compra
             </h3>
-            <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-              Regras ativas: Total gasto &gt; R$ {minSpent} <strong>E</strong> Pedidos &gt; {minOrders}
+            <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+              <label style={{ fontSize: '0.88rem', color: 'var(--text-dark)', fontWeight: '600' }}>
+                Total Gasto Mínimo (R$):
+                <input 
+                  type="number" 
+                  value={minSpent} 
+                  onChange={e => setMinSpent(Number(e.target.value))}
+                  style={{ marginLeft: '8px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', width: '90px' }}
+                />
+              </label>
+              <label style={{ fontSize: '0.88rem', color: 'var(--text-dark)', fontWeight: '600' }}>
+                Mínimo de Pedidos:
+                <input 
+                  type="number" 
+                  value={minOrders} 
+                  onChange={e => setMinOrders(Number(e.target.value))}
+                  style={{ marginLeft: '8px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', width: '70px' }}
+                />
+              </label>
             </div>
           </div>
 
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--primary-burgundy)' }}>
-              {matchingCount} clientes encontrados
+              {matchingCount} cliente(s) encontrado(s)
             </div>
             <button
-              onClick={() => handleCreateCampaignForSegment('Clientes VIP')}
+              onClick={() => handleCreateCampaignForSegment('Clientes Filtrados')}
               className="btn btn-gold"
               style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
@@ -71,17 +153,7 @@ export default function AdminCRMSegments() {
       </h3>
 
       <div className="grid-3">
-        {[
-          { name: 'Todos os Clientes', count: 184, rule: 'Base total cadastrada no e-commerce' },
-          { name: 'Novos Clientes (30 dias)', count: 42, rule: 'Cadastrados nos últimos 30 dias' },
-          { name: 'Primeira Compra', count: 58, rule: 'Realizaram exatamente 1 pedido' },
-          { name: 'Clientes Recorrentes', count: 84, rule: 'Realizaram 2 ou mais pedidos' },
-          { name: 'Clientes VIP (LTV Alto)', count: 127, rule: 'Gasto acumulado > R$ 1.000' },
-          { name: 'Clientes Inativos (60+ dias)', count: 32, rule: 'Sem compras nos últimos 60 dias' },
-          { name: 'Clientes com Carrinho Abandonado', count: 15, rule: 'Deixaram produtos no carrinho há 24h' },
-          { name: 'Clientes com Maior Frequência', count: 28, rule: 'Mais de 4 pedidos nos últimos 6 meses' },
-          { name: 'Clientes da Região Sudeste (MG/SP/RJ)', count: 160, rule: 'Endereço em Minas Gerais ou SP' }
-        ].map(s => (
+        {realSegments.map(s => (
           <div key={s.name} className="admin-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-dark)', marginBottom: '4px' }}>
@@ -94,7 +166,7 @@ export default function AdminCRMSegments() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F0ECE4', paddingTop: '0.75rem' }}>
               <span style={{ fontWeight: '800', color: 'var(--primary-burgundy)', fontSize: '1rem' }}>
-                {s.count} clientes
+                {s.count} cliente(s)
               </span>
               <button
                 onClick={() => handleCreateCampaignForSegment(s.name)}

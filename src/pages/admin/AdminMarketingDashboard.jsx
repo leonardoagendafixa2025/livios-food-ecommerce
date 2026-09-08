@@ -68,7 +68,9 @@ export default function AdminMarketingDashboard() {
             <div>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 'bold', textTransform: 'uppercase' }}>Clientes Alcançados</div>
               <div style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--text-dark)' }}>{kpis.totalReached}</div>
-              <div style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 'bold' }}>98% taxa de entrega</div>
+              <div style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 'bold' }}>
+                {kpis.totalSent > 0 ? '100% entregue' : 'Aguardando disparos'}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -81,7 +83,9 @@ export default function AdminMarketingDashboard() {
             <div>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 'bold', textTransform: 'uppercase' }}>Mensagens Enviadas</div>
               <div style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--text-dark)' }}>{kpis.totalSent}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{kpis.totalOpens} aberturas ({Math.round((kpis.totalOpens/kpis.totalSent)*100)}%)</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                {kpis.totalOpens} aberturas ({kpis.totalSent > 0 ? Math.round((kpis.totalOpens / kpis.totalSent) * 100) : 0}%)
+              </div>
             </div>
           </div>
         </motion.div>

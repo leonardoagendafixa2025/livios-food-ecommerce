@@ -259,21 +259,21 @@ const initialData = {
       name: "Clientes VIP (Gasto > R$ 200)",
       description: "Clientes com alto valor acumulado em compras no e-commerce.",
       rules: { minSpent: 200, minOrders: 1 },
-      memberCount: 127
+      memberCount: 0
     },
     {
       id: "seg_recurrent",
       name: "Clientes Recorrentes",
       description: "Clientes que realizaram 2 ou mais compras.",
       rules: { minOrders: 2 },
-      memberCount: 84
+      memberCount: 0
     },
     {
       id: "seg_inactive_60",
       name: "Clientes Inativos (60+ dias)",
       description: "Clientes sem realizar compras nos últimos 60 dias.",
       rules: { inactiveDays: 60 },
-      memberCount: 42
+      memberCount: 0
     }
   ]
 };

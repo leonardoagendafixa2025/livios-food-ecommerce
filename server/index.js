@@ -2235,7 +2235,7 @@ app.post('/api/admin/campaigns/estimate-reach', (req, res) => {
 
   res.json({
     success: true,
-    estimatedCount: Math.max(customers.length, 42),
+    estimatedCount: customers.length,
     matchedCustomersSample: customers.slice(0, 5)
   });
 });
@@ -2271,6 +2271,8 @@ app.get('/api/admin/campaigns', async (req, res) => {
 app.post('/api/admin/campaigns', async (req, res) => {
   const db = getDb();
   if (!db.campaigns) db.campaigns = [];
+  const targetReach = req.body.estimatedCount || (db.users ? db.users.filter(u => u.role === 'customer').length : 0);
+
   const newCamp = {
     id: generateId('camp'),
     name: req.body.name || 'Nova Campanha Promocional',
@@ -2279,7 +2281,7 @@ app.post('/api/admin/campaigns', async (req, res) => {
     type: req.body.type || 'PROMOÇÃO',
     status: req.body.status || 'Ativa',
     channels: req.body.channels || ['email', 'whatsapp'],
-    segment: req.body.segment || { type: 'all', label: 'Todos os clientes', estimatedCount: 184 },
+    segment: req.body.segment || { type: 'all', label: 'Todos os clientes', estimatedCount: targetReach },
     startDate: req.body.startDate || new Date().toISOString(),
     endDate: req.body.endDate || new Date(Date.now() + 14 * 86400000).toISOString(),
     couponCode: req.body.couponCode || '',
@@ -2292,15 +2294,15 @@ app.post('/api/admin/campaigns', async (req, res) => {
       buttonLink: '/produtos'
     },
     stats: {
-      reachedCount: req.body.estimatedCount || 184,
-      sentCount: req.body.estimatedCount || 184,
-      openedCount: Math.floor((req.body.estimatedCount || 184) * 0.75),
-      clickedCount: Math.floor((req.body.estimatedCount || 184) * 0.45),
-      conversionsCount: Math.floor((req.body.estimatedCount || 184) * 0.12),
-      totalRevenue: Math.floor((req.body.estimatedCount || 184) * 0.12) * 89.90,
-      avgTicket: 89.90,
-      couponUsedCount: Math.floor((req.body.estimatedCount || 184) * 0.12),
-      roiPercent: 380
+      reachedCount: targetReach,
+      sentCount: targetReach,
+      openedCount: 0,
+      clickedCount: 0,
+      conversionsCount: 0,
+      totalRevenue: 0,
+      avgTicket: 0,
+      couponUsedCount: 0,
+      roiPercent: 0
     },
     createdAt: new Date().toISOString(),
     createdBy: req.body.createdBy || 'Administrador'
@@ -3001,7 +3003,16 @@ app.get('/api/admin/crm/dashboard', (req, res) => {
       ordersCount: ordersCountMap[c.email] || 0,
       classification: (spentMap[c.email] || 0) >= 200 ? 'VIP' : (ordersCountMap[c.email] || 0) > 1 ? 'RECORRENTE' : (ordersCountMap[c.email] || 0) === 1 ? 'PRIMEIRA COMPRA' : 'NOVO'
     })),
-    segments: db.customerSegments || []
+    segments: (db.customerSegments || []).map(seg => {
+      let count = 0;
+      if (seg.id === 'seg_vip') count = vipCustomersCount;
+      else if (seg.id === 'seg_recurrent') count = recurrentCustomersCount;
+      else if (seg.id === 'seg_inactive_60') count = inactiveCustomersCount;
+      return {
+        ...seg,
+        memberCount: count
+      };
+    })
   });
 });
 

@@ -36,7 +36,7 @@ export default function AdminAutomations() {
       status: 'Ativo',
       template: 'Olá {{primeiro_nome}}! Esperamos que esteja amando seus molhos da {{nome_loja}}! Deixe sua avaliação no site e ganhe um presente no próximo pedido.',
       couponCode: 'LIVIO10',
-      stats: { triggeredCount: 110, recoveredCount: 38, recoveredRevenue: 2890.00 }
+      stats: { triggeredCount: 0, recoveredCount: 0, recoveredRevenue: 0 }
     },
     {
       id: 'auto_4',
@@ -47,7 +47,7 @@ export default function AdminAutomations() {
       status: 'Ativo',
       template: 'Feliz Aniversário, {{primeiro_nome}}! A {{nome_loja}} preparou um presente exclusivo: 15% OFF no seu próximo pedido com o cupom {{codigo_cupom}}!',
       couponCode: 'ANIV15',
-      stats: { triggeredCount: 22, recoveredCount: 9, recoveredRevenue: 810.00 }
+      stats: { triggeredCount: 0, recoveredCount: 0, recoveredRevenue: 0 }
     }
   ]);
 
