@@ -19,6 +19,7 @@ import PromotionalPopup from './components/PromotionalPopup.jsx';
 import CompareFloatingBar from './components/CompareFloatingBar.jsx';
 import AdminSidebar from './components/AdminSidebar.jsx';
 import AdminHeader from './components/AdminHeader.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 // Páginas da Loja
 import Home from './pages/store/Home.jsx';
@@ -119,59 +120,61 @@ function AdminLayout({ children }) {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <CompareProvider>
-              <BrowserRouter>
-                <Routes>
-                  {/* Rotas Públicas da Loja */}
-                  <Route path="/" element={<StoreLayout><Home /></StoreLayout>} />
-                  <Route path="/produtos" element={<StoreLayout><Catalog /></StoreLayout>} />
-                  <Route path="/produto/:slug" element={<StoreLayout><ProductDetail /></StoreLayout>} />
-                  <Route path="/buscar" element={<StoreLayout><SearchPage /></StoreLayout>} />
-                  <Route path="/comparar" element={<StoreLayout><ComparePage /></StoreLayout>} />
-                  <Route path="/receitas" element={<StoreLayout><RecipesPage /></StoreLayout>} />
-                  <Route path="/sobre" element={<StoreLayout><AboutPage /></StoreLayout>} />
-                  <Route path="/contato" element={<StoreLayout><ContactPage /></StoreLayout>} />
-                  <Route path="/carrinho" element={<StoreLayout><CartPage /></StoreLayout>} />
-                  <Route path="/checkout" element={<StoreLayout><CheckoutPage /></StoreLayout>} />
-                  <Route path="/pedido-confirmado/:id" element={<StoreLayout><OrderConfirmation /></StoreLayout>} />
-                  <Route path="/minha-conta" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
-                  <Route path="/favoritos" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
-                  <Route path="/login" element={<StoreLayout><LoginPage /></StoreLayout>} />
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <CompareProvider>
+                <BrowserRouter>
+                  <Routes>
+                    {/* Rotas Públicas da Loja */}
+                    <Route path="/" element={<StoreLayout><Home /></StoreLayout>} />
+                    <Route path="/produtos" element={<StoreLayout><Catalog /></StoreLayout>} />
+                    <Route path="/produto/:slug" element={<StoreLayout><ProductDetail /></StoreLayout>} />
+                    <Route path="/buscar" element={<StoreLayout><SearchPage /></StoreLayout>} />
+                    <Route path="/comparar" element={<StoreLayout><ComparePage /></StoreLayout>} />
+                    <Route path="/receitas" element={<StoreLayout><RecipesPage /></StoreLayout>} />
+                    <Route path="/sobre" element={<StoreLayout><AboutPage /></StoreLayout>} />
+                    <Route path="/contato" element={<StoreLayout><ContactPage /></StoreLayout>} />
+                    <Route path="/carrinho" element={<StoreLayout><CartPage /></StoreLayout>} />
+                    <Route path="/checkout" element={<StoreLayout><CheckoutPage /></StoreLayout>} />
+                    <Route path="/pedido-confirmado/:id" element={<StoreLayout><OrderConfirmation /></StoreLayout>} />
+                    <Route path="/minha-conta" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
+                    <Route path="/favoritos" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
+                    <Route path="/login" element={<StoreLayout><LoginPage /></StoreLayout>} />
 
-                  {/* Rotas Privadas do Painel Admin */}
-                  <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/produtos" element={<ProtectedAdminRoute><AdminLayout><AdminProducts /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/estoque" element={<ProtectedAdminRoute><AdminLayout><AdminInventory /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/estoque/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/pedidos" element={<ProtectedAdminRoute><AdminLayout><AdminOrders /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/clientes" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/crm" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/crm/cliente/:id" element={<ProtectedAdminRoute><AdminLayout><AdminCustomerProfile /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/crm/segmentos" element={<ProtectedAdminRoute><AdminLayout><AdminCRMSegments /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/categorias" element={<ProtectedAdminRoute><AdminLayout><AdminCategories /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/banners" element={<ProtectedAdminRoute><AdminLayout><AdminBanners /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/receitas" element={<ProtectedAdminRoute><AdminLayout><AdminRecipes /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/cupons" element={<ProtectedAdminRoute><AdminLayout><AdminCoupons /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/configuracoes" element={<ProtectedAdminRoute><AdminLayout><AdminSettings /></AdminLayout></ProtectedAdminRoute>} />
+                    {/* Rotas Privadas do Painel Admin */}
+                    <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/produtos" element={<ProtectedAdminRoute><AdminLayout><AdminProducts /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/estoque" element={<ProtectedAdminRoute><AdminLayout><AdminInventory /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/estoque/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/pedidos" element={<ProtectedAdminRoute><AdminLayout><AdminOrders /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/clientes" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/crm" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/crm/cliente/:id" element={<ProtectedAdminRoute><AdminLayout><AdminCustomerProfile /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/crm/segmentos" element={<ProtectedAdminRoute><AdminLayout><AdminCRMSegments /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/categorias" element={<ProtectedAdminRoute><AdminLayout><AdminCategories /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/banners" element={<ProtectedAdminRoute><AdminLayout><AdminBanners /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/receitas" element={<ProtectedAdminRoute><AdminLayout><AdminRecipes /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/cupons" element={<ProtectedAdminRoute><AdminLayout><AdminCoupons /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/configuracoes" element={<ProtectedAdminRoute><AdminLayout><AdminSettings /></AdminLayout></ProtectedAdminRoute>} />
 
-                  {/* ROTAS DE MARKETING & CAMPANHAS */}
-                  <Route path="/admin/marketing" element={<ProtectedAdminRoute><AdminLayout><AdminMarketingDashboard /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/marketing/campanhas" element={<ProtectedAdminRoute><AdminLayout><AdminCampaigns /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/marketing/popups" element={<ProtectedAdminRoute><AdminLayout><AdminPopups /></AdminLayout></ProtectedAdminRoute>} />
-                  <Route path="/admin/marketing/barras" element={<ProtectedAdminRoute><AdminLayout><AdminPromotionalBars /></AdminLayout></ProtectedAdminRoute>} />
+                    {/* ROTAS DE MARKETING & CAMPANHAS */}
+                    <Route path="/admin/marketing" element={<ProtectedAdminRoute><AdminLayout><AdminMarketingDashboard /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/marketing/campanhas" element={<ProtectedAdminRoute><AdminLayout><AdminCampaigns /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/marketing/popups" element={<ProtectedAdminRoute><AdminLayout><AdminPopups /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/marketing/barras" element={<ProtectedAdminRoute><AdminLayout><AdminPromotionalBars /></AdminLayout></ProtectedAdminRoute>} />
 
-                  {/* Fallback */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </BrowserRouter>
-            </CompareProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    </ToastProvider>
+                    {/* Fallback */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </BrowserRouter>
+              </CompareProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }

@@ -22,16 +22,47 @@ export function CartProvider({ children }) {
     localStorage.setItem('livios_cart', JSON.stringify(items));
   }, [items]);
 
+  const FREE_SHIPPING_THRESHOLD = 150;
+
   const addToCart = (product, quantity = 1) => {
+    const availableStock = product.stock !== undefined ? product.stock : 999;
+    
+    if (availableStock <= 0) {
+      addToast(`"${product.name}" está esgotado no momento.`, 'error');
+      return false;
+    }
+
     setItems(prev => {
       const existing = prev.find(item => item.id === product.id);
+      const currentQty = existing ? existing.quantity : 0;
+      const newQty = currentQty + quantity;
+
+      if (newQty > availableStock) {
+        addToast(`Apenas ${availableStock} unidade(s) disponíveis em estoque para "${product.name}".`, 'warning');
+        if (existing) {
+          return prev.map(item =>
+            item.id === product.id ? { ...item, quantity: availableStock } : item
+          );
+        }
+        return [...prev, {
+          id: product.id,
+          sku: product.sku,
+          name: product.name,
+          slug: product.slug,
+          price: product.promotionalPrice || product.price,
+          image: product.images && product.images[0] ? product.images[0] : '',
+          stock: availableStock,
+          quantity: availableStock
+        }];
+      }
+
       const price = product.promotionalPrice || product.price;
       const image = product.images && product.images[0] ? product.images[0] : '';
-      
+
       if (existing) {
         return prev.map(item =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: newQty, stock: availableStock }
             : item
         );
       }
@@ -42,12 +73,14 @@ export function CartProvider({ children }) {
         slug: product.slug,
         price,
         image,
+        stock: availableStock,
         quantity
       }];
     });
 
     addToast(`"${product.name}" adicionado ao carrinho!`, 'success');
     setIsDrawerOpen(true);
+    return true;
   };
 
   const updateQuantity = (id, quantity) => {
@@ -55,7 +88,17 @@ export function CartProvider({ children }) {
       removeFromCart(id);
       return;
     }
-    setItems(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
+    setItems(prev => prev.map(item => {
+      if (item.id === id) {
+        const max = item.stock !== undefined ? item.stock : 999;
+        if (quantity > max) {
+          addToast(`Quantidade máxima em estoque: ${max} un.`, 'warning');
+          return { ...item, quantity: max };
+        }
+        return { ...item, quantity };
+      }
+      return item;
+    }));
   };
 
   const removeFromCart = (id) => {
@@ -107,6 +150,7 @@ export function CartProvider({ children }) {
   };
 
   const getShippingFee = () => {
+    if (getSubtotal() >= FREE_SHIPPING_THRESHOLD) return 0;
     if (!selectedShipping) return 0;
     return selectedShipping.isFree ? 0 : selectedShipping.price;
   };
@@ -120,6 +164,16 @@ export function CartProvider({ children }) {
 
   const getItemCount = () => {
     return items.reduce((acc, item) => acc + item.quantity, 0);
+  };
+
+  const getRemainingForFreeShipping = () => {
+    const sub = getSubtotal();
+    return Math.max(0, FREE_SHIPPING_THRESHOLD - sub);
+  };
+
+  const getFreeShippingPercent = () => {
+    const sub = getSubtotal();
+    return Math.min(100, Math.round((sub / FREE_SHIPPING_THRESHOLD) * 100));
   };
 
   return (
@@ -140,7 +194,10 @@ export function CartProvider({ children }) {
       getTotal,
       getItemCount,
       isDrawerOpen,
-      setIsDrawerOpen
+      setIsDrawerOpen,
+      freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+      getRemainingForFreeShipping,
+      getFreeShippingPercent
     }}>
       {children}
     </CartContext.Provider>

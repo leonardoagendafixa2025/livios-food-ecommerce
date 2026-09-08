@@ -333,6 +333,57 @@ function mapProductToSupabase(p) {
   };
 }
 
+function mapOrderToSupabase(o) {
+  return {
+    id: o.id,
+    customer_id: o.customerId || 'usr_guest',
+    customer_name: o.customerName || '',
+    customer_email: o.customerEmail || '',
+    customer_phone: o.customerPhone || '',
+    customer_cpf: o.customerCpf || '',
+    shipping_address: o.shippingAddress || {},
+    items: o.items || [],
+    subtotal: Number(o.subtotal || 0),
+    discount: Number(o.discount || 0),
+    coupon_code: o.couponCode || null,
+    shipping_fee: Number(o.shippingFee || 0),
+    total: Number(o.total || 0),
+    payment_method: o.paymentMethod || 'pix',
+    payment_status: o.paymentStatus || 'approved',
+    status: o.status || 'payment_approved',
+    status_history: o.statusHistory || [],
+    created_at: o.createdAt || new Date().toISOString()
+  };
+}
+
+function mapOrderFromSupabase(row) {
+  return {
+    id: row.id,
+    customerId: row.customer_id,
+    customerName: row.customer_name,
+    customerEmail: row.customer_email,
+    customerPhone: row.customer_phone,
+    customerCpf: row.customer_cpf,
+    shippingAddress: row.shipping_address || {},
+    shippingOption: row.shipping_option || { name: 'SEDEX Express', price: Number(row.shipping_fee || 0) },
+    items: row.items || [],
+    subtotal: Number(row.subtotal || 0),
+    discount: Number(row.discount || 0),
+    couponCode: row.coupon_code || null,
+    shippingFee: Number(row.shipping_fee || 0),
+    total: Number(row.total || 0),
+    paymentMethod: row.payment_method || 'pix',
+    paymentDetails: {
+      method: row.payment_method || 'pix',
+      status: row.payment_status || 'approved'
+    },
+    paymentStatus: row.payment_status || 'approved',
+    status: row.status || 'payment_approved',
+    statusHistory: row.status_history || [],
+    createdAt: row.created_at
+  };
+}
+
 // Sincronização inicial em segundo plano ao iniciar o servidor
 async function syncInitialFromSupabase() {
   const supabase = getSupabase();
@@ -349,6 +400,12 @@ async function syncInitialFromSupabase() {
       const db = getDb();
       db.products = prodData.map(mapProductFromSupabase);
       console.log(`🟢 Supabase sincronizado: ${prodData.length} produtos carregados na inicialização.`);
+    }
+    const { data: ordData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (ordData && ordData.length > 0) {
+      const db = getDb();
+      db.orders = ordData.map(mapOrderFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${ordData.length} pedidos carregados na inicialização.`);
     }
   } catch (err) {
     console.warn("⚠️ Aviso ao sincronizar inicialmente do Supabase:", err.message);
@@ -1246,6 +1303,36 @@ app.post('/api/orders', (req, res) => {
 
   saveDb();
 
+  // Persistência Transacional no Supabase PostgreSQL
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        const { error: orderErr } = await supabase.from('orders').insert(mapOrderToSupabase(newOrder));
+        if (orderErr) console.error("Erro ao gravar pedido no Supabase:", orderErr.message);
+        else console.log("🟢 Pedido gravado no Supabase PostgreSQL com sucesso:", newOrder.id);
+
+        // Atualizar estoque de cada produto no Supabase
+        for (const item of calculatedItems) {
+          const prod = db.products.find(p => p.id === item.productId);
+          if (prod) {
+            await supabase.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+          }
+        }
+
+        // Se cupom foi usado, atualiza no Supabase
+        if (couponCode) {
+          const c = db.coupons.find(cp => cp.code === couponCode);
+          if (c) {
+            await supabase.from('coupons').update({ used_count: c.usedCount }).eq('code', couponCode);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao sincronizar pedido/estoque no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({
     success: true,
     order: newOrder,
@@ -1253,9 +1340,27 @@ app.post('/api/orders', (req, res) => {
   });
 });
 
-app.get('/api/orders', (req, res) => {
+app.get('/api/orders', async (req, res) => {
   const db = getDb();
   const { customerId } = req.query;
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+      if (customerId) {
+        query = query.eq('customer_id', customerId);
+      }
+      const { data, error } = await query;
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const mapped = data.map(mapOrderFromSupabase);
+        db.orders = mapped;
+        return res.json({ success: true, orders: mapped });
+      }
+    } catch (err) {
+      console.warn("⚠️ Aviso ao buscar pedidos do Supabase:", err.message);
+    }
+  }
 
   let list = [...db.orders];
   if (customerId) {
@@ -1266,9 +1371,22 @@ app.get('/api/orders', (req, res) => {
   res.json({ success: true, orders: list });
 });
 
-app.get('/api/orders/:id', (req, res) => {
+app.get('/api/orders/:id', async (req, res) => {
   const db = getDb();
-  const order = db.orders.find(o => o.id === req.params.id);
+  let order = db.orders.find(o => o.id === req.params.id);
+
+  if (!order) {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('orders').select('*').eq('id', req.params.id).single();
+        if (!error && data) {
+          order = mapOrderFromSupabase(data);
+          db.orders.push(order);
+        }
+      } catch (e) {}
+    }
+  }
 
   if (!order) {
     return res.status(404).json({ success: false, message: "Pedido não encontrado." });
@@ -1277,7 +1395,7 @@ app.get('/api/orders/:id', (req, res) => {
   res.json({ success: true, order });
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.put('/api/orders/:id/status', async (req, res) => {
   const { status, note, trackingCode } = req.body;
   const db = getDb();
   const order = db.orders.find(o => o.id === req.params.id);
@@ -1328,6 +1446,30 @@ app.put('/api/orders/:id/status', (req, res) => {
   });
 
   saveDb();
+
+  // Sincronizar com Supabase
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('orders').update({
+        status: order.status,
+        status_history: order.statusHistory
+      }).eq('id', req.params.id);
+
+      // Se o pedido foi cancelado, atualiza estoque no Supabase
+      if (status === 'cancelled' && previousStatus !== 'cancelled') {
+        for (const item of (order.items || [])) {
+          const prod = db.products.find(p => p.id === (item.productId || item.id));
+          if (prod) {
+            await supabase.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+          }
+        }
+      }
+    } catch (supabaseErr) {
+      console.error("Erro ao sincronizar status do pedido no Supabase:", supabaseErr.message);
+    }
+  }
+
   res.json({ success: true, order, message: "Status do pedido atualizado!" });
 });
 

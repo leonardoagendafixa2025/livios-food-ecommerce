@@ -1,12 +1,24 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, CheckCircle2, Sparkles, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext.jsx';
 
 export default function CartDrawer() {
-  const { items, isDrawerOpen, setIsDrawerOpen, updateQuantity, removeFromCart, getSubtotal } = useCart();
+  const { 
+    items, 
+    isDrawerOpen, 
+    setIsDrawerOpen, 
+    updateQuantity, 
+    removeFromCart, 
+    getSubtotal,
+    getRemainingForFreeShipping,
+    getFreeShippingPercent
+  } = useCart();
   const navigate = useNavigate();
+
+  const remainingFreeShip = getRemainingForFreeShipping ? getRemainingForFreeShipping() : 0;
+  const freeShipPercent = getFreeShippingPercent ? getFreeShippingPercent() : 0;
 
   return (
     <AnimatePresence>
@@ -51,6 +63,35 @@ export default function CartDrawer() {
                 <X size={24} />
               </button>
             </div>
+
+            {/* Barra Dinâmica de Frete Grátis */}
+            {items.length > 0 && (
+              <div style={{ padding: '0.85rem 1.5rem', background: '#FAF8F5', borderBottom: '1px solid var(--light-border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px' }}>
+                  {remainingFreeShip === 0 ? (
+                    <span style={{ color: '#16A34A', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <CheckCircle2 size={16} /> Você ganhou <strong>FRETE GRÁTIS</strong>!
+                    </span>
+                  ) : (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <Truck size={15} color="var(--primary-burgundy)" />
+                      Faltam <strong style={{ color: 'var(--primary-burgundy)' }}>R$ {remainingFreeShip.toFixed(2).replace('.', ',')}</strong> para <strong>Frete Grátis</strong>
+                    </span>
+                  )}
+                  <span style={{ color: '#64748B', fontWeight: 700, fontSize: '0.78rem' }}>{freeShipPercent}%</span>
+                </div>
+                <div style={{ width: '100%', height: '7px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div 
+                    style={{ 
+                      width: `${freeShipPercent}%`, 
+                      height: '100%', 
+                      background: freeShipPercent === 100 ? '#16A34A' : 'linear-gradient(90deg, var(--accent-gold) 0%, var(--primary-burgundy) 100%)', 
+                      transition: 'width 0.3s ease' 
+                    }} 
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Lista de Itens */}
             <div style={{ flexGrow: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

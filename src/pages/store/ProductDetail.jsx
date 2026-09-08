@@ -122,6 +122,40 @@ export default function ProductDetail() {
 
   return (
     <div style={{ padding: '3rem 0', background: 'var(--light-bg)' }}>
+      {/* Schema.org JSON-LD para Google Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": productData.name,
+            "image": productData.images || [],
+            "description": productData.shortDescription || productData.fullDescription || productData.name,
+            "sku": productData.sku,
+            "brand": {
+              "@type": "Brand",
+              "name": "Livio's Food Innovation"
+            },
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "BRL",
+              "price": (productData.promotionalPrice || productData.price || 0).toFixed(2),
+              "availability": (productData.stock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "Livio's Food Innovation"
+              }
+            },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": productData.rating || 5.0,
+              "reviewCount": productData.reviewCount || 1
+            }
+          })
+        }}
+      />
+
       <div className="container">
         {/* Breadcrumb */}
         <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>

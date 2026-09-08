@@ -52,6 +52,37 @@ export default function CheckoutPage() {
     );
   }
 
+  // Máscaras automáticas
+  const maskCPF = (val) => {
+    return val
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+      .slice(0, 14);
+  };
+
+  const maskPhone = (val) => {
+    const clean = val.replace(/\D/g, '');
+    if (clean.length <= 10) {
+      return clean
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{4})(\d)/, '$1-$2')
+        .slice(0, 14);
+    }
+    return clean
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+      .slice(0, 15);
+  };
+
+  const maskCEP = (val) => {
+    return val
+      .replace(/\D/g, '')
+      .replace(/(\d{5})(\d)/, '$1-$2')
+      .slice(0, 9);
+  };
+
   // Função para validação do algoritmo oficial de CPF
   const validateCPF = (cpf) => {
     const clean = (cpf || '').replace(/\D/g, '');
@@ -258,8 +289,9 @@ export default function CheckoutPage() {
                       type="text"
                       required
                       value={customer.cpf}
-                      onChange={(e) => setCustomer({ ...customer, cpf: e.target.value })}
+                      onChange={(e) => setCustomer({ ...customer, cpf: maskCPF(e.target.value) })}
                       placeholder="000.000.000-00"
+                      maxLength={14}
                       style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
                     />
                   </div>
@@ -269,8 +301,9 @@ export default function CheckoutPage() {
                       type="text"
                       required
                       value={customer.phone}
-                      onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+                      onChange={(e) => setCustomer({ ...customer, phone: maskPhone(e.target.value) })}
                       placeholder="(31) 99999-9999"
+                      maxLength={15}
                       style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
                     />
                   </div>
@@ -295,9 +328,10 @@ export default function CheckoutPage() {
                     type="text"
                     required
                     value={address.cep}
-                    onChange={(e) => setAddress({ ...address, cep: e.target.value })}
+                    onChange={(e) => setAddress({ ...address, cep: maskCEP(e.target.value) })}
                     onBlur={handleCepBlur}
                     placeholder="00000-000"
+                    maxLength={9}
                     style={{ width: '200px', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
                   />
                 </div>
