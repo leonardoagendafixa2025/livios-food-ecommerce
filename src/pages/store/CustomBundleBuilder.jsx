@@ -163,8 +163,8 @@ export default function CustomBundleBuilder() {
           </div>
         </div>
 
-        {/* Grid de Slots da Caixa */}
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${boxSize}, 1fr)`, gap: '1.5rem', marginBottom: '1.75rem' }}>
+        {/* Grid de Slots da Caixa Responsivo */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
           {[...Array(boxSize)].map((_, idx) => {
             const item = selectedItems[idx];
             return (
@@ -250,7 +250,7 @@ export default function CustomBundleBuilder() {
         </p>
       </div>
 
-      <div className="grid-3">
+      <div className="responsive-product-grid">
         {products.map(product => {
           const isSelected = selectedItems.some(i => i.id === product.id);
           const countInBox = selectedItems.filter(i => i.id === product.id).length;

@@ -32,7 +32,7 @@ export default function RecipesPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
           {recipes.map(rec => (
-            <div key={rec.id} style={{ background: '#FFF', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '2rem', boxShadow: 'var(--shadow-md)' }}>
+            <div key={rec.id} className="responsive-two-col" style={{ background: '#FFF', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', gap: 0 }}>
               <img src={rec.image} alt={rec.title} style={{ width: '100%', height: '100%', minHeight: '380px', objectFit: 'cover' }} />
               <div style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 'bold' }}>

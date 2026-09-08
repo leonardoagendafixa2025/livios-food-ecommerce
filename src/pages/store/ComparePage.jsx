@@ -27,7 +27,7 @@ export default function ComparePage() {
 
   return (
     <div className="container" style={{ padding: '2.5rem 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ fontSize: '2.2rem', fontWeight: '800', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)' }}>
             Comparativo de Molhos Especiais
@@ -43,8 +43,8 @@ export default function ComparePage() {
       </div>
 
       {/* Tabela de Comparação Responsiva (Com Rolagem Horizontal no Mobile) */}
-      <div style={{ overflowX: 'auto', background: '#FFF', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--light-border)' }}>
-        <table className="table-custom" style={{ minWidth: '720px' }}>
+      <div className="table-responsive-wrapper">
+        <table className="table-custom" style={{ minWidth: '600px' }}>
           <thead>
             <tr>
               <th style={{ width: '200px', background: '#FAF8F4' }}>Característica</th>

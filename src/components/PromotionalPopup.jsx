@@ -109,7 +109,8 @@ export default function PromotionalPopup({ activePopups }) {
             borderRadius: 'var(--radius-lg)',
             maxWidth: '560px',
             width: '100%',
-            overflow: 'hidden',
+            maxHeight: '90vh',
+            overflowY: 'auto',
             boxShadow: 'var(--shadow-lg)',
             position: 'relative'
           }}

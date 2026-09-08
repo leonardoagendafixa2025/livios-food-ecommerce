@@ -14,6 +14,7 @@ export default function Catalog() {
   const isOffer = searchParams.get('ofertas') === 'true';
   const sort = searchParams.get('sort') || '';
   const [maxPrice, setMaxPrice] = useState('150');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     fetch('/api/categories')
@@ -78,9 +79,20 @@ export default function Catalog() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2rem' }}>
-          {/* Sidebar de Filtros */}
-          <aside style={{ background: '#FFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)', height: 'fit-content' }}>
+        {/* Botão de Filtro Mobile */}
+        <div className="mobile-filter-bar" style={{ display: 'none', marginBottom: '1.25rem' }}>
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="btn btn-outline"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '0.75rem' }}
+          >
+            <Filter size={18} /> {showMobileFilters ? "OCULTAR FILTROS" : "FILTRAR PRODUTOS & CATEGORIAS"}
+          </button>
+        </div>
+
+        <div className="responsive-sidebar-layout">
+          {/* Sidebar de Filtros (Adaptada para desktop e mobile) */}
+          <aside className={`catalog-filters-sidebar ${showMobileFilters ? 'mobile-filters-open' : ''}`} style={{ background: '#FFF', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)', height: 'fit-content' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--light-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', fontSize: '1.05rem' }}>
                 <Filter size={18} color="var(--primary-burgundy)" /> Filtros
@@ -163,8 +175,8 @@ export default function Catalog() {
                 {searchQuery && <span> para "<strong>{searchQuery}</strong>"</span>}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '0.88rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>Ordenar por:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: 'auto' }}>
+                <span style={{ fontSize: '0.88rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>Ordenar:</span>
                 <select
                   value={sort}
                   onChange={(e) => handleSortChange(e.target.value)}
@@ -179,7 +191,7 @@ export default function Catalog() {
               </div>
             </div>
 
-            {/* Grid de Produtos */}
+            {/* Grid de Produtos Responsivo */}
             {loading ? (
               <div style={{ textAlign: 'center', padding: '4rem 0' }}>
                 <div style={{ fontSize: '1.1rem', color: 'var(--primary-burgundy)', fontWeight: 'bold' }}>Carregando catálogo Livio's Food...</div>
@@ -196,7 +208,7 @@ export default function Catalog() {
                 </button>
               </div>
             ) : (
-              <div className="grid-3">
+              <div className="responsive-product-grid">
                 {products.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}

@@ -316,9 +316,9 @@ Olá, equipe Livio's Food! Acabei de gerar meu pedido pelo site e aguardo a conf
           })}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2.5rem' }}>
+        <div className="responsive-checkout-layout">
           {/* Conteúdo da Etapa Ativa */}
-          <main style={{ background: '#FFF', padding: '2.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <main style={{ background: '#FFF', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-sm)' }}>
             
             {/* ETAPA 1: IDENTIFICAÇÃO */}
             {step === 1 && (
@@ -537,7 +537,7 @@ Olá, equipe Livio's Food! Acabei de gerar meu pedido pelo site e aguardo a conf
                     Como você prefere realizar o pagamento?
                   </label>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <div className="responsive-cards-3col">
                     <button
                       type="button"
                       onClick={() => setPaymentPreference('pix')}

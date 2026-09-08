@@ -20,7 +20,7 @@ export default function AboutPage() {
         </div>
 
         {/* Biografia do Fundador */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3.5rem', alignItems: 'center', background: '#FFF', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-md)', marginBottom: '4rem' }}>
+        <div className="responsive-two-col" style={{ alignItems: 'center', background: '#FFF', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-md)', marginBottom: '4rem' }}>
           <div>
             <span style={{ color: 'var(--primary-burgundy)', fontWeight: 'bold', fontSize: '0.9rem', textTransform: 'uppercase' }}>FOOD DEVELOPER</span>
             <h2 style={{ fontSize: '2.2rem', fontWeight: '800', fontFamily: 'var(--font-serif)', marginTop: '0.4rem', marginBottom: '1.25rem' }}>

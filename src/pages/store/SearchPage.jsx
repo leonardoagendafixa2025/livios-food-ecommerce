@@ -81,7 +81,7 @@ export default function SearchPage() {
       {loading ? (
         <div style={{ padding: '4rem', textAlign: 'center', fontWeight: 'bold' }}>Carregando resultados da busca...</div>
       ) : products.length > 0 ? (
-        <div className="grid-4">
+        <div className="responsive-product-grid">
           {products.map(p => (
             <ProductCard key={p.id} product={p} />
           ))}
@@ -102,7 +102,7 @@ export default function SearchPage() {
               <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)', color: 'var(--accent-gold-hover)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                 <Sparkles size={20} /> PRODUTOS MAIS POPULARES QUE VOCÊ PODE GOSTAR:
               </h3>
-              <div className="grid-4">
+              <div className="responsive-product-grid">
                 {fallbackProducts.map(p => (
                   <ProductCard key={p.id} product={p} />
                 ))}

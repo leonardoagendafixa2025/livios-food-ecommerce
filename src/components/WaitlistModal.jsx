@@ -85,7 +85,9 @@ export default function WaitlistModal({ product, isOpen, onClose }) {
             borderRadius: 'var(--radius-lg)',
             width: '100%',
             maxWidth: '520px',
-            padding: '2rem',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '1.75rem',
             boxShadow: 'var(--shadow-lg)',
             position: 'relative'
           }}
@@ -122,7 +124,7 @@ export default function WaitlistModal({ product, isOpen, onClose }) {
               />
             </div>
 
-            <div className="grid-2">
+            <div className="responsive-cards-2col" style={{ gap: '0.75rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '4px' }}>E-mail *</label>
                 <input
@@ -172,12 +174,12 @@ export default function WaitlistModal({ product, isOpen, onClose }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--light-border)', paddingTop: '1rem' }}>
-              <button type="button" onClick={onClose} className="btn btn-outline">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--light-border)', paddingTop: '1rem', flexWrap: 'wrap' }}>
+              <button type="button" onClick={onClose} className="btn btn-outline" style={{ flex: 1 }}>
                 CANCELAR
               </button>
-              <button type="submit" className="btn btn-primary" disabled={submitting}>
-                <Send size={16} /> ENTAR NA LISTA DE ESPERA
+              <button type="submit" className="btn btn-primary" disabled={submitting} style={{ flex: 1.5, justifyContent: 'center' }}>
+                <Send size={16} /> ENTRAR NA LISTA DE ESPERA
               </button>
             </div>
           </form>

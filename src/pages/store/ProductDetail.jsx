@@ -166,7 +166,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Bloco Principal de Informações */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: '3.5rem', background: '#FFF', padding: '2.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-md)', marginBottom: '3rem' }}>
+        <div className="responsive-two-col" style={{ background: '#FFF', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', boxShadow: 'var(--shadow-md)', marginBottom: '3rem' }}>
           {/* Galeria de Imagens com Zoom */}
           <div>
             <div style={{ width: '100%', aspectRatio: '1', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: '#FAF8F5', border: '1px solid var(--light-border)', marginBottom: '1.25rem', position: 'relative' }}>
@@ -282,7 +282,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Quantidade & Botões */}
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--light-border)', borderRadius: 'var(--radius-md)', background: '#FFF' }}>
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -303,7 +303,7 @@ export default function ProductDetail() {
                 onClick={() => addToCart(productData, quantity)}
                 disabled={isOutOfStock}
                 className="btn btn-primary"
-                style={{ flexGrow: 1, padding: '0.9rem', fontSize: '1rem' }}
+                style={{ flexGrow: 1, padding: '0.9rem', fontSize: '0.95rem', minWidth: '180px' }}
               >
                 <ShoppingBag size={20} /> ADICIONAR AO CARRINHO
               </button>
@@ -312,7 +312,7 @@ export default function ProductDetail() {
                 onClick={handleBuyNow}
                 disabled={isOutOfStock}
                 className="btn btn-gold"
-                style={{ padding: '0.9rem 1.5rem', fontSize: '1rem' }}
+                style={{ padding: '0.9rem 1.5rem', fontSize: '0.95rem', minWidth: '140px' }}
               >
                 COMPRAR AGORA
               </button>
@@ -533,7 +533,7 @@ export default function ProductDetail() {
             <h3 style={{ fontSize: '1.8rem', fontWeight: '800', fontFamily: 'var(--font-serif)', marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
               VOCÊ TAMBÉM PODE GOSTAR
             </h3>
-            <div className="grid-4">
+            <div className="responsive-product-grid">
               {productData.relatedProducts.filter(p => p.active !== false).map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}

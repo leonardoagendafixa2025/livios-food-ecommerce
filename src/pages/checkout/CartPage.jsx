@@ -83,11 +83,12 @@ export default function CartPage() {
           Carrinho de Compras
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2.5rem' }}>
+        <div className="responsive-checkout-layout">
           {/* Tabela de Itens */}
           <div>
             <div style={{ background: '#FFF', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-              <table className="table-custom">
+              <div className="table-responsive-wrapper">
+                <table className="table-custom">
                 <thead>
                   <tr>
                     <th>Produto</th>
@@ -137,6 +138,7 @@ export default function CartPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
               <div style={{ padding: '1.25rem 1.5rem', background: '#FAF8F5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--light-border)' }}>
                 <button onClick={clearCart} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>

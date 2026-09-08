@@ -219,7 +219,7 @@ export default function Home() {
             <div style={{ width: '60px', height: '3px', background: 'var(--primary-burgundy)', margin: '1rem auto 0' }} />
           </motion.div>
 
-          <div className="grid-4">
+          <div className="responsive-product-grid">
             {categories.map((cat, idx) => (
               <div
                 key={cat.id}
@@ -249,7 +249,7 @@ export default function Home() {
       {user && reorderProducts.length > 0 && (
         <section style={{ padding: '3.5rem 0', background: 'linear-gradient(135deg, #FAF8F4, #FFF)', borderBottom: '1px solid var(--light-border)' }}>
           <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
               <div>
                 <span className="section-subtitle" style={{ color: 'var(--accent-gold-hover)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <RefreshCw size={16} /> BEM-VINDO DE VOLTA, {user.name.split(' ')[0].toUpperCase()}!
@@ -264,7 +264,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="grid-4">
+            <div className="responsive-product-grid">
               {reorderProducts.slice(0, 4).map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -276,7 +276,7 @@ export default function Home() {
       {/* Seção Produtos em Destaque: MAIS VENDIDOS */}
       <section style={{ padding: '4.5rem 0', background: '#FFF', borderTop: '1px solid var(--light-border)', borderBottom: '1px solid var(--light-border)' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
             <div>
               <span style={{ color: 'var(--primary-burgundy)', fontWeight: '800', letterSpacing: '2px', fontSize: '0.85rem', textTransform: 'uppercase' }}>
                 SELEÇÃO DA CASA
@@ -286,11 +286,11 @@ export default function Home() {
               </h2>
             </div>
             <Link to="/produtos" className="btn btn-outline" style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-              VER CATALOGO COMPLETO <ArrowRight size={16} />
+              VER CATÁLOGO COMPLETO <ArrowRight size={16} />
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 320px))', gap: '2rem', justifyContent: 'center' }}>
+          <div className="responsive-product-grid">
             {featuredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -301,7 +301,7 @@ export default function Home() {
       {/* Banner Promocional Kit Degustação */}
       <section style={{ background: 'linear-gradient(135deg, #121217 0%, #2A080C 100%)', color: '#FFF', padding: '4.5rem 0', position: 'relative', overflow: 'hidden' }}>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }}>
+          <div className="responsive-two-col" style={{ alignItems: 'center' }}>
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -318,7 +318,7 @@ export default function Home() {
                 Uma viagem pelos melhores sabores da Livio's Food: Original, Extra Picante, Chocolate Mega Picante e Abacaxi. Acompanha caixa colecionável e livro de receitas.
               </p>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div>
                   <span style={{ fontSize: '0.9rem', color: '#AAA', textDecoration: 'line-through', display: 'block' }}>De R$ 125,00</span>
                   <span style={{ fontSize: '2.4rem', fontWeight: '800', color: 'var(--accent-gold)' }}>Por R$ 99,90</span>
@@ -329,7 +329,7 @@ export default function Home() {
               </div>
 
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/produto/kit-degustacao-gourmet-fine-recipe-4-molhos" className="btn btn-gold" style={{ padding: '1rem 2.2rem', fontSize: '1.1rem' }}>
+                <Link to="/produto/kit-degustacao-gourmet-fine-recipe-4-molhos" className="btn btn-gold" style={{ padding: '1rem 2.2rem', fontSize: '1.1rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                   COMPRAR KIT COM DESCONTO <ArrowRight size={20} />
                 </Link>
               </motion.div>

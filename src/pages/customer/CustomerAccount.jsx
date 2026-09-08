@@ -85,9 +85,9 @@ export default function CustomerAccount() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '2.5rem' }}>
-          {/* Menu Lateral da Conta */}
-          <aside style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', height: 'fit-content' }}>
+        <div className="responsive-sidebar-layout">
+          {/* Menu Lateral da Conta (Responsivo no desktop e mobile) */}
+          <aside className="account-sidebar-nav" style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', height: 'fit-content' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <button
                 onClick={() => setActiveTab('orders')}
