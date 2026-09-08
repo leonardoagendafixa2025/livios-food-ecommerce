@@ -391,10 +391,11 @@ app.get('/api/categories', async (req, res) => {
 
 app.post('/api/categories', async (req, res) => {
   const db = getDb();
+  const catId = generateId('cat');
   const newCat = {
-    id: generateId('cat'),
-    name: req.body.name,
-    slug: req.body.slug || req.body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    id: catId,
+    name: (req.body.name || '').trim(),
+    slug: (req.body.slug || req.body.name || '').toLowerCase().trim().replace(/[^a-z0-9-]+/g, '-'),
     description: req.body.description || "",
     image: req.body.image || "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=800&q=80",
     order: parseInt(req.body.order) || ((db.categories?.length || 0) + 1),
@@ -405,10 +406,17 @@ app.post('/api/categories', async (req, res) => {
   if (supabase) {
     try {
       const { error } = await supabase.from('categories').insert(mapCategoryToSupabase(newCat));
-      if (error) console.error("Erro ao inserir categoria no Supabase:", error.message);
-      else console.log("🟢 Categoria inserida no Supabase:", newCat.id);
+      if (error) {
+        console.error("Erro ao inserir categoria no Supabase:", error);
+        if (error.code === '23505') {
+          return res.status(400).json({ success: false, message: "Já existe uma categoria com este slug de URL. Escolha outro slug." });
+        }
+        return res.status(400).json({ success: false, message: `Erro no Supabase: ${error.message}` });
+      }
+      console.log("🟢 Categoria inserida no Supabase PostgreSQL:", newCat.id);
     } catch (err) {
       console.error("Erro ao inserir categoria no Supabase:", err);
+      return res.status(500).json({ success: false, message: "Erro interno ao cadastrar categoria no banco de dados." });
     }
   }
 
@@ -427,25 +435,42 @@ app.put('/api/categories/:id', async (req, res) => {
     try {
       const { data } = await supabase.from('categories').select('*').eq('id', req.params.id).maybeSingle();
       if (data) cat = mapCategoryFromSupabase(data);
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Aviso ao buscar categoria para PUT:", e.message);
+    }
   }
 
   if (!cat) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
 
-  if (req.body.name) cat.name = req.body.name;
-  if (req.body.slug) cat.slug = req.body.slug;
+  if (req.body.name) cat.name = req.body.name.trim();
+  if (req.body.slug) cat.slug = req.body.slug.trim();
   if (req.body.description !== undefined) cat.description = req.body.description;
-  if (req.body.image) cat.image = req.body.image;
-  if (req.body.order !== undefined) cat.order = parseInt(req.body.order);
+  if (req.body.image !== undefined) cat.image = req.body.image;
+  if (req.body.order !== undefined) cat.order = parseInt(req.body.order) || 0;
   if (req.body.active !== undefined) cat.active = !!req.body.active;
 
   if (supabase) {
     try {
-      const { error } = await supabase.from('categories').update(mapCategoryToSupabase(cat)).eq('id', req.params.id);
-      if (error) console.error("Erro ao atualizar categoria no Supabase:", error.message);
-      else console.log("🟢 Categoria atualizada no Supabase:", req.params.id);
+      const updatePayload = {
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description || '',
+        image: cat.image || '',
+        order: Number(cat.order || 0),
+        active: cat.active ?? true
+      };
+      const { error } = await supabase.from('categories').update(updatePayload).eq('id', req.params.id);
+      if (error) {
+        console.error("Erro ao atualizar categoria no Supabase:", error);
+        if (error.code === '23505') {
+          return res.status(400).json({ success: false, message: "Já existe outra categoria com este slug de URL. Escolha outro slug." });
+        }
+        return res.status(400).json({ success: false, message: `Erro no Supabase: ${error.message}` });
+      }
+      console.log("🟢 Categoria atualizada no Supabase PostgreSQL:", req.params.id);
     } catch (err) {
       console.error("Erro ao atualizar categoria no Supabase:", err);
+      return res.status(500).json({ success: false, message: "Erro interno ao atualizar categoria no banco de dados." });
     }
   }
 

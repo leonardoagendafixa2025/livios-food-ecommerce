@@ -107,6 +107,8 @@ export default function AdminCategories() {
     }
   };
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) {
@@ -120,6 +122,7 @@ export default function AdminCategories() {
     };
 
     try {
+      setSubmitting(true);
       const url = editingId ? `/api/categories/${editingId}` : '/api/categories';
       const method = editingId ? 'PUT' : 'POST';
 
@@ -133,14 +136,20 @@ export default function AdminCategories() {
       });
       const d = await res.json();
       if (d.success) {
-        addToast(d.message, "success");
+        addToast(d.message || "Categoria salva com sucesso!", "success");
         setModalOpen(false);
+        // Atualizar estado local imediatamente
+        if (editingId && d.category) {
+          setCategories(prev => prev.map(c => c.id === editingId ? { ...c, ...d.category } : c));
+        }
         fetchCategories();
       } else {
         addToast(d.message || "Erro ao salvar categoria.", "error");
       }
     } catch (err) {
       addToast("Erro de comunicação ao salvar categoria.", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -200,18 +209,30 @@ export default function AdminCategories() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 opacity: c.active !== false ? 1 : 0.6,
-                position: 'relative'
+                position: 'relative',
+                transition: 'box-shadow 0.2s ease',
+                border: '1px solid var(--light-border)'
               }}
             >
-              <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flex: 1 }}>
+              <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flex: 1, minWidth: 0 }}>
                 <img
                   src={c.image || "/header-bg.jpg"}
                   alt={c.name}
-                  style={{ width: '90px', height: '90px', borderRadius: 'var(--radius-md)', objectFit: 'cover', border: '1px solid var(--light-border)' }}
+                  onClick={() => handleOpenEdit(c)}
+                  style={{ width: '90px', height: '90px', borderRadius: 'var(--radius-md)', objectFit: 'cover', border: '1px solid var(--light-border)', cursor: 'pointer', flexShrink: 0 }}
+                  title="Clique para editar imagem e categoria"
                 />
-                <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-dark)' }}>{c.name}</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.4' }}>{c.description || 'Sem descrição cadastrada.'}</p>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <h3
+                    onClick={() => handleOpenEdit(c)}
+                    style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-dark)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    title="Clique para editar"
+                  >
+                    {c.name} <Edit2 size={13} color="var(--primary-burgundy)" style={{ opacity: 0.7 }} />
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {c.description || 'Sem descrição cadastrada.'}
+                  </p>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
                     <span style={{ fontSize: '0.78rem', color: 'var(--primary-burgundy)', fontWeight: 'bold', background: 'rgba(139,0,0,0.08)', padding: '2px 8px', borderRadius: 'var(--radius-sm)' }}>
@@ -219,6 +240,7 @@ export default function AdminCategories() {
                     </span>
 
                     <button
+                      type="button"
                       onClick={() => handleToggleActive(c)}
                       className={`badge ${c.active !== false ? 'badge-in-stock' : 'badge-out-of-stock'}`}
                       style={{ border: 'none', cursor: 'pointer', fontSize: '0.75rem', padding: '3px 8px' }}
@@ -230,20 +252,24 @@ export default function AdminCategories() {
               </div>
 
               {/* Botões de Ação */}
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
                 <button
+                  type="button"
                   onClick={() => handleOpenEdit(c)}
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#3B82F6', padding: '6px' }}
+                  className="btn btn-outline"
+                  style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', gap: '6px', height: '36px', color: '#2563EB', borderColor: '#BFDBFE' }}
                   title="Editar Categoria"
                 >
-                  <Edit2 size={20} />
+                  <Edit2 size={15} /> Editar
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDelete(c.id)}
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EF4444', padding: '6px' }}
+                  className="btn btn-outline"
+                  style={{ padding: '0.45rem 0.7rem', height: '36px', color: '#EF4444', borderColor: '#FECACA' }}
                   title="Excluir Categoria"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
@@ -253,10 +279,14 @@ export default function AdminCategories() {
 
       {/* Modal Criar / Editar Categoria */}
       {modalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ background: '#FFF', width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-lg)', position: 'relative' }}>
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}
+        >
+          <div style={{ background: '#FFF', width: '100%', maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: '0 20px 50px rgba(0,0,0,0.3)', position: 'relative' }}>
             
             <button
+              type="button"
               onClick={() => setModalOpen(false)}
               style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', cursor: 'pointer', color: '#888' }}
             >
@@ -320,26 +350,52 @@ export default function AdminCategories() {
 
               {/* Upload de Imagem */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '6px' }}>
-                  Imagem da Categoria
-                </label>
                 <ImageUploader
-                  value={formData.image ? [formData.image] : []}
-                  onChange={(imgs) => setFormData({ ...formData, image: imgs[0] || '' })}
+                  label="Imagem da Categoria"
+                  value={formData.image || ''}
+                  onChange={(url) => setFormData({ ...formData, image: url })}
+                  helpText="Selecione JPG, PNG ou WebP do computador ou insira a URL abaixo"
                 />
+                <div style={{ marginTop: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '3px' }}>
+                    Ou insira/edite a URL da imagem diretamente:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://images.unsplash.com/..."
+                    value={formData.image || ''}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', fontSize: '0.82rem' }}
+                  />
+                </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  id="activeCat"
-                  checked={formData.active}
-                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
-                <label htmlFor="activeCat" style={{ fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                  Ativar categoria na loja pública
-                </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'center' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                    Ordem de Exibição
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.order}
+                    onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '1.25rem' }}>
+                  <input
+                    type="checkbox"
+                    id="activeCat"
+                    checked={formData.active}
+                    onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="activeCat" style={{ fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Ativa na loja
+                  </label>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
@@ -353,10 +409,11 @@ export default function AdminCategories() {
                 </button>
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="btn btn-primary"
                   style={{ padding: '0.7rem 1.8rem' }}
                 >
-                  {editingId ? "SALVAR ALTERAÇÕES" : "CRIAR CATEGORIA"}
+                  {submitting ? "SALVANDO..." : (editingId ? "SALVAR ALTERAÇÕES" : "CRIAR CATEGORIA")}
                 </button>
               </div>
             </form>
