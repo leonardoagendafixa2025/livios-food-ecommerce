@@ -523,11 +523,11 @@ export default function AdminCampaigns() {
                   <div style={{ background: '#FFF', color: '#000', borderRadius: 'var(--radius-md)', padding: '1.25rem', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', marginTop: 'auto', marginBottom: 'auto' }}>
                     <img src={formData.image || '/header-bg.jpg'} alt="Preview" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }} />
                     <h4 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.4rem', fontFamily: 'var(--font-serif)' }}>
-                      {formData.messageTitle.replace('{{primeiro_nome}}', 'Ana').replace('{{nome_cliente}}', 'Ana Beatriz')}
+                      {formData.messageTitle.replace('{{primeiro_nome}}', 'João').replace('{{nome_cliente}}', 'João Silva')}
                     </h4>
                     <p style={{ fontSize: '0.85rem', color: '#555', marginBottom: '1.25rem', lineHeight: '1.5' }}>
                       {formData.messageBody
-                        .replace('{{primeiro_nome}}', 'Ana')
+                        .replace('{{primeiro_nome}}', 'João')
                         .replace('{{codigo_cupom}}', formData.couponCode || 'LIVIO10')
                         .replace('{{nome_loja}}', "Livio's Food")}
                     </p>
