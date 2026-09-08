@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, MessageCircle, Send, Instagram, Facebook } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -11,8 +12,8 @@ export default function ContactPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formattedText = `Olá, Livio's Food!%0A%0A*Nome:* ${name}%0A*E-mail:* ${email}%0A*Telefone:* ${phone || 'Não informado'}%0A%0A*Mensagem:*%0A${message}`;
-    const whatsappUrl = `https://wa.me/5531995675327?text=${formattedText}`;
+    const rawMessage = `Olá, Livio's Food!\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Telefone:* ${phone || 'Não informado'}\n\n*Mensagem:*\n${message}`;
+    const whatsappUrl = createWhatsAppUrl('5531995675327', rawMessage);
     
     addToast("Redirecionando para o WhatsApp oficial da Livio's Food...", "success");
     window.open(whatsappUrl, '_blank');

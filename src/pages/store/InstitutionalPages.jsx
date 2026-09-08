@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ShieldCheck, Truck, RefreshCw, FileText, Lock, ChevronRight, Phone, Mail, MapPin } from 'lucide-react';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function InstitutionalPages() {
   const location = useLocation();
@@ -177,7 +178,7 @@ export default function InstitutionalPages() {
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Fale diretamente com nossa equipe oficial de atendimento.</p>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <a href="https://wa.me/5531995675327" target="_blank" rel="noreferrer" className="btn btn-primary" style={{ padding: '0.65rem 1.25rem', fontSize: '0.88rem', gap: '6px' }}>
+              <a href={createWhatsAppUrl('5531995675327')} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ padding: '0.65rem 1.25rem', fontSize: '0.88rem', gap: '6px' }}>
                 <Phone size={16} /> (31) 99567-5327
               </a>
               <Link to="/contato" className="btn btn-outline" style={{ padding: '0.65rem 1.25rem', fontSize: '0.88rem' }}>

@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function OrderTrackingPage() {
   const { id } = useParams();
@@ -361,9 +362,7 @@ export default function OrderTrackingPage() {
               </div>
 
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                  `Olá, equipe Livio's Food! Gostaria de uma atualização sobre o meu Pedido #${order.id} (Cliente: ${order.customerName}).`
-                )}`}
+                href={createWhatsAppUrl(WHATSAPP_NUMBER, `Olá, equipe Livio's Food! Gostaria de uma atualização sobre o meu Pedido #${order.id} (Cliente: ${order.customerName}).`)}
                 target="_blank"
                 rel="noreferrer"
                 className="btn"
@@ -449,7 +448,7 @@ export default function OrderTrackingPage() {
               Não localizamos nenhum pedido com o código ou WhatsApp informado. Verifique se digitou corretamente ou chame nosso suporte.
             </p>
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá, Livio's Food! Gostaria de ajuda para localizar o status do meu pedido.")}`}
+              href={createWhatsAppUrl(WHATSAPP_NUMBER, "Olá, Livio's Food! Gostaria de ajuda para localizar o status do meu pedido.")}
               target="_blank"
               rel="noreferrer"
               className="btn"

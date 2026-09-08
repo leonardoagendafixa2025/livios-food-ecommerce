@@ -17,6 +17,7 @@ import {
 import { useCart } from '../../contexts/CartContext.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function CheckoutPage() {
   const { items, getSubtotal, getDiscountAmount, getShippingFee, getTotal, selectedShipping, clearCart, coupon } = useCart();
@@ -198,21 +199,21 @@ export default function CheckoutPage() {
 
         // Monta a mensagem estruturada e elegante para o WhatsApp
         const paymentLabel = 
-          paymentPreference === 'pix' ? '⚡ PIX Direto (5% de Desconto)' :
-          paymentPreference === 'credit_card' ? '💳 Cartão de Crédito (Link de Pagamento Seguro)' :
-          '💵 Transferência / Dinheiro na Entrega';
+          paymentPreference === 'pix' ? 'PIX Direto (5% de Desconto)' :
+          paymentPreference === 'credit_card' ? 'Cartão de Crédito (Link de Pagamento Seguro)' :
+          'Transferência / Dinheiro na Entrega';
 
         const itemsFormatted = items.map((i, idx) => 
           `  ${idx + 1}. *${i.quantity}x ${i.name}* — R$ ${(i.price * i.quantity).toFixed(2).replace('.', ',')}`
         ).join('\n');
 
         const waMessage = 
-`🌶️ *NOVO PEDIDO - LIVIO'S FOOD INNOVATION*
+`🔥 *NOVO PEDIDO - LIVIO'S FOOD INNOVATION*
 =========================================
-📦 *Código do Pedido:* #${order.id}
+📋 *Código do Pedido:* #${order.id}
 👤 *Cliente:* ${customer.name}
 📱 *WhatsApp:* ${customer.phone}
-📧 *E-mail:* ${customer.email}
+✉️ *E-mail:* ${customer.email}
 📄 *CPF:* ${customer.cpf}
 
 📍 *Endereço para Entrega:*
@@ -226,9 +227,9 @@ ${itemsFormatted}
 
 -----------------------------------------
 📊 *Subtotal:* R$ ${getSubtotal().toFixed(2).replace('.', ',')}
-${getDiscountAmount() > 0 ? `🎁 *Desconto (${coupon?.code || 'Cupom'}):* - R$ ${getDiscountAmount().toFixed(2).replace('.', ',')}\n` : ''}🚚 *Frete:* ${getShippingFee() === 0 ? 'GRÁTIS' : `R$ ${getShippingFee().toFixed(2).replace('.', ',')}`}
+${getDiscountAmount() > 0 ? `🏷️ *Desconto (${coupon?.code || 'Cupom'}):* - R$ ${getDiscountAmount().toFixed(2).replace('.', ',')}\n` : ''}🚚 *Frete:* ${getShippingFee() === 0 ? 'GRÁTIS' : `R$ ${getShippingFee().toFixed(2).replace('.', ',')}`}
 💰 *TOTAL A PAGAR:* *R$ ${getTotal().toFixed(2).replace('.', ',')}*
-💳 *Forma de Pagamento Preferida:* ${paymentLabel}
+💳 *Forma de Pagamento:* ${paymentLabel}
 ${customerNotes ? `📝 *Observações:* ${customerNotes}\n` : ''}
 =========================================
 🔗 *Acompanhamento em Tempo Real:*
@@ -236,7 +237,7 @@ ${trackingUrl}
 
 Olá, equipe Livio's Food! Acabei de gerar meu pedido pelo site e aguardo a confirmação e dados de pagamento por aqui. Obrigado!`;
 
-        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
+        const waUrl = createWhatsAppUrl(WHATSAPP_NUMBER, waMessage);
 
         // Limpa o carrinho
         clearCart();

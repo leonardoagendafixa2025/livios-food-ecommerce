@@ -14,6 +14,7 @@ import {
   Copy
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -103,7 +104,7 @@ export default function AdminOrders() {
     const trackingUrl = `${window.location.origin}/rastreio/${order.id}`;
 
     const text = 
-`Olá, *${order.customerName}*! Tudo bem? 🌶️
+`Olá, *${order.customerName}*! Tudo bem? 🔥
 Aqui é da equipe *Livio's Food Innovation*.
 
 Atualização sobre o seu *Pedido #${order.id}*:
@@ -114,7 +115,7 @@ ${trackingUrl}
 
 Qualquer dúvida ou se precisar de algo adicional, estamos à sua disposição por aqui! Obrigado pela confiança.`;
 
-    window.open(`https://wa.me/${phoneFormatted}?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(createWhatsAppUrl(phoneFormatted, text), '_blank');
   };
 
   const filtered = orders.filter(o =>

@@ -6,6 +6,7 @@ import { useWishlist } from '../../contexts/WishlistContext.jsx';
 import { useCart } from '../../contexts/CartContext.jsx';
 import { useToast } from '../../contexts/ToastContext.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function CustomerAccount() {
   const { user, logout, updateUserProfile } = useAuth();
@@ -245,7 +246,7 @@ export default function CustomerAccount() {
                             </button>
 
                             <a
-                              href={`https://wa.me/5531995675327?text=${encodeURIComponent(`Olá, Livio's Food! Gostaria de consultar o status do meu Pedido #${ord.id}.`)}`}
+                              href={createWhatsAppUrl('5531995675327', `Olá, Livio's Food! Gostaria de consultar o status do meu Pedido #${ord.id}.`)}
                               target="_blank"
                               rel="noreferrer"
                               className="btn"

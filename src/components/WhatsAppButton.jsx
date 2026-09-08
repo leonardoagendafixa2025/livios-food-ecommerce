@@ -1,13 +1,14 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { createWhatsAppUrl } from '../utils/whatsapp.js';
 
 export default function WhatsAppButton() {
-  const phone = "5531995675327";
-  const message = encodeURIComponent("Olá! Vim pelo site da Livio's Food e gostaria de tirar uma dúvida sobre os molhos especiais.");
+  const message = "Olá! Vim pelo site da Livio's Food e gostaria de tirar uma dúvida sobre os molhos especiais.";
+  const url = createWhatsAppUrl('5531995675327', message);
 
   return (
     <a
-      href={`https://wa.me/${phone}?text=${message}`}
+      href={url}
       target="_blank"
       rel="noreferrer"
       className="whatsapp-float"

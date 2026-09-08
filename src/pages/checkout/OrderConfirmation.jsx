@@ -15,6 +15,7 @@ import {
   ChefHat
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
+import { createWhatsAppUrl } from '../../utils/whatsapp.js';
 
 export default function OrderConfirmation() {
   const { id } = useParams();
@@ -54,7 +55,7 @@ export default function OrderConfirmation() {
   const trackingUrl = `${window.location.origin}/rastreio/${order.id}`;
 
   const waReopenText = `Olá, equipe Livio's Food! Realizei o Pedido #${order.id} no valor de R$ ${order.total.toFixed(2).replace('.', ',')} no site e gostaria de confirmar o envio dos dados de pagamento e acompanhar o preparo!`;
-  const waReopenUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waReopenText)}`;
+  const waReopenUrl = createWhatsAppUrl(WHATSAPP_NUMBER, waReopenText);
 
   return (
     <div style={{ padding: '3.5rem 0', background: 'var(--light-bg)', minHeight: '85vh' }}>
