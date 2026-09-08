@@ -705,6 +705,106 @@ app.delete('/api/products/:id', requireAdminAuth, async (req, res) => {
 });
 
 // ==========================================
+// CENTRAL DE NOTIFICAÇÕES & ALERTAS DO ADMIN
+// ==========================================
+app.get('/api/admin/notifications', async (req, res) => {
+  const db = getDb();
+  const notifications = [];
+
+  // 1. Alertas de Estoque Esgotado e Baixo
+  let products = db.products || [];
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data } = await supabase.from('products').select('*');
+      if (data && Array.isArray(data)) products = data.map(mapProductFromSupabase);
+    } catch (e) {
+      console.warn("Aviso ao buscar produtos para alertas:", e.message);
+    }
+  }
+
+  products.forEach(p => {
+    if (p.stock <= 0) {
+      notifications.push({
+        id: `stock_zero_${p.id}`,
+        type: 'danger',
+        category: 'Estoque Esgotado',
+        title: p.name,
+        message: 'Produto com estoque zerado (0 un). Reposição necessária.',
+        link: '/admin/estoque',
+        createdAt: new Date().toISOString()
+      });
+    } else if (p.stock <= (p.minStock || 5)) {
+      notifications.push({
+        id: `stock_low_${p.id}`,
+        type: 'warning',
+        category: 'Estoque Baixo',
+        title: p.name,
+        message: `Restam apenas ${p.stock} un em estoque (mínimo: ${p.minStock || 5} un).`,
+        link: '/admin/estoque',
+        createdAt: new Date().toISOString()
+      });
+    }
+  });
+
+  // 2. Pedidos Novos / Pendentes de Envio
+  let orders = db.orders || [];
+  if (supabase) {
+    try {
+      const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(20);
+      if (data && Array.isArray(data)) orders = data;
+    } catch (e) {
+      console.warn("Aviso ao buscar pedidos para alertas:", e.message);
+    }
+  }
+
+  const pendingOrders = orders.filter(o => o.status === 'received' || o.status === 'pending' || o.payment_status === 'pending');
+  pendingOrders.slice(0, 10).forEach(o => {
+    const customer = o.customer_name || o.customerName || 'Cliente';
+    const totalVal = o.total ? `R$ ${Number(o.total).toFixed(2).replace('.', ',')}` : '';
+    notifications.push({
+      id: `order_${o.id}`,
+      type: 'info',
+      category: 'Novo Pedido',
+      title: `Pedido #${String(o.id).replace('ORD-', '')}`,
+      message: `${customer} aguardando separação. Total: ${totalVal}`,
+      link: '/admin/pedidos',
+      createdAt: o.created_at || new Date().toISOString()
+    });
+  });
+
+  // 3. Clientes na Lista de Espera
+  let waitlist = db.waitlist || [];
+  if (supabase) {
+    try {
+      const { data } = await supabase.from('waitlist').select('*').eq('status', 'Aguardando');
+      if (data && Array.isArray(data)) waitlist = data;
+    } catch (e) {
+      console.warn("Aviso ao buscar waitlist para alertas:", e.message);
+    }
+  }
+
+  const waitingCount = waitlist.filter(w => (w.status || 'Aguardando') === 'Aguardando').length;
+  if (waitingCount > 0) {
+    notifications.push({
+      id: 'waitlist_alert',
+      type: 'gold',
+      category: 'Lista de Espera',
+      title: `${waitingCount} Cliente(s) na Fila`,
+      message: 'Clientes cadastrados aguardando notificação de reposição.',
+      link: '/admin/estoque/lista-espera',
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  res.json({
+    success: true,
+    count: notifications.length,
+    notifications
+  });
+});
+
+// ==========================================
 // CONTROLE DE ESTOQUE & INVENTÁRIO
 // ==========================================
 app.get('/api/admin/inventory', (req, res) => {
