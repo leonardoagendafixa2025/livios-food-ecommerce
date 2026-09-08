@@ -36,6 +36,17 @@ export default function AdminOrders() {
 
   useEffect(() => {
     fetchOrders();
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 8000);
+
+    const onFocus = () => fetchOrders();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, []);
 
   const handleUpdateStatus = async (id, status, trackingCode = '') => {

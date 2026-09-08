@@ -128,20 +128,39 @@ function requireAdminAuth(req, res, next) {
 }
 
 // ==========================================
-// AUTENTICAÇÃO & USUÁRIOS (RBAC)
+// AUTENTICAÇÃO & USUÁRIOS (RBAC) COM SUPABASE REAL-TIME
 // ==========================================
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   const db = getDb();
+  const cleanEmail = (email || '').toLowerCase().trim();
 
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  let user = (db.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+  // Consulta no Supabase se não encontrado localmente
+  const supabase = getSupabase();
+  if (!user && supabase) {
+    try {
+      const { data, error } = await supabase.from('users').select('*').eq('email', cleanEmail).maybeSingle();
+      if (!error && data) {
+        user = mapUserFromSupabase(data);
+        if (!db.users) db.users = [];
+        db.users.push(user);
+      }
+    } catch (err) {
+      console.warn("Aviso ao buscar usuário no Supabase:", err.message);
+    }
+  }
 
   if (!user || user.passwordHash !== password) {
     return res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
   }
 
   // Garante que o perfil do usuário seja mantido sem elevação indevida
-  const roleInfo = db.roles.find(r => r.id === user.role) || { name: user.role === 'super_admin' ? "Super Administrador" : "Cliente", permissions: user.role === 'super_admin' ? ["all"] : ["customer"] };
+  const roleInfo = (db.roles || []).find(r => r.id === user.role) || { 
+    name: user.role === 'super_admin' ? "Super Administrador" : "Cliente", 
+    permissions: user.role === 'super_admin' ? ["all"] : ["customer"] 
+  };
 
   res.json({
     success: true,
@@ -160,22 +179,32 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, phone, cpf } = req.body;
   const db = getDb();
+  const cleanEmail = (email || '').toLowerCase().trim();
 
-  if (db.users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+  if ((db.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail)) {
     return res.status(400).json({ success: false, message: "Este e-mail já está cadastrado." });
   }
 
-  // Define se o usuário é super_admin (ex: e-mail oficial de admin) ou cliente padrão
-  const isAdminEmail = email.toLowerCase().includes('admin') || email.toLowerCase().includes('liviosfood.com');
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data: existing } = await supabase.from('users').select('id').eq('email', cleanEmail).maybeSingle();
+      if (existing) {
+        return res.status(400).json({ success: false, message: "Este e-mail já está cadastrado no sistema." });
+      }
+    } catch (err) {}
+  }
+
+  const isAdminEmail = cleanEmail.includes('admin') || cleanEmail.includes('liviosfood.com');
   const userRole = isAdminEmail ? 'super_admin' : 'customer';
 
   const newUser = {
     id: generateId('usr'),
-    name,
-    email,
+    name: (name || '').trim(),
+    email: cleanEmail,
     phone: phone || "",
     cpf: cpf || "",
     passwordHash: password,
@@ -184,10 +213,25 @@ app.post('/api/auth/register', (req, res) => {
     addresses: []
   };
 
+  if (!db.users) db.users = [];
   db.users.push(newUser);
   saveDb();
 
-  const roleInfo = db.roles.find(r => r.id === newUser.role) || { name: "Super Administrador", permissions: ["all"] };
+  // Persistência no Supabase com Await garantido
+  if (supabase) {
+    try {
+      const { error: userErr } = await supabase.from('users').insert(mapUserToSupabase(newUser));
+      if (userErr) console.error("Erro ao cadastrar usuário no Supabase:", userErr.message);
+      else console.log("🟢 Usuário cadastrado no Supabase PostgreSQL:", newUser.id);
+    } catch (err) {
+      console.error("Erro ao persistir usuário no Supabase:", err);
+    }
+  }
+
+  const roleInfo = (db.roles || []).find(r => r.id === newUser.role) || { 
+    name: newUser.role === 'super_admin' ? "Super Administrador" : "Cliente", 
+    permissions: newUser.role === 'super_admin' ? ["all"] : ["customer"] 
+  };
 
   res.json({
     success: true,
@@ -199,33 +243,48 @@ app.post('/api/auth/register', (req, res) => {
       cpf: newUser.cpf,
       role: newUser.role,
       roleName: roleInfo.name,
-      permissions: roleInfo.permissions || ["all"],
+      permissions: roleInfo.permissions || ["customer"],
       addresses: []
     },
-    message: "Cadastro de Administrador realizado com sucesso!"
+    message: "Cadastro realizado com sucesso!"
   });
 });
 
-app.put('/api/auth/profile', (req, res) => {
+app.put('/api/auth/profile', async (req, res) => {
   const { userId, name, phone, cpf } = req.body;
   const db = getDb();
 
-  const user = db.users.find(u => u.id === userId);
+  let user = (db.users || []).find(u => u.id === userId);
   if (!user) return res.status(404).json({ success: false, message: "Usuário não encontrado." });
 
-  if (name) user.name = name;
+  if (name) user.name = name.trim();
   if (phone) user.phone = phone;
   if (cpf) user.cpf = cpf;
 
   saveDb();
-  res.json({ success: true, user, message: "Dados cadastrais atualizados!" });
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('users').update({
+        name: user.name,
+        phone: user.phone,
+        cpf: user.cpf
+      }).eq('id', userId);
+      console.log("🟢 Perfil do usuário atualizado no Supabase:", userId);
+    } catch (err) {
+      console.error("Erro ao atualizar perfil no Supabase:", err);
+    }
+  }
+
+  res.json({ success: true, user, message: "Dados cadastrais atualizados com sucesso!" });
 });
 
-app.post('/api/auth/address', (req, res) => {
+app.post('/api/auth/address', async (req, res) => {
   const { userId, address } = req.body;
   const db = getDb();
 
-  const user = db.users.find(u => u.id === userId);
+  let user = (db.users || []).find(u => u.id === userId);
   if (!user) return res.status(404).json({ success: false, message: "Usuário não encontrado." });
 
   if (!user.addresses) user.addresses = [];
@@ -241,12 +300,57 @@ app.post('/api/auth/address', (req, res) => {
 
   user.addresses.push(newAddr);
   saveDb();
-  res.json({ success: true, addresses: user.addresses, message: "Endereço adicionado com sucesso!" });
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('users').update({
+        addresses: user.addresses
+      }).eq('id', userId);
+      console.log("🟢 Endereços do usuário sincronizados no Supabase:", userId);
+    } catch (err) {
+      console.error("Erro ao salvar endereço no Supabase:", err);
+    }
+  }
+
+  res.json({ success: true, addresses: user.addresses, message: "Endereço salvo com sucesso!" });
 });
 
 // ==========================================
 // FUNÇÕES DE MAPEAMENTO SUPABASE <-> MODELO
 // ==========================================
+function mapUserToSupabase(u) {
+  return {
+    id: u.id,
+    name: u.name || '',
+    email: (u.email || '').toLowerCase().trim(),
+    phone: u.phone || '',
+    cpf: u.cpf || '',
+    password_hash: u.passwordHash || u.password || '123456',
+    role: u.role || 'customer',
+    marketing_consent: u.marketingConsent ?? true,
+    tags: u.tags || [],
+    addresses: u.addresses || [],
+    created_at: u.createdAt || new Date().toISOString()
+  };
+}
+
+function mapUserFromSupabase(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone || '',
+    cpf: row.cpf || '',
+    passwordHash: row.password_hash || '',
+    role: row.role || 'customer',
+    marketingConsent: row.marketing_consent ?? true,
+    tags: row.tags || [],
+    addresses: row.addresses || [],
+    createdAt: row.created_at
+  };
+}
+
 function mapCategoryFromSupabase(row) {
   if (!row) return null;
   return {
@@ -622,6 +726,12 @@ async function syncInitialFromSupabase() {
       const db = getDb();
       db.orders = ordData.map(mapOrderFromSupabase);
       console.log(`🟢 Supabase sincronizado: ${ordData.length} pedidos carregados.`);
+    }
+    const { data: userData } = await supabase.from('users').select('*');
+    if (userData && Array.isArray(userData)) {
+      const db = getDb();
+      db.users = userData.map(mapUserFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${userData.length} usuários/clientes carregados.`);
     }
     const { data: banData } = await supabase.from('banners').select('*').order('order', { ascending: true });
     if (banData && Array.isArray(banData)) {
@@ -3088,10 +3198,28 @@ app.post('/api/products/compare', (req, res) => {
 // ==========================================
 // 5. CRM — CENTRAL & SEGMENTAÇÃO DE CLIENTES
 // ==========================================
-app.get('/api/admin/crm/dashboard', (req, res) => {
+app.get('/api/admin/crm/dashboard', async (req, res) => {
   const db = getDb();
 
-  const customers = db.users.filter(u => u.role === 'customer');
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const [usersRes, ordsRes] = await Promise.all([
+        supabase.from('users').select('*'),
+        supabase.from('orders').select('*')
+      ]);
+      if (usersRes.data && Array.isArray(usersRes.data)) {
+        db.users = usersRes.data.map(mapUserFromSupabase);
+      }
+      if (ordsRes.data && Array.isArray(ordsRes.data)) {
+        db.orders = ordsRes.data.map(mapOrderFromSupabase);
+      }
+    } catch (err) {
+      console.warn("Aviso ao buscar CRM no Supabase:", err.message);
+    }
+  }
+
+  const customers = (db.users || []).filter(u => u.role === 'customer');
   const orders = db.orders || [];
 
   const totalCustomers = customers.length;

@@ -23,6 +23,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboard();
+    const interval = setInterval(() => {
+      fetchDashboard();
+    }, 10000);
+
+    const onFocus = () => fetchDashboard();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, []);
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
