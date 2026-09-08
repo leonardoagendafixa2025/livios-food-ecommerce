@@ -564,6 +564,40 @@ function mapCampaignFromSupabase(row) {
   };
 }
 
+function mapRecipeToSupabase(r) {
+  return {
+    id: r.id,
+    title: r.title || '',
+    slug: r.slug || (r.title || 'receita').toLowerCase().replace(/[^a-z0-9-]+/g, '-'),
+    subtitle: r.subtitle || '',
+    prep_time: r.prepTime || '30 min',
+    difficulty: r.difficulty || 'Fácil',
+    servings: r.servings || '4 pessoas',
+    image: r.image || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80',
+    used_product_ids: r.usedProductIds || [],
+    ingredients: r.ingredients || [],
+    instructions: r.instructions || [],
+    created_at: r.createdAt || new Date().toISOString()
+  };
+}
+
+function mapRecipeFromSupabase(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    subtitle: row.subtitle,
+    prepTime: row.prep_time || '30 min',
+    difficulty: row.difficulty || 'Fácil',
+    servings: row.servings || '4 pessoas',
+    image: row.image || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80',
+    usedProductIds: row.used_product_ids || [],
+    ingredients: Array.isArray(row.ingredients) ? row.ingredients : [],
+    instructions: Array.isArray(row.instructions) ? row.instructions : [],
+    createdAt: row.created_at
+  };
+}
+
 // Sincronização inicial em segundo plano ao iniciar o servidor
 async function syncInitialFromSupabase() {
   const supabase = getSupabase();
@@ -598,6 +632,12 @@ async function syncInitialFromSupabase() {
       const db = getDb();
       db.coupons = coupData.map(mapCouponFromSupabase);
       console.log(`🟢 Supabase sincronizado: ${coupData.length} cupons carregados.`);
+    }
+    const { data: recData } = await supabase.from('recipes').select('*').order('created_at', { ascending: false });
+    if (recData && Array.isArray(recData)) {
+      const db = getDb();
+      db.recipes = recData.map(mapRecipeFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${recData.length} receitas carregadas.`);
     }
     const { data: popData } = await supabase.from('popups').select('*');
     if (popData && Array.isArray(popData)) {
@@ -1152,10 +1192,29 @@ app.get('/api/admin/notifications', async (req, res) => {
 // ==========================================
 // CONTROLE DE ESTOQUE & INVENTÁRIO
 // ==========================================
-app.get('/api/admin/inventory', (req, res) => {
-  const db = getDb();
+app.get('/api/admin/inventory', async (req, res) => {
+  let products = [];
+  const supabase = getSupabase();
 
-  const products = db.products || [];
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        products = data.map(mapProductFromSupabase);
+        const db = getDb();
+        db.products = products;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar produtos para inventário no Supabase:", err);
+    }
+  }
+
+  if (products.length === 0) {
+    const db = getDb();
+    products = db.products || [];
+  }
+
+  const db = getDb();
   const movements = db.inventoryMovements || [];
 
   const totalStockUnits = products.reduce((acc, p) => acc + (p.stock || 0), 0);
@@ -1184,11 +1243,12 @@ app.get('/api/admin/inventory', (req, res) => {
   });
 });
 
-app.post('/api/admin/inventory/movement', (req, res) => {
+app.post('/api/admin/inventory/movement', async (req, res) => {
   const db = getDb();
   const { productId, type, quantity, reason, user } = req.body;
 
-  const product = (db.products || []).find(p => p.id === productId);
+  if (!db.products) db.products = [];
+  const product = db.products.find(p => p.id === productId);
   if (!product) return res.status(404).json({ success: false, message: "Produto não encontrado." });
 
   const qty = parseInt(quantity || 0);
@@ -1221,18 +1281,55 @@ app.post('/api/admin/inventory/movement', (req, res) => {
   db.inventoryMovements.push(newMov);
   saveDb();
 
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('products').update({ stock: newStock }).eq('id', product.id);
+      await supabase.from('inventory_movements').insert({
+        id: newMov.id,
+        product_id: product.id,
+        product_name: product.name,
+        product_sku: product.sku,
+        type: newMov.type,
+        quantity: newMov.quantity,
+        previous_stock: previousStock,
+        new_stock: newStock,
+        reason: newMov.reason,
+        user: newMov.user,
+        created_at: newMov.date
+      });
+      console.log(`🟢 Estoque de ${product.name} atualizado no Supabase para: ${newStock}`);
+    } catch (err) {
+      console.error("Erro ao atualizar estoque no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, movement: newMov, product, message: "Movimentação de estoque registrada com sucesso!" });
 });
 
-app.put('/api/admin/inventory/quick-update/:id', (req, res) => {
+app.put('/api/admin/inventory/quick-update/:id', async (req, res) => {
   const db = getDb();
-  const product = (db.products || []).find(p => p.id === req.params.id);
+  if (!db.products) db.products = [];
+  const product = db.products.find(p => p.id === req.params.id);
   if (!product) return res.status(404).json({ success: false, message: "Produto não encontrado." });
 
   if (req.body.minStock !== undefined) product.minStock = parseInt(req.body.minStock);
   if (req.body.costPrice !== undefined) product.costPrice = parseFloat(req.body.costPrice);
 
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const updates = {};
+      if (req.body.minStock !== undefined) updates.min_stock = parseInt(req.body.minStock);
+      if (req.body.costPrice !== undefined) updates.cost_price = parseFloat(req.body.costPrice);
+      await supabase.from('products').update(updates).eq('id', req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar parâmetros de estoque no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, product, message: "Parâmetros de estoque atualizados!" });
 });
 
@@ -1775,44 +1872,112 @@ app.post('/api/reviews', (req, res) => {
 // ==========================================
 // RECEITAS & BANNERS & GALERIA (CRUD COMPLETO ADMIN)
 // ==========================================
-app.get('/api/recipes', (req, res) => {
-  const db = getDb();
-  res.json({ success: true, recipes: db.recipes });
+app.get('/api/recipes', async (req, res) => {
+  let list = [];
+  let fetchedFromSupabase = false;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('recipes').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        list = data.map(mapRecipeFromSupabase);
+        fetchedFromSupabase = true;
+        const db = getDb();
+        db.recipes = list;
+      }
+    } catch (err) {
+      console.error("Erro ao buscar receitas no Supabase:", err);
+    }
+  }
+
+  if (!fetchedFromSupabase) {
+    const db = getDb();
+    list = [...(db.recipes || [])];
+  }
+
+  res.json({ success: true, recipes: list });
 });
 
-app.post('/api/admin/recipes', (req, res) => {
+app.post('/api/admin/recipes', async (req, res) => {
   const db = getDb();
+  if (!db.recipes) db.recipes = [];
+
+  const title = (req.body.title || 'Nova Receita Gastronômica').trim();
+  const rawSlug = (req.body.slug || title).toLowerCase().trim().replace(/[^a-z0-9-]+/g, '-');
+  const slug = `${rawSlug}-${Date.now().toString().slice(-4)}`;
+
   const newRecipe = {
     id: generateId('rec'),
-    title: req.body.title || 'Nova Receita Gastronômica',
-    slug: (req.body.title || 'receita').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    title,
+    slug,
     subtitle: req.body.subtitle || '',
     prepTime: req.body.prepTime || '30 min',
     difficulty: req.body.difficulty || 'Fácil',
     servings: req.body.servings || '4 pessoas',
     image: req.body.image || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80',
-    usedProductIds: req.body.usedProductIds || [],
-    ingredients: req.body.ingredients || [],
-    instructions: req.body.instructions || []
+    usedProductIds: Array.isArray(req.body.usedProductIds) ? req.body.usedProductIds : [],
+    ingredients: Array.isArray(req.body.ingredients) ? req.body.ingredients : (typeof req.body.ingredientsText === 'string' ? req.body.ingredientsText.split('\n').map(i => i.trim()).filter(Boolean) : []),
+    instructions: Array.isArray(req.body.instructions) ? req.body.instructions : (typeof req.body.instructionsText === 'string' ? req.body.instructionsText.split('\n').map(i => i.trim()).filter(Boolean) : []),
+    createdAt: new Date().toISOString()
   };
-  db.recipes.push(newRecipe);
+
+  db.recipes.unshift(newRecipe);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('recipes').insert(mapRecipeToSupabase(newRecipe));
+      console.log("🟢 Receita salva no Supabase PostgreSQL:", newRecipe.id);
+    } catch (err) {
+      console.error("Erro ao salvar receita no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, recipe: newRecipe, message: 'Receita criada com sucesso!' });
 });
 
-app.put('/api/admin/recipes/:id', (req, res) => {
+app.put('/api/admin/recipes/:id', async (req, res) => {
   const db = getDb();
+  if (!db.recipes) db.recipes = [];
   const rec = db.recipes.find(r => r.id === req.params.id);
-  if (!rec) return res.status(404).json({ success: false, message: 'Receita não encontrada.' });
-  Object.assign(rec, req.body);
-  saveDb();
-  res.json({ success: true, recipe: rec, message: 'Receita atualizada com sucesso!' });
+  if (rec) {
+    Object.assign(rec, req.body);
+    saveDb();
+  }
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const mapped = mapRecipeToSupabase(req.body);
+      delete mapped.id;
+      await supabase.from('recipes').update(mapped).eq('id', req.params.id);
+      console.log("🟢 Receita atualizada no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar receita no Supabase:", err);
+    }
+  }
+
+  res.json({ success: true, recipe: rec || req.body, message: 'Receita atualizada com sucesso!' });
 });
 
-app.delete('/api/admin/recipes/:id', (req, res) => {
+app.delete('/api/admin/recipes/:id', async (req, res) => {
   const db = getDb();
+  if (!db.recipes) db.recipes = [];
   db.recipes = db.recipes.filter(r => r.id !== req.params.id);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('recipes').delete().eq('id', req.params.id);
+      console.log("🟢 Receita removida do Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao remover receita no Supabase:", err);
+    }
+  }
+
   res.json({ success: true, message: 'Receita excluída com sucesso!' });
 });
 

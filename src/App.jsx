@@ -37,6 +37,7 @@ import LoginPage from './pages/customer/LoginPage.jsx';
 // Páginas dos Recursos Avançados do Prompt Complementar
 import SearchPage from './pages/store/SearchPage.jsx';
 import ComparePage from './pages/store/ComparePage.jsx';
+import InstitutionalPages from './pages/store/InstitutionalPages.jsx';
 
 // Páginas do Admin
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -144,11 +145,18 @@ export default function App() {
                     <Route path="/favoritos" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
                     <Route path="/login" element={<StoreLayout><LoginPage /></StoreLayout>} />
 
+                    {/* Rotas Institucionais & Políticas */}
+                    <Route path="/politica-privacidade" element={<StoreLayout><InstitutionalPages /></StoreLayout>} />
+                    <Route path="/termos-uso" element={<StoreLayout><InstitutionalPages /></StoreLayout>} />
+                    <Route path="/trocas-devolucoes" element={<StoreLayout><InstitutionalPages /></StoreLayout>} />
+                    <Route path="/politica-entrega" element={<StoreLayout><InstitutionalPages /></StoreLayout>} />
+
                     {/* Rotas Privadas do Painel Admin */}
                     <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/produtos" element={<ProtectedAdminRoute><AdminLayout><AdminProducts /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/estoque" element={<ProtectedAdminRoute><AdminLayout><AdminInventory /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/estoque/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/pedidos" element={<ProtectedAdminRoute><AdminLayout><AdminOrders /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/clientes" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/crm" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
@@ -163,8 +171,11 @@ export default function App() {
                     {/* ROTAS DE MARKETING & CAMPANHAS */}
                     <Route path="/admin/marketing" element={<ProtectedAdminRoute><AdminLayout><AdminMarketingDashboard /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/marketing/campanhas" element={<ProtectedAdminRoute><AdminLayout><AdminCampaigns /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/campanhas" element={<ProtectedAdminRoute><AdminLayout><AdminCampaigns /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/marketing/popups" element={<ProtectedAdminRoute><AdminLayout><AdminPopups /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/popups" element={<ProtectedAdminRoute><AdminLayout><AdminPopups /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/marketing/barras" element={<ProtectedAdminRoute><AdminLayout><AdminPromotionalBars /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/barras" element={<ProtectedAdminRoute><AdminLayout><AdminPromotionalBars /></AdminLayout></ProtectedAdminRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" replace />} />

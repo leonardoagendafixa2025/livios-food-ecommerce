@@ -215,6 +215,22 @@ CREATE TABLE IF NOT EXISTS customer_events (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 12. TABELA DE RECEITAS GASTRONÔMICAS
+CREATE TABLE IF NOT EXISTS recipes (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  subtitle TEXT,
+  prep_time TEXT DEFAULT '30 min',
+  difficulty TEXT DEFAULT 'Fácil',
+  servings TEXT DEFAULT '4 pessoas',
+  image TEXT,
+  used_product_ids JSONB DEFAULT '[]'::jsonb,
+  ingredients JSONB DEFAULT '[]'::jsonb,
+  instructions JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- INSERIR CONFIGURAÇÃO INICIAL
 INSERT INTO categories (id, name, slug, description, image, "order", active) VALUES
 ('cat_fine_recipe', 'Molhos Fine Recipe', 'molho-fine-recipe', 'Nossa linha premium em garrafas de vidro gourmet de 250ml.', '/header-bg.jpg', 1, true)
@@ -222,4 +238,8 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO products (id, sku, name, slug, category_id, short_description, full_description, price, promotional_price, cost_price, stock, min_stock, weight_kg, volume_ml, heat_level, ingredients, is_featured, is_bestseller, active) VALUES
 ('prod_1', 'LIV-FIN-001', 'Molho Agridoce Fine Recipe Original 250ml', 'molho-agridoce-fine-recipe-original-250ml', 'cat_fine_recipe', 'A clássica fórmula balanceada de pimentas selecionadas com toque agridoce gourmet.', 'Desenvolvido após mais de uma década de pesquisas gastronômicas.', 29.90, 26.90, 8.50, 140, 20, 0.45, 250, 'Média', 'Pimentas vermelhas selecionadas, açúcar de cana, vinagre de maçã, alho fresco, sal marinho.', true, true, true)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO recipes (id, title, slug, subtitle, prep_time, difficulty, servings, image, used_product_ids, ingredients, instructions) VALUES
+('rec_1', 'Costelinha Suína Caramelizada com Molho Agridoce Fine Recipe', 'costelinha-suina-caramelizada-fine-recipe', 'O clássico churrasco gourmet elevado com o equilíbrio perfeito entre o dulçor e o toque suave de especiarias.', '45 min', 'Fácil', '4 pessoas', 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80', '["prod_1"]'::jsonb, '["1,5kg de costelinha de porco em ripas", "1 garrafa de Molho Agridoce Fine Recipe Livio''s Food", "4 dentes de alho picados", "1 colher de sopa de sal de parrilla ou sal grosso"]'::jsonb, '["Tempere as costelinhas com o alho picado e sal.", "Embrulhe a carne em papel alumínio e asse a 180°C por 40 minutos.", "Retire o papel alumínio, pincele farta quantidade de Molho Agridoce Fine Recipe.", "Asse por mais 15 minutos até caramelizar e dourar."]'::jsonb)
 ON CONFLICT (id) DO NOTHING;

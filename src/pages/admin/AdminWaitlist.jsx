@@ -92,8 +92,8 @@ export default function AdminWaitlist() {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: '6px' }}>
-                      {w.channels.includes('email') && <span style={{ background: '#FAF8F4', border: '1px solid var(--light-border)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>E-mail</span>}
-                      {w.channels.includes('whatsapp') && <span style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25D366', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>WhatsApp</span>}
+                      {(Array.isArray(w.channels) ? w.channels : []).includes('email') && <span style={{ background: '#FAF8F4', border: '1px solid var(--light-border)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>E-mail</span>}
+                      {(Array.isArray(w.channels) ? w.channels : []).includes('whatsapp') && <span style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25D366', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>WhatsApp</span>}
                     </div>
                   </td>
                   <td>
@@ -112,6 +112,13 @@ export default function AdminWaitlist() {
                   </td>
                 </tr>
               ))}
+              {waitlist.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                    Nenhum cliente aguardando reposição de estoque no momento.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}
