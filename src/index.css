@@ -709,69 +709,181 @@ button, input, select, textarea {
 }
 
 /* ==========================================
+/* ==========================================
    PAINEL ADMINISTRATIVO EXECUTIVE UI/UX
    ========================================== */
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: #F4F3EF;
+  background: #F8F7F4;
+  color: #1E293B;
+  font-family: var(--font-sans);
 }
 
 .admin-sidebar {
-  width: 270px;
-  background: #0E0E14;
-  color: #FFF;
+  width: 280px;
+  background: linear-gradient(180deg, #111116 0%, #08080B 100%);
+  color: #F8FAFC;
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
-  box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+  box-shadow: 4px 0 28px rgba(0, 0, 0, 0.25);
   z-index: 50;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }
 
 .admin-sidebar-header {
-  padding: 1.75rem 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 1.5rem 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .admin-nav {
-  padding: 1.25rem 0.85rem;
+  padding: 1.25rem 0.9rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 1.25rem;
   flex-grow: 1;
   overflow-y: auto;
+}
+
+/* Custom Slim Scrollbar for Admin Sidebar */
+.admin-nav::-webkit-scrollbar {
+  width: 5px;
+}
+.admin-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+.admin-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.35);
+}
+
+.admin-nav-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-nav-section-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #64748B;
+  padding: 0 0.65rem 0.45rem 0.65rem;
+  user-select: none;
+}
+
+.admin-nav-section-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #E2E8F0;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-section-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFF;
+}
+
+.admin-nav-section-button.section-active {
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(139, 0, 0, 0.15);
+  color: var(--accent-gold);
 }
 
 .admin-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.85rem 1.1rem;
-  color: #A0A0B2;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  color: #94A3B8;
   font-weight: 600;
-  font-size: 0.92rem;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
+  font-size: 0.88rem;
+  border-radius: 10px;
+  transition: all 0.18s ease;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.admin-nav-item .nav-icon {
+  color: #64748B;
+  transition: color 0.18s ease;
+  flex-shrink: 0;
 }
 
 .admin-nav-item:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #FFF;
+  color: #F8FAFC;
+  transform: translateX(3px);
+}
+
+.admin-nav-item:hover .nav-icon {
+  color: var(--accent-gold);
 }
 
 .admin-nav-item.active {
-  background: linear-gradient(135deg, var(--primary-burgundy), #A50000);
-  color: #FFF;
-  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.35);
+  background: linear-gradient(135deg, var(--primary-burgundy) 0%, #630000 100%);
+  color: #FFFFFF;
   font-weight: 700;
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.4);
+}
+
+.admin-nav-item.active .nav-icon {
+  color: var(--accent-gold);
+}
+
+.admin-nav-item.sub-item {
+  font-size: 0.83rem;
+  padding: 0.55rem 0.75rem;
 }
 
 .admin-sidebar-footer {
-  padding: 1.25rem 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  background: #0A0A0E;
+  padding: 1.25rem 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.admin-sidebar-logout-btn {
+  width: 100%;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #F87171;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.admin-sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #FFF;
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
 }
 
 .admin-main-container {
@@ -779,53 +891,56 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: #F8F7F4;
 }
 
 .admin-header-bar {
-  background: #FFFFFF;
-  padding: 1.25rem 2.5rem;
-  border-bottom: 1px solid var(--light-border);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 1.15rem 2.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
   position: sticky;
   top: 0;
   z-index: 40;
 }
 
 .admin-header-title {
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 800;
   font-family: var(--font-serif);
-  color: var(--text-dark);
+  color: #0F172A;
   line-height: 1.2;
 }
 
 .admin-header-subtitle {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.84rem;
+  color: #64748B;
   margin-top: 2px;
 }
 
 .admin-main {
   flex-grow: 1;
-  padding: 2.5rem;
+  padding: 2.25rem 2.5rem;
   overflow-y: auto;
 }
 
 .admin-card {
   background: #FFFFFF;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--light-border);
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
   padding: 2rem;
   margin-bottom: 2rem;
-  transition: box-shadow var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
 .admin-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .table-custom {

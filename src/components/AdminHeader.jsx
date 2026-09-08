@@ -32,12 +32,19 @@ export default function AdminHeader() {
     '/admin': { title: 'Dashboard Geral', subtitle: 'Visão executiva de faturamento, vendas e estoque em tempo real.' },
     '/admin/produtos': { title: 'Gestão de Produtos', subtitle: 'Cadastre, edite e organize o catálogo de molhos e kits.' },
     '/admin/estoque': { title: 'Controle de Estoque', subtitle: 'Monitore unidades disponíveis e movimentações de inventário.' },
-    '/admin/pedidos': { title: 'Gestão de Pedidos', subtitle: 'Acompanhe o fluxo de aprovação, embalagem e envio.' },
-    '/admin/clientes': { title: 'Base de Clientes', subtitle: 'Gerencie clientes cadastrados e histórico de consumo.' },
+    '/admin/estoque/lista-espera': { title: 'Lista de Espera', subtitle: 'Clientes cadastrados aguardando aviso de reposição de itens.' },
+    '/admin/pedidos': { title: 'Gestão de Pedidos', subtitle: 'Acompanhe o fluxo de aprovação, separação e envio de encomendas.' },
+    '/admin/crm': { title: 'CRM & Central de Clientes', subtitle: 'Histórico de consumo, engajamento e métricas de compradores.' },
+    '/admin/crm/segmentos': { title: 'Segmentação de Clientes', subtitle: 'Agrupamentos estratégicos de compradores (VIP, Recorrentes, Inativos).' },
     '/admin/categorias': { title: 'Linhas & Categorias', subtitle: 'Organize as linhas Fine Recipe, PET e Kits Promocionais.' },
+    '/admin/marketing': { title: 'Central de Marketing', subtitle: 'Controle de tráfego, campanhas, pop-ups e barras promocionais.' },
+    '/admin/marketing/campanhas': { title: 'Campanhas & Ofertas', subtitle: 'Crie promoções sazonais, combos e descontos relâmpago.' },
+    '/admin/marketing/popups': { title: 'Pop-ups Promocionais', subtitle: 'Gerencie modais interativos e banners de captura de clientes.' },
+    '/admin/marketing/barras': { title: 'Barras do Topo', subtitle: 'Alertas no topo do site para avisos de frete grátis e promoções.' },
     '/admin/banners': { title: 'Banners da Home', subtitle: 'Edite os banners interativos e frases da página inicial.' },
-    '/admin/cupons': { title: 'Cupons Promocionais', subtitle: 'Crie cupons de desconto e regras de frete grátis.' },
-    '/admin/configuracoes': { title: 'Configurações da Loja', subtitle: 'Parâmetros institucionais, gateways de pagamento e SEO.' }
+    '/admin/receitas': { title: 'Receitas & Harmonizações', subtitle: 'Publique dicas culinárias e harmonizações com molhos Livio\'s Food.' },
+    '/admin/cupons': { title: 'Cupons de Desconto', subtitle: 'Crie cupons promocionais e regras de frete grátis.' },
+    '/admin/configuracoes': { title: 'Configurações da Loja', subtitle: 'Parâmetros institucionais, gateways de pagamento, taxas e SEO.' }
   };
 
   const currentPage = pageTitles[location.pathname] || { title: 'Painel Administrativo', subtitle: 'Gerenciamento do e-commerce Livio\'s Food Innovation.' };
