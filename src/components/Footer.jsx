@@ -21,7 +21,7 @@ export default function Footer() {
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <a href="https://www.instagram.com/livios_food_innovation/" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)' }} title="@livios_food_innovation"><Instagram size={20} /></a>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)' }}><Facebook size={20} /></a>
+              <a href="https://www.facebook.com/LiviosFood" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)' }} title="Facebook Livio's Food"><Facebook size={20} /></a>
             </div>
           </div>
 

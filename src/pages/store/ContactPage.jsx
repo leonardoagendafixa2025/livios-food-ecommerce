@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, MessageCircle, Send, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, Send, Instagram, Facebook } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
 
 export default function ContactPage() {
@@ -60,6 +60,17 @@ export default function ContactPage() {
                 <h4 style={{ fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '2px' }}>Instagram Oficial</h4>
                 <div style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--primary-burgundy)' }}>@livios_food_innovation</div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Siga-nos para ver fotos e novidades</div>
+              </div>
+            </a>
+
+            <a href="https://www.facebook.com/LiviosFood" target="_blank" rel="noreferrer" style={{ background: '#FFF', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)', textDecoration: 'none', color: 'inherit' }}>
+              <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#1877F2', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Facebook size={26} />
+              </div>
+              <div>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '2px' }}>Facebook Oficial</h4>
+                <div style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--primary-burgundy)' }}>facebook.com/LiviosFood</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Acompanhe nossas publicações e eventos</div>
               </div>
             </a>
 
