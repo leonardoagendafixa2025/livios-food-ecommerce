@@ -2666,8 +2666,18 @@ app.post('/api/marketing/event', (req, res) => {
 // ==========================================
 // DASHBOARD ADMINISTRATIVO & RELATÓRIOS
 // ==========================================
-app.get('/api/admin/dashboard', (req, res) => {
+app.get('/api/admin/dashboard', async (req, res) => {
   const db = getDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data: ords } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+      if (ords && Array.isArray(ords)) {
+        db.orders = ords.map(mapOrderFromSupabase);
+      }
+    } catch (err) {}
+  }
 
   const totalRevenue = db.orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total : 0), 0);
   const totalOrders = db.orders.length;
@@ -2677,6 +2687,12 @@ app.get('/api/admin/dashboard', (req, res) => {
   const lowStockProducts = db.products.filter(p => p.stock <= p.minStock);
   const outOfStockProducts = db.products.filter(p => p.stock === 0);
   const pendingOrders = db.orders.filter(o => o.status === 'received' || o.status === 'in_preparation');
+
+  const totalProducts = db.products.length;
+  const activeProducts = db.products.filter(p => p.active).length;
+  const activeCoupons = (db.coupons || []).filter(c => c.active).length;
+  const totalWaitlist = (db.waitlist || []).filter(w => w.status === 'Aguardando').length;
+  const activeCampaigns = (db.campaigns || []).filter(c => c.status === 'Ativa').length;
 
   // Vendas calculadas em tempo real a partir dos pedidos reais
   const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -2708,10 +2724,15 @@ app.get('/api/admin/dashboard', (req, res) => {
       totalCustomers,
       lowStockCount: lowStockProducts.length,
       outOfStockCount: outOfStockProducts.length,
-      pendingOrdersCount: pendingOrders.length
+      pendingOrdersCount: pendingOrders.length,
+      totalProducts,
+      activeProducts,
+      activeCoupons,
+      totalWaitlist,
+      activeCampaigns
     },
     lowStockProducts,
-    recentOrders: db.orders.slice(0, 5),
+    recentOrders: db.orders.slice(0, 8),
     salesChartData
   });
 });
