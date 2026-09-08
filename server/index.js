@@ -384,6 +384,70 @@ function mapOrderFromSupabase(row) {
   };
 }
 
+function mapBannerToSupabase(b) {
+  return {
+    id: b.id,
+    title: b.title || '',
+    subtitle: b.subtitle || '',
+    button_text: b.buttonText || 'COMPRAR AGORA',
+    button_link: b.buttonLink || '/produtos',
+    secondary_button_text: b.secondaryButtonText || '',
+    secondary_button_link: b.secondaryButtonLink || '',
+    image_desktop: b.imageDesktop || '/header-bg.jpg',
+    image_mobile: b.imageMobile || b.imageDesktop || '/header-bg.jpg',
+    active: b.active ?? true,
+    order: Number(b.order || 1),
+    created_at: b.createdAt || new Date().toISOString()
+  };
+}
+
+function mapBannerFromSupabase(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle,
+    buttonText: row.button_text,
+    buttonLink: row.button_link,
+    secondaryButtonText: row.secondary_button_text,
+    secondaryButtonLink: row.secondary_button_link,
+    imageDesktop: row.image_desktop,
+    imageMobile: row.image_mobile,
+    active: row.active ?? true,
+    order: Number(row.order || 1),
+    createdAt: row.created_at
+  };
+}
+
+function mapCouponToSupabase(c) {
+  return {
+    id: c.id,
+    code: c.code ? c.code.toUpperCase() : '',
+    type: c.type || 'percentage',
+    value: Number(c.value || 0),
+    min_purchase: Number(c.minPurchase || 0),
+    usage_limit: Number(c.usageLimit || 100),
+    used_count: Number(c.usedCount || 0),
+    active: c.active ?? true,
+    description: c.description || '',
+    created_at: c.createdAt || new Date().toISOString()
+  };
+}
+
+function mapCouponFromSupabase(row) {
+  return {
+    id: row.id,
+    code: row.code,
+    type: row.type,
+    value: Number(row.value || 0),
+    minPurchase: Number(row.min_purchase || 0),
+    usageLimit: Number(row.usage_limit || 100),
+    usedCount: Number(row.used_count || 0),
+    active: row.active ?? true,
+    description: row.description || '',
+    createdAt: row.created_at
+  };
+}
+
 // Sincronização inicial em segundo plano ao iniciar o servidor
 async function syncInitialFromSupabase() {
   const supabase = getSupabase();
@@ -406,6 +470,18 @@ async function syncInitialFromSupabase() {
       const db = getDb();
       db.orders = ordData.map(mapOrderFromSupabase);
       console.log(`🟢 Supabase sincronizado: ${ordData.length} pedidos carregados na inicialização.`);
+    }
+    const { data: banData } = await supabase.from('banners').select('*').order('order', { ascending: true });
+    if (banData && banData.length > 0) {
+      const db = getDb();
+      db.banners = banData.map(mapBannerFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${banData.length} banners carregados na inicialização.`);
+    }
+    const { data: coupData } = await supabase.from('coupons').select('*');
+    if (coupData && coupData.length > 0) {
+      const db = getDb();
+      db.coupons = coupData.map(mapCouponFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${coupData.length} cupons carregados na inicialização.`);
     }
   } catch (err) {
     console.warn("⚠️ Aviso ao sincronizar inicialmente do Supabase:", err.message);
@@ -1097,6 +1173,19 @@ app.post('/api/coupons', (req, res) => {
 
   db.coupons.push(newCoupon);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('coupons').insert(mapCouponToSupabase(newCoupon));
+        console.log("🟢 Cupom salvo no Supabase PostgreSQL:", newCoupon.code);
+      } catch (err) {
+        console.error("Erro ao salvar cupom no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, coupon: newCoupon, message: "Cupom criado com sucesso!" });
 });
 
@@ -1119,6 +1208,19 @@ app.put('/api/coupons/:id', (req, res) => {
   if (req.body.active !== undefined) coupon.active = !!req.body.active;
 
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('coupons').update(mapCouponToSupabase(coupon)).eq('id', req.params.id);
+        console.log("🟢 Cupom atualizado no Supabase PostgreSQL:", coupon.code);
+      } catch (err) {
+        console.error("Erro ao atualizar cupom no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, coupon, message: "Cupom atualizado com sucesso!" });
 });
 
@@ -1129,6 +1231,19 @@ app.delete('/api/coupons/:id', (req, res) => {
 
   db.coupons.splice(index, 1);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('coupons').delete().eq('id', req.params.id);
+        console.log("🟢 Cupom removido do Supabase PostgreSQL:", req.params.id);
+      } catch (err) {
+        console.error("Erro ao remover cupom no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, message: "Cupom removido com sucesso!" });
 });
 
@@ -1579,6 +1694,19 @@ app.post('/api/admin/banners', (req, res) => {
   };
   db.banners.push(newBanner);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('banners').insert(mapBannerToSupabase(newBanner));
+        console.log("🟢 Banner salvo no Supabase PostgreSQL:", newBanner.id);
+      } catch (err) {
+        console.error("Erro ao salvar banner no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, banner: newBanner, message: 'Banner criado com sucesso!' });
 });
 
@@ -1588,6 +1716,19 @@ app.put('/api/admin/banners/:id', (req, res) => {
   if (!banner) return res.status(404).json({ success: false, message: 'Banner não encontrado.' });
   Object.assign(banner, req.body);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('banners').update(mapBannerToSupabase(banner)).eq('id', req.params.id);
+        console.log("🟢 Banner atualizado no Supabase PostgreSQL:", req.params.id);
+      } catch (err) {
+        console.error("Erro ao atualizar banner no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, banner, message: 'Banner atualizado com sucesso!' });
 });
 
@@ -1595,6 +1736,19 @@ app.delete('/api/admin/banners/:id', (req, res) => {
   const db = getDb();
   db.banners = db.banners.filter(b => b.id !== req.params.id);
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('banners').delete().eq('id', req.params.id);
+        console.log("🟢 Banner removido do Supabase PostgreSQL:", req.params.id);
+      } catch (err) {
+        console.error("Erro ao remover banner no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, message: 'Banner excluído com sucesso!' });
 });
 
@@ -1604,6 +1758,19 @@ app.put('/api/admin/banners/:id/toggle', (req, res) => {
   if (!banner) return res.status(404).json({ success: false, message: 'Banner não encontrado.' });
   banner.active = !banner.active;
   saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from('banners').update({ active: banner.active }).eq('id', req.params.id);
+        console.log("🟢 Status do banner atualizado no Supabase PostgreSQL:", req.params.id);
+      } catch (err) {
+        console.error("Erro ao alternar status do banner no Supabase:", err);
+      }
+    })();
+  }
+
   res.json({ success: true, banner, message: `Banner ${banner.active ? 'ativado' : 'desativado'} com sucesso!` });
 });
 
