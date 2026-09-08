@@ -245,14 +245,139 @@ app.post('/api/auth/address', (req, res) => {
 });
 
 // ==========================================
+// FUNÇÕES DE MAPEAMENTO SUPABASE <-> MODELO
+// ==========================================
+function mapCategoryFromSupabase(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description || '',
+    image: row.image || '',
+    order: Number(row.order || 0),
+    active: row.active ?? true
+  };
+}
+
+function mapCategoryToSupabase(cat) {
+  return {
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description || '',
+    image: cat.image || '',
+    order: Number(cat.order || 0),
+    active: cat.active ?? true
+  };
+}
+
+function mapProductFromSupabase(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    sku: row.sku,
+    name: row.name,
+    slug: row.slug,
+    categoryId: row.category_id,
+    shortDescription: row.short_description || '',
+    fullDescription: row.full_description || '',
+    price: Number(row.price || 0),
+    promotionalPrice: row.promotional_price !== null && row.promotional_price !== undefined && row.promotional_price !== '' ? Number(row.promotional_price) : null,
+    costPrice: Number(row.cost_price || 0),
+    stock: Number(row.stock || 0),
+    minStock: Number(row.min_stock || 5),
+    weightKg: Number(row.weight_kg || 0.45),
+    volumeMl: Number(row.volume_ml || 250),
+    heatLevel: row.heat_level || 'Média',
+    ingredients: row.ingredients || '',
+    nutritionInfo: Array.isArray(row.nutrition_info) ? row.nutrition_info : [],
+    images: Array.isArray(row.images) ? row.images : [],
+    isFeatured: !!row.is_featured,
+    isBestSeller: !!row.is_bestseller,
+    isNew: !!row.is_new,
+    isOffer: !!row.is_offer,
+    rating: Number(row.rating || 5.0),
+    reviewCount: Number(row.review_count || 0),
+    active: row.active ?? true
+  };
+}
+
+function mapProductToSupabase(p) {
+  return {
+    id: p.id,
+    sku: p.sku,
+    name: p.name,
+    slug: p.slug,
+    category_id: p.categoryId,
+    short_description: p.shortDescription || '',
+    full_description: p.fullDescription || '',
+    price: Number(p.price || 0),
+    promotional_price: p.promotionalPrice !== null && p.promotionalPrice !== undefined && p.promotionalPrice !== '' ? Number(p.promotionalPrice) : null,
+    cost_price: Number(p.costPrice || 0),
+    stock: Number(p.stock || 0),
+    min_stock: Number(p.minStock || 5),
+    weight_kg: Number(p.weightKg || 0.45),
+    volume_ml: Number(p.volumeMl || 250),
+    heat_level: p.heatLevel || 'Média',
+    ingredients: p.ingredients || '',
+    nutrition_info: p.nutritionInfo || [],
+    images: p.images || [],
+    is_featured: !!p.isFeatured,
+    is_bestseller: !!p.isBestSeller,
+    is_new: !!p.isNew,
+    is_offer: !!p.isOffer,
+    rating: Number(p.rating || 5.0),
+    review_count: Number(p.reviewCount || 0),
+    active: p.active ?? true
+  };
+}
+
+// Sincronização inicial em segundo plano ao iniciar o servidor
+async function syncInitialFromSupabase() {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    const { data: catData } = await supabase.from('categories').select('*').order('order', { ascending: true });
+    if (catData && catData.length > 0) {
+      const db = getDb();
+      db.categories = catData.map(mapCategoryFromSupabase);
+    }
+    const { data: prodData } = await supabase.from('products').select('*');
+    if (prodData && prodData.length > 0) {
+      const db = getDb();
+      db.products = prodData.map(mapProductFromSupabase);
+      console.log(`🟢 Supabase sincronizado: ${prodData.length} produtos carregados na inicialização.`);
+    }
+  } catch (err) {
+    console.warn("⚠️ Aviso ao sincronizar inicialmente do Supabase:", err.message);
+  }
+}
+syncInitialFromSupabase();
+
+// ==========================================
 // CATEGORIAS
 // ==========================================
-app.get('/api/categories', (req, res) => {
+app.get('/api/categories', async (req, res) => {
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('categories').select('*').order('order', { ascending: true });
+      if (!error && data && data.length > 0) {
+        const mapped = data.map(mapCategoryFromSupabase);
+        const db = getDb();
+        db.categories = mapped;
+        return res.json({ success: true, categories: mapped });
+      }
+    } catch (err) {
+      console.error("Erro ao buscar categorias no Supabase:", err);
+    }
+  }
   const db = getDb();
   res.json({ success: true, categories: db.categories });
 });
 
-app.post('/api/categories', (req, res) => {
+app.post('/api/categories', async (req, res) => {
   const db = getDb();
   const newCat = {
     id: generateId('cat'),
@@ -263,12 +388,22 @@ app.post('/api/categories', (req, res) => {
     order: db.categories.length + 1,
     active: req.body.active ?? true
   };
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('categories').insert(mapCategoryToSupabase(newCat));
+    } catch (err) {
+      console.error("Erro ao inserir categoria no Supabase:", err);
+    }
+  }
+
   db.categories.push(newCat);
   saveDb();
   res.json({ success: true, category: newCat, message: "Categoria criada com sucesso!" });
 });
 
-app.put('/api/categories/:id', (req, res) => {
+app.put('/api/categories/:id', async (req, res) => {
   const db = getDb();
   const cat = db.categories.find(c => c.id === req.params.id);
   if (!cat) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
@@ -280,14 +415,32 @@ app.put('/api/categories/:id', (req, res) => {
   if (req.body.order !== undefined) cat.order = parseInt(req.body.order);
   if (req.body.active !== undefined) cat.active = !!req.body.active;
 
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('categories').update(mapCategoryToSupabase(cat)).eq('id', req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar categoria no Supabase:", err);
+    }
+  }
+
   saveDb();
   res.json({ success: true, category: cat, message: "Categoria atualizada com sucesso!" });
 });
 
-app.delete('/api/categories/:id', (req, res) => {
+app.delete('/api/categories/:id', async (req, res) => {
   const db = getDb();
   const index = db.categories.findIndex(c => c.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: "Categoria não encontrada." });
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('categories').delete().eq('id', req.params.id);
+    } catch (err) {
+      console.error("Erro ao excluir categoria no Supabase:", err);
+    }
+  }
 
   db.categories.splice(index, 1);
   saveDb();
@@ -297,9 +450,30 @@ app.delete('/api/categories/:id', (req, res) => {
 // ==========================================
 // PRODUTOS & ESTOQUE
 // ==========================================
-app.get('/api/products', (req, res) => {
-  const db = getDb();
-  let list = [...db.products];
+app.get('/api/products', async (req, res) => {
+  let list = [];
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('products').select('*');
+      if (!error && data) {
+        list = data.map(mapProductFromSupabase);
+        const db = getDb();
+        db.products = list;
+      } else if (error) {
+        console.warn("⚠️ Aviso ao consultar produtos no Supabase:", error.message);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar produtos no Supabase, usando fallback local:", err);
+    }
+  }
+
+  // Fallback se o Supabase não estiver ativo ou sem dados
+  if (list.length === 0) {
+    const db = getDb();
+    list = [...db.products];
+  }
 
   const { search, category, minPrice, maxPrice, sort, featured, offer, new: isNew, bestSeller, admin } = req.query;
 
@@ -310,9 +484,9 @@ app.get('/api/products', (req, res) => {
   if (search) {
     const term = search.toLowerCase();
     list = list.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      p.sku.toLowerCase().includes(term) ||
-      p.shortDescription.toLowerCase().includes(term)
+      (p.name && p.name.toLowerCase().includes(term)) ||
+      (p.sku && p.sku.toLowerCase().includes(term)) ||
+      (p.shortDescription && p.shortDescription.toLowerCase().includes(term))
     );
   }
 
@@ -347,17 +521,38 @@ app.get('/api/products', (req, res) => {
   res.json({ success: true, count: list.length, products: list });
 });
 
-app.get('/api/products/:slugOrId', (req, res) => {
-  const db = getDb();
+app.get('/api/products/:slugOrId', async (req, res) => {
   const param = req.params.slugOrId;
-  const product = db.products.find(p => p.slug === param || p.id === param);
+  let product = null;
+  const supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .or(`slug.eq."${param}",id.eq."${param}"`)
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        product = mapProductFromSupabase(data[0]);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar detalhe do produto no Supabase:", err);
+    }
+  }
+
+  const db = getDb();
+  if (!product) {
+    product = db.products.find(p => p.slug === param || p.id === param);
+  }
 
   if (!product) {
     return res.status(404).json({ success: false, message: "Produto não encontrado." });
   }
 
   const category = db.categories.find(c => c.id === product.categoryId);
-  const reviews = db.reviews.filter(r => r.productId === product.id && r.approved);
+  const reviews = (db.reviews || []).filter(r => r.productId === product.id && r.approved);
   const relatedProducts = db.products.filter(p => p.active && p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
 
   res.json({
@@ -371,7 +566,7 @@ app.get('/api/products/:slugOrId', (req, res) => {
   });
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   const db = getDb();
   const body = req.body;
 
@@ -402,9 +597,21 @@ app.post('/api/products', (req, res) => {
     active: body.active ?? true
   };
 
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('products').insert(mapProductToSupabase(newProd));
+      if (error) console.error("Erro ao inserir produto no Supabase:", error.message);
+      else console.log("🟢 Produto salvo no Supabase PostgreSQL com sucesso:", newProd.id);
+    } catch (err) {
+      console.error("Erro ao inserir produto no Supabase:", err);
+    }
+  }
+
   db.products.push(newProd);
 
-  // Registo de movimentação de estoque inicial
+  // Registro de movimentação de estoque inicial
+  if (!db.inventoryMovements) db.inventoryMovements = [];
   db.inventoryMovements.push({
     id: generateId('mov'),
     productId: newProd.id,
@@ -421,7 +628,7 @@ app.post('/api/products', (req, res) => {
   res.json({ success: true, product: newProd, message: "Produto cadastrado com sucesso!" });
 });
 
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', async (req, res) => {
   const db = getDb();
   const prod = db.products.find(p => p.id === req.params.id);
   if (!prod) return res.status(404).json({ success: false, message: "Produto não encontrado." });
@@ -431,6 +638,7 @@ app.put('/api/products/:id', (req, res) => {
 
   if (req.body.stock !== undefined && req.body.stock !== oldStock) {
     const diff = req.body.stock - oldStock;
+    if (!db.inventoryMovements) db.inventoryMovements = [];
     db.inventoryMovements.push({
       id: generateId('mov'),
       productId: prod.id,
@@ -444,6 +652,17 @@ app.put('/api/products/:id', (req, res) => {
     });
   }
 
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('products').update(mapProductToSupabase(prod)).eq('id', req.params.id);
+      if (error) console.error("Erro ao atualizar produto no Supabase:", error.message);
+      else console.log("🟢 Produto atualizado no Supabase PostgreSQL:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao atualizar produto no Supabase:", err);
+    }
+  }
+
   saveDb();
   res.json({ success: true, product: prod, message: "Produto atualizado com sucesso!" });
 });
@@ -451,24 +670,36 @@ app.put('/api/products/:id', (req, res) => {
 app.delete('/api/products/:id', requireAdminAuth, async (req, res) => {
   const db = getDb();
   const index = db.products.findIndex(p => p.id === req.params.id);
-  if (index === -1) return res.status(404).json({ success: false, message: "Produto não encontrado." });
+  const deletedProd = index !== -1 ? db.products[index] : null;
 
-  const deletedProd = db.products[index];
-  db.products.splice(index, 1);
-
-  // Exclui permanentemente do banco Supabase PostgreSQL se conectado
+  // Exclui permanentemente do banco Supabase PostgreSQL
   const supabase = getSupabase();
+  let supabaseDeleted = false;
   if (supabase) {
     try {
-      await supabase.from('products').delete().eq('id', req.params.id);
-      console.log("🟢 Produto excluído do Supabase PostgreSQL:", req.params.id);
+      const { error } = await supabase.from('products').delete().eq('id', req.params.id);
+      if (!error) {
+        supabaseDeleted = true;
+        console.log("🟢 Produto excluído permanentemente do Supabase PostgreSQL:", req.params.id);
+      } else {
+        console.error("Erro ao excluir produto no Supabase:", error.message);
+      }
     } catch (err) {
       console.error("Erro ao excluir produto no Supabase:", err);
     }
   }
 
-  saveDb();
-  res.json({ success: true, message: `Produto "${deletedProd.name}" removido com sucesso.` });
+  if (index !== -1) {
+    db.products.splice(index, 1);
+    saveDb();
+  }
+
+  if (!deletedProd && !supabaseDeleted) {
+    return res.status(404).json({ success: false, message: "Produto não encontrado." });
+  }
+
+  const prodName = deletedProd ? deletedProd.name : req.params.id;
+  res.json({ success: true, message: `Produto "${prodName}" removido definitivamente com sucesso.` });
 });
 
 // ==========================================

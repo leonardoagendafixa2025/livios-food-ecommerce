@@ -123,19 +123,12 @@
       "fullDescription": "O Molho Agridoce Fine Recipe Original é a criação insígnia de Rômulo Lívio Medeiros. Desenvolvido após mais de uma década de pesquisas gastronômicas, este molho une o amargor sutil de pimentas nobres, o dulçor das frutas e uma acidez elegante que harmoniza perfeitamente com carnes vermelhas, queijos e petiscos.",
       "price": 29.9,
       "promotionalPrice": 26.9,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 10,
+      "costPrice": 8.5,
+      "stock": 140,
+      "minStock": 20,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Pimentas vermelhas selecionadas, açúcar de cana, vinagre de maçã, alho fresco, sal marinho, espessante natural goma xantana e especiarias finas.",
       "nutritionInfo": [
         {
@@ -155,12 +148,16 @@
           "value": "0g"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": true,
-      "isBestSeller": false,
+      "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
+      "rating": 4.9,
+      "reviewCount": 38,
       "active": true
     },
     {
@@ -173,19 +170,12 @@
       "fullDescription": "Para quem busca uma experiência picante inesquecível. O Extra Picante da Livio's Food traz um blend exclusivo de Habanero e pimenta cumari, equilibrado por uma base agridoce perfumada.",
       "price": 32.9,
       "promotionalPrice": 28.9,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 10,
+      "costPrice": 9.2,
+      "stock": 85,
+      "minStock": 15,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1583182332473-b0d5f308a883?auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Pimentas Habanero e Malagueta selecionadas, vinagre de maçã, açúcar, alho, condimentos naturais.",
       "nutritionInfo": [
         {
@@ -201,13 +191,17 @@
           "value": "90mg"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1583182332473-b0d5f308a883?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": true,
-      "isBestSeller": false,
+      "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 5,
+      "reviewCount": 45,
+      "active": true
     },
     {
       "id": "prod_3",
@@ -219,19 +213,12 @@
       "fullDescription": "Uma revolução gastronômica! Inspirado nas tradicionais receitas de mole mexicano aperfeiçoadas com a técnica britânica, este molho mescla as notas aveludadas do cacau puro com uma intensidade ardente provocante.",
       "price": 36.9,
       "promotionalPrice": 32.9,
-      "costPrice": 0,
-      "stock": 0,
+      "costPrice": 11,
+      "stock": 40,
       "minStock": 10,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Cacau em pó 70%, extrato de pimenta Carolina Reaper, vinagre balsâmico, açúcar mascavo, especiarias secretas.",
       "nutritionInfo": [
         {
@@ -247,13 +234,17 @@
           "value": "0.5g"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": true,
       "isBestSeller": false,
       "isNew": true,
       "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 4.8,
+      "reviewCount": 22,
+      "active": true
     },
     {
       "id": "prod_4",
@@ -265,18 +256,12 @@
       "fullDescription": "O equilíbrio perfeito entre a doçura aveludada do chocolate e o toque sutil de pimentas agridoces. Excelente para fondue de queijos, hambúrgueres gourmet com gorgonzola e assados.",
       "price": 34.9,
       "promotionalPrice": null,
-      "costPrice": 0,
-      "stock": 0,
+      "costPrice": 10.2,
+      "stock": 60,
       "minStock": 10,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Cacau puro, vinagre de maçã, açúcar, pimenta biquinho, toque de canela e sal rosa.",
       "nutritionInfo": [
         {
@@ -288,13 +273,16 @@
           "value": "8.1g"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": false,
       "isBestSeller": false,
       "isNew": true,
       "isOffer": false,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 4.7,
+      "reviewCount": 16,
+      "active": true
     },
     {
       "id": "prod_5",
@@ -306,18 +294,12 @@
       "fullDescription": "Elaborado com polpa de abacaxis selecionados no ponto certo de maturação. Harmoniza incrivelmente com carne suína, peixes grelhados, saladas refrescantes e aves.",
       "price": 28.9,
       "promotionalPrice": 24.9,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 10,
+      "costPrice": 7.8,
+      "stock": 110,
+      "minStock": 20,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Polpa de abacaxi natural, açúcar de cana, pimenta dedo de moça, vinagre de vinho branco e limão.",
       "nutritionInfo": [
         {
@@ -329,13 +311,16 @@
           "value": "8.2g"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": true,
-      "isBestSeller": false,
+      "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 4.9,
+      "reviewCount": 31,
+      "active": true
     },
     {
       "id": "prod_6",
@@ -347,18 +332,12 @@
       "fullDescription": "Ideal para quem ama a riqueza de aroma e sabor da pimenta biquinho, mas prefere um molho suave e extremamente saboroso. Crianças e adultos aprovam!",
       "price": 29.9,
       "promotionalPrice": null,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 10,
+      "costPrice": 8,
+      "stock": 95,
+      "minStock": 15,
       "weightKg": 0.45,
-      "dimensionsCm": {
-        "length": 8,
-        "width": 8,
-        "height": 22
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Pimenta biquinho inteira triturada, açúcar, vinagre, alho e especiarias suaves.",
       "nutritionInfo": [
         {
@@ -370,13 +349,16 @@
           "value": "7.6g"
         }
       ],
+      "images": [
+        "https://images.unsplash.com/photo-1588165171080-c89acfa5ee83?auto=format&fit=crop&w=1000&q=80"
+      ],
       "isFeatured": false,
       "isBestSeller": false,
       "isNew": false,
       "isOffer": false,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 4.9,
+      "reviewCount": 19,
+      "active": true
     },
     {
       "id": "prod_7",
@@ -388,18 +370,12 @@
       "fullDescription": "Embalagem PET squeeze com válvula dosadora antigota. Perfeita para levar ao churrasco da família, hamburguerias em casa e mesas casuais.",
       "price": 22.9,
       "promotionalPrice": 19.9,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 10,
+      "costPrice": 6.2,
+      "stock": 200,
+      "minStock": 30,
       "weightKg": 0.38,
-      "dimensionsCm": {
-        "length": 7,
-        "width": 7,
-        "height": 18
-      },
-      "images": [
-        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
-      ],
+      "volumeMl": 250,
+      "heatLevel": "Média",
       "ingredients": "Pimentas vermelhas selecionadas, açúcar, vinagre, alho, goma xantana e conservante sorbato de potássio.",
       "nutritionInfo": [
         {
@@ -411,50 +387,16 @@
           "value": "7.8g"
         }
       ],
-      "isFeatured": true,
-      "isBestSeller": false,
-      "isNew": false,
-      "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
-    },
-    {
-      "id": "prod_8",
-      "sku": "LIV-KIT-001",
-      "name": "Kit Degustação Gourmet Fine Recipe (4 Molhos)",
-      "slug": "kit-degustacao-gourmet-fine-recipe-4-molhos",
-      "categoryId": "cat_kits",
-      "shortDescription": "Caixa especial contendo: Original, Extra Picante, Chocolate Mega Picante e Abacaxi.",
-      "fullDescription": "A seleção suprema dos mestres molheiros Livio's Food. Acompanha caixa de presente exclusiva de colecionador e um livreto de harmonização com vinhos e receitas.",
-      "price": 119.9,
-      "promotionalPrice": 99.9,
-      "costPrice": 0,
-      "stock": 0,
-      "minStock": 5,
-      "weightKg": 1.9,
-      "dimensionsCm": {
-        "length": 30,
-        "width": 20,
-        "height": 10
-      },
       "images": [
-        "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80"
-      ],
-      "ingredients": "Contém 4 garrafas de 250ml das linhas Original, Extra Picante, Chocolate Mega Picante e Abacaxi.",
-      "nutritionInfo": [
-        {
-          "label": "Quantidade",
-          "value": "4 garrafas de 250ml"
-        }
+        "https://images.unsplash.com/photo-1590794056226-77ef3a6c4743?auto=format&fit=crop&w=1000&q=80"
       ],
       "isFeatured": true,
-      "isBestSeller": false,
+      "isBestSeller": true,
       "isNew": false,
       "isOffer": true,
-      "rating": 0,
-      "reviewCount": 0,
-      "active": false
+      "rating": 4.8,
+      "reviewCount": 52,
+      "active": true
     }
   ],
   "recipes": [
@@ -579,7 +521,19 @@
   ],
   "reviews": [],
   "orders": [],
-  "inventoryMovements": [],
+  "inventoryMovements": [
+    {
+      "id": "mov_0lu1t1zee_1788883653025",
+      "productId": "prod_5yi6f4h36_1788883652126",
+      "type": "entry",
+      "quantity": 12,
+      "previousStock": 0,
+      "newStock": 12,
+      "reason": "Cadastro inicial de produto",
+      "user": "Admin",
+      "date": "2026-09-08T16:07:33.025Z"
+    }
+  ],
   "gallery": [
     {
       "id": "gal_1",
@@ -599,5 +553,35 @@
   "customerEvents": [],
   "campaigns": [],
   "popups": [],
-  "promotionalBars": []
+  "promotionalBars": [],
+  "customerSegments": [
+    {
+      "id": "seg_vip",
+      "name": "Clientes VIP (Gasto > R$ 200)",
+      "description": "Clientes com alto valor acumulado em compras no e-commerce.",
+      "rules": {
+        "minSpent": 200,
+        "minOrders": 1
+      },
+      "memberCount": 127
+    },
+    {
+      "id": "seg_recurrent",
+      "name": "Clientes Recorrentes",
+      "description": "Clientes que realizaram 2 ou mais compras.",
+      "rules": {
+        "minOrders": 2
+      },
+      "memberCount": 84
+    },
+    {
+      "id": "seg_inactive_60",
+      "name": "Clientes Inativos (60+ dias)",
+      "description": "Clientes sem realizar compras nos últimos 60 dias.",
+      "rules": {
+        "inactiveDays": 60
+      },
+      "memberCount": 42
+    }
+  ]
 }
