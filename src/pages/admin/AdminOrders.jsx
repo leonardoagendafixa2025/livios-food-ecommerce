@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Eye, Printer, CheckCircle2, Clock, Truck, Search, Trash2 } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  Eye, 
+  Printer, 
+  CheckCircle2, 
+  Clock, 
+  Truck, 
+  Search, 
+  Trash2, 
+  MessageCircle, 
+  ExternalLink,
+  Send,
+  Copy
+} from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
 
 export default function AdminOrders() {
@@ -7,6 +20,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [search, setSearch] = useState('');
+  const [modalTrackingCode, setModalTrackingCode] = useState('');
 
   const { addToast } = useToast();
 
@@ -67,25 +81,62 @@ export default function AdminOrders() {
     }
   };
 
+  // Helper para abrir WhatsApp direto com o cliente
+  const openCustomerWhatsApp = (order) => {
+    const rawPhone = (order.customerPhone || '').replace(/\D/g, '');
+    if (!rawPhone) {
+      addToast("Telefone do cliente não informado.", "error");
+      return;
+    }
+
+    const phoneFormatted = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+    const statusMap = {
+      received: 'Recebido e em Análise',
+      payment_approved: 'Pagamento Aprovado',
+      in_preparation: 'Em Preparação Artesanal',
+      shipped: 'Enviado / Em Trânsito',
+      delivered: 'Entregue com Sucesso',
+      cancelled: 'Cancelado'
+    };
+
+    const statusText = statusMap[order.status] || order.status;
+    const trackingUrl = `${window.location.origin}/rastreio/${order.id}`;
+
+    const text = 
+`Olá, *${order.customerName}*! Tudo bem? 🌶️
+Aqui é da equipe *Livio's Food Innovation*.
+
+Atualização sobre o seu *Pedido #${order.id}*:
+📊 *Status Atual:* ${statusText}
+${order.trackingCode ? `📦 *Código de Rastreamento (Correios/Transportadora):* ${order.trackingCode}\n` : ''}
+🔗 *Você pode acompanhar cada detalhe em tempo real pelo link:*
+${trackingUrl}
+
+Qualquer dúvida ou se precisar de algo adicional, estamos à sua disposição por aqui! Obrigado pela confiança.`;
+
+    window.open(`https://wa.me/${phoneFormatted}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   const filtered = orders.filter(o =>
     o.id.toLowerCase().includes(search.toLowerCase()) ||
-    o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-    o.customerEmail.toLowerCase().includes(search.toLowerCase())
+    (o.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+    (o.customerEmail || '').toLowerCase().includes(search.toLowerCase()) ||
+    (o.customerPhone || '').includes(search)
   );
 
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: '800', fontFamily: 'var(--font-serif)' }}>Gestão de Pedidos</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Gerencie o fluxo de aprovação, embalagem e envio das compras efetuadas.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Gerencie os pedidos recebidos via WhatsApp, atualize status e envie notificações com 1 clique.</p>
       </div>
 
-      <div className="admin-card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ position: 'relative', width: '320px' }}>
+      <div className="admin-card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ position: 'relative', width: '360px' }}>
           <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
           <input
             type="text"
-            placeholder="Buscar por código, cliente..."
+            placeholder="Buscar por código, cliente, WhatsApp..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
@@ -102,11 +153,11 @@ export default function AdminOrders() {
             <tr>
               <th>ID Pedido</th>
               <th>Data</th>
-              <th>Cliente</th>
-              <th>Forma Pagamento</th>
+              <th>Cliente & WhatsApp</th>
+              <th>Pagamento</th>
               <th>Total</th>
               <th>Status Atual</th>
-              <th>Ações</th>
+              <th>Ações & WhatsApp</th>
             </tr>
           </thead>
           <tbody>
@@ -119,23 +170,30 @@ export default function AdminOrders() {
             ) : (
               filtered.map(o => (
                 <tr key={o.id}>
-                  <td><strong>#{o.id}</strong></td>
+                  <td>
+                    <strong>#{o.id}</strong>
+                    {o.trackingCode && (
+                      <div style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 'bold' }}>
+                        🚚 {o.trackingCode}
+                      </div>
+                    )}
+                  </td>
                   <td>{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
                   <td>
                     <div><strong>{o.customerName}</strong></div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{o.customerEmail}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{o.customerPhone || o.customerEmail}</div>
                   </td>
-                  <td style={{ textTransform: 'uppercase', fontWeight: 'bold' }}>{o.paymentMethod}</td>
+                  <td style={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '0.8rem' }}>{o.paymentMethod}</td>
                   <td style={{ fontWeight: '800', color: 'var(--primary-burgundy)' }}>
-                    R$ {o.total.toFixed(2).replace('.', ',')}
+                    R$ {(o.total || 0).toFixed(2).replace('.', ',')}
                   </td>
                   <td>
                     <select
                       value={o.status}
-                      onChange={(e) => handleUpdateStatus(o.id, e.target.value)}
+                      onChange={(e) => handleUpdateStatus(o.id, e.target.value, o.trackingCode || '')}
                       style={{ padding: '0.4rem 0.6rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', fontSize: '0.82rem', fontWeight: 'bold' }}
                     >
-                      <option value="received">Pedido Recebido</option>
+                      <option value="received">Pedido Recebido (Zap)</option>
                       <option value="payment_approved">Pagamento Aprovado</option>
                       <option value="in_preparation">Em Preparação</option>
                       <option value="shipped">Enviado</option>
@@ -144,14 +202,33 @@ export default function AdminOrders() {
                     </select>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button onClick={() => setSelectedOrder(o)} className="btn btn-outline" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }} title="Ver detalhes do pedido">
-                        <Eye size={14} /> Detalhes
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      {/* Botão Notificar Cliente no Zap */}
+                      <button
+                        onClick={() => openCustomerWhatsApp(o)}
+                        className="btn"
+                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', background: '#25D366', color: '#FFF', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        title="Enviar atualização de status para o WhatsApp do cliente"
+                      >
+                        <MessageCircle size={14} /> Zap
                       </button>
+
+                      <button 
+                        onClick={() => {
+                          setSelectedOrder(o);
+                          setModalTrackingCode(o.trackingCode || '');
+                        }} 
+                        className="btn btn-outline" 
+                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem' }} 
+                        title="Ver detalhes do pedido"
+                      >
+                        <Eye size={14} />
+                      </button>
+
                       <button 
                         onClick={() => handleDeleteOrder(o.id)} 
                         className="btn btn-outline" 
-                        style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', color: '#EF4444', borderColor: '#FCA5A5' }}
+                        style={{ padding: '0.35rem 0.55rem', fontSize: '0.8rem', color: '#EF4444', borderColor: '#FCA5A5' }}
                         title="Excluir pedido permanentemente"
                       >
                         <Trash2 size={14} />
@@ -168,31 +245,91 @@ export default function AdminOrders() {
       {/* Modal Detalhes do Pedido */}
       {selectedOrder && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div style={{ background: '#FFF', width: '100%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--light-border)', paddingBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)' }}>
-                Pedido #{selectedOrder.id}
-              </h3>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => window.print()} className="btn btn-outline" style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem' }}>
-                  <Printer size={16} /> Imprimir Recibo
+          <div style={{ background: '#FFF', width: '100%', maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-lg)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--light-border)', paddingBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)', margin: 0 }}>
+                  Pedido #{selectedOrder.id}
+                </h3>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  {new Date(selectedOrder.createdAt).toLocaleString('pt-BR')}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <a
+                  href={`/rastreio/${selectedOrder.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline"
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <ExternalLink size={14} /> Ver Rastreio Público
+                </a>
+                <button onClick={() => window.print()} className="btn btn-outline" style={{ padding: '0.4rem 0.75rem', fontSize: '0.82rem' }}>
+                  <Printer size={14} /> Recibo
                 </button>
                 <button 
                   onClick={() => handleDeleteOrder(selectedOrder.id)} 
                   className="btn btn-outline" 
-                  style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem', color: '#EF4444', borderColor: '#FCA5A5' }}
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.82rem', color: '#EF4444', borderColor: '#FCA5A5' }}
                 >
-                  <Trash2 size={16} /> Excluir Pedido
+                  <Trash2 size={14} /> Excluir
                 </button>
               </div>
             </div>
 
+            {/* Painel de Ação Rápida WhatsApp */}
+            <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <div style={{ fontWeight: 'bold', color: '#166534', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <MessageCircle size={18} color="#16A34A" /> WhatsApp do Cliente: {selectedOrder.customerPhone || 'Não informado'}
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#15803D' }}>
+                  Clique para enviar mensagem automática com o status e link de rastreamento.
+                </div>
+              </div>
+              <button
+                onClick={() => openCustomerWhatsApp(selectedOrder)}
+                className="btn"
+                style={{ background: '#25D366', color: '#FFF', fontWeight: 'bold', padding: '0.6rem 1.2rem', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Send size={15} /> Notificar Cliente no Zap
+              </button>
+            </div>
+
+            {/* Gerenciamento de Código de Rastreamento */}
+            <div style={{ background: '#FAF8F5', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--light-border)', marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '6px' }}>
+                Código de Rastreamento (Correios / Transportadora):
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  placeholder="Ex: BR123456789BR"
+                  value={modalTrackingCode}
+                  onChange={(e) => setModalTrackingCode(e.target.value)}
+                  style={{ flexGrow: 1, padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', textTransform: 'uppercase' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleUpdateStatus(selectedOrder.id, selectedOrder.status, modalTrackingCode)}
+                  className="btn btn-primary"
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                >
+                  Salvar Rastreio
+                </button>
+              </div>
+            </div>
+
+            {/* Dados do Cliente e Endereço */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               <div style={{ background: '#FAF8F5', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
                 <strong>Dados do Cliente:</strong>
                 <div>{selectedOrder.customerName}</div>
                 <div>CPF: {selectedOrder.customerCpf || 'Não informado'}</div>
-                <div>Tel: {selectedOrder.customerPhone || 'Não informado'}</div>
+                <div>Tel / Zap: {selectedOrder.customerPhone || 'Não informado'}</div>
                 <div>Email: {selectedOrder.customerEmail}</div>
               </div>
 
@@ -221,7 +358,7 @@ export default function AdminOrders() {
             </div>
 
             <div style={{ borderTop: '2px solid var(--light-border)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.5rem' }}>
-              <span>Total Pago:</span>
+              <span>Total do Pedido:</span>
               <span style={{ color: 'var(--primary-burgundy)' }}>R$ {(selectedOrder.total || 0).toFixed(2).replace('.', ',')}</span>
             </div>
 

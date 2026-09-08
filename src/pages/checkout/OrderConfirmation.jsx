@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle2, QrCode, Copy, Truck, Clock, Package, MapPin, ArrowRight } from 'lucide-react';
+import { 
+  CheckCircle2, 
+  QrCode, 
+  Copy, 
+  Truck, 
+  Clock, 
+  Package, 
+  MapPin, 
+  ArrowRight, 
+  MessageCircle, 
+  ExternalLink,
+  ShieldCheck,
+  ChefHat
+} from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
 
 export default function OrderConfirmation() {
@@ -8,6 +21,9 @@ export default function OrderConfirmation() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
+
+  const WHATSAPP_NUMBER = '5531995675327';
+  const WHATSAPP_FORMATTED = '(31) 99567-5327';
 
   useEffect(() => {
     fetch(`/api/orders/${id}`)
@@ -23,75 +39,125 @@ export default function OrderConfirmation() {
   const copyPixCode = () => {
     if (order?.paymentDetails?.pixCopyPaste) {
       navigator.clipboard.writeText(order.paymentDetails.pixCopyPaste);
-      addToast("Código PIX copiado para a área de transferência!", "success");
+      addToast("Chave PIX copiada para a área de transferência!", "success");
     }
   };
 
   if (loading || !order) {
     return (
-      <div style={{ textAlign: 'center', padding: '6rem 0' }}>
+      <div style={{ textAlign: 'center', padding: '6rem 0', background: 'var(--light-bg)', minHeight: '80vh' }}>
         <div style={{ fontSize: '1.2rem', color: 'var(--primary-burgundy)', fontWeight: 'bold' }}>Carregando dados do pedido...</div>
       </div>
     );
   }
 
+  const trackingUrl = `${window.location.origin}/rastreio/${order.id}`;
+
+  const waReopenText = `Olá, equipe Livio's Food! Realizei o Pedido #${order.id} no valor de R$ ${order.total.toFixed(2).replace('.', ',')} no site e gostaria de confirmar o envio dos dados de pagamento e acompanhar o preparo!`;
+  const waReopenUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waReopenText)}`;
+
   return (
     <div style={{ padding: '3.5rem 0', background: 'var(--light-bg)', minHeight: '85vh' }}>
-      <div className="container" style={{ maxWidth: '800px' }}>
+      <div className="container" style={{ maxWidth: '820px' }}>
+        
         {/* Banner de Sucesso */}
         <div style={{ background: '#FFF', borderRadius: 'var(--radius-lg)', border: '1px solid var(--light-border)', padding: '2.5rem', textAlign: 'center', boxShadow: 'var(--shadow-md)', marginBottom: '2rem' }}>
-          <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.12)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
-            <CheckCircle2 size={42} />
+          
+          <div style={{ width: '76px', height: '76px', borderRadius: '50%', background: '#DCFCE7', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+            <CheckCircle2 size={46} />
           </div>
 
           <h1 style={{ fontSize: '2.2rem', fontWeight: '800', fontFamily: 'var(--font-serif)', color: 'var(--primary-burgundy)', marginBottom: '0.5rem' }}>
-            Pedido Realizado com Sucesso!
+            Pedido Registrado com Sucesso!
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginBottom: '1.5rem' }}>
-            Obrigado por escolher a <strong>Livio's Food Innovation</strong>. Seu pedido <strong>#{order.id}</strong> foi recebido em nosso sistema.
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginBottom: '1.5rem', maxWidth: '620px', margin: '0 auto 1.5rem' }}>
+            Obrigado por escolher a <strong>Livio's Food Innovation</strong>. Seu pedido <strong>#{order.id}</strong> foi registrado em nosso sistema e direcionado para atendimento no WhatsApp.
           </p>
 
+          {/* Botão Principal de Ação no WhatsApp */}
+          <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '1.75rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#166534', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+              <MessageCircle size={22} color="#16A34A" /> Atendimento Direto no WhatsApp
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#15803D', marginBottom: '1.25rem' }}>
+              Caso a conversa do WhatsApp não tenha aberto automaticamente, clique no botão abaixo para falar com nosso atendente:
+            </p>
+            <a
+              href={waReopenUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+              style={{
+                background: '#25D366',
+                color: '#FFF',
+                padding: '1rem 2rem',
+                fontSize: '1.05rem',
+                fontWeight: '800',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 15px rgba(37, 211, 102, 0.35)'
+              }}
+            >
+              <MessageCircle size={22} /> ABRIR CONVERSA NO WHATSAPP ({WHATSAPP_FORMATTED})
+            </a>
+          </div>
+
           {/* Se Pagamento for PIX: Mostra QR Code real */}
-          {order.paymentMethod === 'pix' && (
+          {order.paymentMethod === 'pix' && order.paymentDetails && (
             <div style={{ background: '#FAF8F5', padding: '1.75rem', borderRadius: 'var(--radius-md)', border: '1px dashed var(--accent-gold)', marginBottom: '2rem' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                <QrCode size={22} color="var(--primary-burgundy)" /> Pagamento via PIX
+                <QrCode size={22} color="var(--primary-burgundy)" /> Pagamento Facilitado via PIX
               </h3>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                Abra o aplicativo do seu banco e escaneie o código QR abaixo ou utilize o botão copia e cola:
+                Você pode escanear o QR Code ou copiar a chave e enviar o comprovante diretamente no WhatsApp:
               </p>
 
-              <div style={{ background: '#FFF', padding: '1rem', display: 'inline-block', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
-                <img src={order.paymentDetails.pixQrCodeUrl} alt="QR Code PIX" style={{ width: '200px', height: '200px' }} />
-              </div>
+              {order.paymentDetails.pixQrCodeUrl && (
+                <div style={{ background: '#FFF', padding: '1rem', display: 'inline-block', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
+                  <img src={order.paymentDetails.pixQrCodeUrl} alt="QR Code PIX" style={{ width: '180px', height: '180px' }} />
+                </div>
+              )}
 
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <button onClick={copyPixCode} className="btn btn-gold" style={{ padding: '0.75rem 1.5rem', fontSize: '0.92rem' }}>
-                  <Copy size={16} /> COPIAR CÓDIGO PIX (COPIA E COLA)
+                  <Copy size={16} /> COPIAR CHAVE PIX (COPIA E COLA)
                 </button>
               </div>
             </div>
           )}
 
-          {/* Timeline Visual de Status do Pedido */}
-          <div style={{ marginTop: '2.5rem', textAlign: 'left' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1.5rem', fontFamily: 'var(--font-serif)' }}>
-              Status e Acompanhamento do Pedido
+          {/* Guia: Como você vai acompanhar o status pelo Zap */}
+          <div style={{ textAlign: 'left', background: '#F8FAFC', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid #E2E8F0', marginTop: '1.5rem' }}>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--primary-burgundy)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={18} /> Como acompanhar o andamento do seu pedido pelo WhatsApp:
             </h4>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {order.statusHistory.map((hist, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-burgundy)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                    ✓
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{hist.note}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{new Date(hist.date).toLocaleString('pt-BR')}</div>
-                  </div>
-                </div>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', fontSize: '0.85rem' }}>
+              <div style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid #E2E8F0' }}>
+                <strong style={{ display: 'block', color: 'var(--text-dark)', marginBottom: '4px' }}>1. Confirmação & Pagamento</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Você envia o comprovante ou solicita o link de cartão no WhatsApp oficial.</span>
+              </div>
+              <div style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid #E2E8F0' }}>
+                <strong style={{ display: 'block', color: 'var(--text-dark)', marginBottom: '4px' }}>2. Preparação dos Molhos</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Seus molhos artesanais são embalados com cuidado e lacre de segurança.</span>
+              </div>
+              <div style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid #E2E8F0' }}>
+                <strong style={{ display: 'block', color: 'var(--text-dark)', marginBottom: '4px' }}>3. Código de Rastreio</strong>
+                <span style={{ color: 'var(--text-muted)' }}>Você recebe o código dos Correios direto no seu Zap para acompanhar cada etapa!</span>
+              </div>
             </div>
+          </div>
+
+          {/* Botões de Acompanhamento */}
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to={`/rastreio/${order.id}`} className="btn btn-primary" style={{ padding: '0.85rem 1.75rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <Truck size={18} /> ACOMPANHAR STATUS EM TEMPO REAL
+            </Link>
+            <Link to="/produtos" className="btn btn-outline" style={{ padding: '0.85rem 1.75rem' }}>
+              CONTINUAR COMPRANDO
+            </Link>
           </div>
         </div>
 
@@ -102,48 +168,28 @@ export default function OrderConfirmation() {
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-            {order.items.map((item, idx) => (
+            {(order.items || []).map((item, idx) => (
               <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F0ECE4', paddingBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <img src={item.image} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                  <img src={item.image || '/header-bg.jpg'} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                   <div>
                     <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Qtd: {item.quantity} x R$ {item.unitPrice.toFixed(2).replace('.', ',')}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Qtd: {item.quantity} x R$ {(item.unitPrice || 0).toFixed(2).replace('.', ',')}</div>
                   </div>
                 </div>
                 <div style={{ fontWeight: 'bold', color: 'var(--primary-burgundy)' }}>
-                  R$ {item.totalPrice.toFixed(2).replace('.', ',')}
+                  R$ {((item.totalPrice || (item.unitPrice * item.quantity)) || 0).toFixed(2).replace('.', ',')}
                 </div>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid var(--light-border)', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: '800' }}>
-            <span>Valor Total Pago</span>
+            <span>Valor Total:</span>
             <span style={{ color: 'var(--primary-burgundy)' }}>R$ {order.total.toFixed(2).replace('.', ',')}</span>
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '2rem' }}>
-            <a
-              href={`https://wa.me/5531995675327?text=${encodeURIComponent(`Olá, Livio's Food! Acabei de realizar o pedido #${order.id} no valor de R$ ${order.total.toFixed(2).replace('.', ',')} no site e gostaria de acompanhar o envio!`)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn"
-              style={{ background: '#25D366', color: '#FFF', width: '100%', padding: '0.9rem', fontSize: '1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}
-            >
-              💬 ACOMPANHAR OU ENVIAR COMPROVANTE VIA WHATSAPP
-            </a>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Link to="/minha-conta" className="btn btn-outline" style={{ flexGrow: 1 }}>
-                IR PARA MINHA CONTA
-              </Link>
-              <Link to="/produtos" className="btn btn-primary" style={{ flexGrow: 1 }}>
-                CONTINUAR COMPRANDO <ArrowRight size={18} />
-              </Link>
-            </div>
-          </div>
         </div>
+
       </div>
     </div>
   );

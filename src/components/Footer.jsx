@@ -42,6 +42,7 @@ export default function Footer() {
           <div>
             <h4 style={{ color: '#FFF', fontSize: '1.1rem', marginBottom: '1.25rem', fontFamily: 'var(--font-serif)' }}>Atendimento & Políticas</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.9rem' }}>
+              <li><Link to="/rastreio" style={{ color: '#C0C0D0', fontWeight: 'bold' }}>🚚 Rastrear Pedido</Link></li>
               <li><Link to="/minha-conta" style={{ color: '#C0C0D0' }}>Meus Pedidos</Link></li>
               <li><Link to="/politica-privacidade" style={{ color: '#C0C0D0' }}>Política de Privacidade</Link></li>
               <li><Link to="/termos-uso" style={{ color: '#C0C0D0' }}>Termos de Uso</Link></li>
@@ -57,7 +58,7 @@ export default function Footer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.88rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Phone size={16} color="var(--accent-gold)" />
-                <span>(31) 99567-5327</span>
+                <span style={{ color: '#25D366', fontWeight: 'bold' }}>(31) 99567-5327</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Mail size={16} color="var(--accent-gold)" />
@@ -71,9 +72,9 @@ export default function Footer() {
 
             <div style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFF', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '6px' }}>
-                <ShieldCheck size={18} color="#10B981" /> Compra 100% Segura
+                <ShieldCheck size={18} color="#10B981" /> Atendimento & Rastreio Direto
               </div>
-              <p style={{ fontSize: '0.78rem', color: '#808090' }}>Certificado SSL com criptografia de ponta a ponta.</p>
+              <p style={{ fontSize: '0.78rem', color: '#808090' }}>Pedidos direcionados para o WhatsApp com acompanhamento em tempo real.</p>
             </div>
           </div>
         </div>
@@ -84,8 +85,8 @@ export default function Footer() {
             Copyright © 2026 <strong>Livio's Food Innovation — Fine Recipe</strong>. Todos os direitos reservados. CNPJ: 16.782.941/0001-45.
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#FFF' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CreditCard size={16} /> Cartões de Crédito (até 12x)</span>
-            <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold' }}>PIX com 5% de Desconto</span>
+            <span style={{ color: '#25D366', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>💬 Pedidos via WhatsApp</span>
+            <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold' }}>PIX ou Cartão</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Truck size={16} /> Entregamos em todo o Brasil</span>
           </div>
         </div>

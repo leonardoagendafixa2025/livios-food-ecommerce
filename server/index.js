@@ -1646,10 +1646,9 @@ app.post('/api/orders', (req, res) => {
     paymentMethod: payment.method,
     paymentDetails,
     paymentStatus: paymentDetails.status,
-    status: 'payment_approved',
+    status: 'received',
     statusHistory: [
-      { status: 'received', date: new Date().toISOString(), note: 'Pedido recebido na loja virtual' },
-      { status: 'payment_approved', date: new Date().toISOString(), note: 'Pagamento processado e aprovado' }
+      { status: 'received', date: new Date().toISOString(), note: 'Pedido registrado no site e direcionado para atendimento via WhatsApp (31) 99567-5327' }
     ],
     createdAt: new Date().toISOString()
   };
@@ -1754,6 +1753,71 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 
   res.json({ success: true, order });
+});
+
+// Endpoint público para consulta e rastreamento de pedidos via WhatsApp / Código
+app.get('/api/orders/track/:query', async (req, res) => {
+  const query = (req.params.query || '').trim();
+  if (!query) {
+    return res.status(400).json({ success: false, message: "Informe o código do pedido ou telefone para rastrear." });
+  }
+
+  const db = getDb();
+  const cleanDigits = query.replace(/\D/g, '');
+  const queryLower = query.toLowerCase();
+
+  // 1. Busca por ID exato ou parcial
+  let found = db.orders.find(o => 
+    o.id.toLowerCase() === queryLower || 
+    o.id.toLowerCase().replace(/[^a-z0-9]/g, '') === queryLower.replace(/[^a-z0-9]/g, '')
+  );
+
+  // 2. Busca por Telefone / WhatsApp (se tiver pelo menos 8 dígitos)
+  if (!found && cleanDigits.length >= 8) {
+    found = db.orders.slice().reverse().find(o => {
+      const orderPhoneDigits = (o.customerPhone || '').replace(/\D/g, '');
+      return orderPhoneDigits.includes(cleanDigits) || cleanDigits.includes(orderPhoneDigits);
+    });
+  }
+
+  // 3. Busca por CPF
+  if (!found && cleanDigits.length === 11) {
+    found = db.orders.slice().reverse().find(o => (o.customerCpf || '').replace(/\D/g, '') === cleanDigits);
+  }
+
+  // 4. Busca por E-mail
+  if (!found && queryLower.includes('@')) {
+    found = db.orders.slice().reverse().find(o => (o.customerEmail || '').toLowerCase() === queryLower);
+  }
+
+  // Fallback Supabase
+  if (!found) {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('*')
+          .or(`id.ilike.%${query}%,customer_phone.ilike.%${cleanDigits}%,customer_email.ilike.%${query}%`)
+          .limit(1);
+
+        if (data && data.length > 0) {
+          found = mapOrderFromSupabase(data[0]);
+        }
+      } catch (err) {
+        console.warn("Aviso ao buscar rastreio no Supabase:", err.message);
+      }
+    }
+  }
+
+  if (!found) {
+    return res.status(404).json({ 
+      success: false, 
+      message: `Nenhum pedido localizado com a busca "${query}". Verifique o número do pedido ou WhatsApp informado.` 
+    });
+  }
+
+  res.json({ success: true, order: found });
 });
 
 app.put('/api/orders/:id/status', async (req, res) => {

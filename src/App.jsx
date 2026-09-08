@@ -39,6 +39,7 @@ import SearchPage from './pages/store/SearchPage.jsx';
 import ComparePage from './pages/store/ComparePage.jsx';
 import CustomBundleBuilder from './pages/store/CustomBundleBuilder.jsx';
 import InstitutionalPages from './pages/store/InstitutionalPages.jsx';
+import OrderTrackingPage from './pages/store/OrderTrackingPage.jsx';
 
 // Páginas do Admin
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -143,6 +144,8 @@ export default function App() {
                     <Route path="/carrinho" element={<StoreLayout><CartPage /></StoreLayout>} />
                     <Route path="/checkout" element={<StoreLayout><CheckoutPage /></StoreLayout>} />
                     <Route path="/pedido-confirmado/:id" element={<StoreLayout><OrderConfirmation /></StoreLayout>} />
+                    <Route path="/rastreio" element={<StoreLayout><OrderTrackingPage /></StoreLayout>} />
+                    <Route path="/rastreio/:id" element={<StoreLayout><OrderTrackingPage /></StoreLayout>} />
                     <Route path="/minha-conta" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
                     <Route path="/favoritos" element={<StoreLayout><CustomerAccount /></StoreLayout>} />
                     <Route path="/login" element={<StoreLayout><LoginPage /></StoreLayout>} />

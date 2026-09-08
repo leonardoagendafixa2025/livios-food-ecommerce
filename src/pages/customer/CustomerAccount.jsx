@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Package, MapPin, Heart, Shield, LogOut, Clock, CheckCircle2, Truck } from 'lucide-react';
+import { User, Package, MapPin, Heart, Shield, LogOut, Clock, CheckCircle2, Truck, MessageCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useWishlist } from '../../contexts/WishlistContext.jsx';
 import { useCart } from '../../contexts/CartContext.jsx';
 import { useToast } from '../../contexts/ToastContext.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
-import { RefreshCw } from 'lucide-react';
 
 export default function CustomerAccount() {
   const { user, logout, updateUserProfile } = useAuth();
@@ -230,19 +229,39 @@ export default function CustomerAccount() {
                           ))}
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--light-border)', paddingTop: '0.75rem', fontWeight: 'bold' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--light-border)', paddingTop: '0.75rem', fontWeight: 'bold', flexWrap: 'wrap', gap: '0.75rem' }}>
                           <div>
                             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total: </span>
                             <span style={{ color: 'var(--primary-burgundy)', fontSize: '1.2rem' }}>R$ {ord.total.toFixed(2).replace('.', ',')}</span>
                           </div>
 
-                          <button
-                            onClick={() => handleReorder(ord.id)}
-                            className="btn btn-gold"
-                            style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                          >
-                            <RefreshCw size={16} /> COMPRAR NOVAMENTE
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => navigate(`/rastreio/${ord.id}`)}
+                              className="btn btn-outline"
+                              style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            >
+                              <Truck size={14} /> Rastrear Pedido
+                            </button>
+
+                            <a
+                              href={`https://wa.me/5531995675327?text=${encodeURIComponent(`Olá, Livio's Food! Gostaria de consultar o status do meu Pedido #${ord.id}.`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn"
+                              style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', background: '#25D366', color: '#FFF', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                            >
+                              <MessageCircle size={14} /> Acompanhar no Zap
+                            </a>
+
+                            <button
+                              onClick={() => handleReorder(ord.id)}
+                              className="btn btn-gold"
+                              style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            >
+                              <RefreshCw size={14} /> Repetir
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

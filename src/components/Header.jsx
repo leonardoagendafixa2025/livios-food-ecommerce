@@ -50,6 +50,9 @@ export default function Header() {
             <span><strong>Frete Grátis</strong> para todo o Brasil em compras acima de R$ 150!</span>
           </div>
           <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <Link to="/rastreio" className="hide-mobile" style={{ color: '#FFF', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', opacity: 0.95, fontWeight: '500' }}>
+              🚚 Rastrear Pedido
+            </Link>
             <span className="hide-mobile" style={{ opacity: 0.9 }}>📞 WhatsApp: (31) 99567-5327</span>
             {isAdmin && (
               <Link to="/admin" style={{ color: '#FFD700', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,215,0,0.15)', padding: '2px 8px', borderRadius: '4px' }}>
@@ -200,6 +203,9 @@ export default function Header() {
                 </Link>
                 <Link to="/sobre" className="mobile-link-item">
                   <span>Sobre a Empresa</span> <ChevronRight size={18} />
+                </Link>
+                <Link to="/rastreio" className="mobile-link-item" style={{ color: 'var(--primary-burgundy)', fontWeight: 'bold' }}>
+                  <span>🚚 Rastrear Pedido</span> <ChevronRight size={18} />
                 </Link>
                 <Link to="/contato" className="mobile-link-item">
                   <span>Contato & Suporte</span> <ChevronRight size={18} />
