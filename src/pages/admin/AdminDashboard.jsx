@@ -68,15 +68,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Barra de Ações Rápidas */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button onClick={fetchDashboard} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '0.6rem 1rem' }} title="Atualizar dados em tempo real">
+            <RefreshCw size={16} /> ATUALIZAR
+          </button>
           <Link to="/admin/produtos" className="btn btn-gold" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '0.6rem 1rem' }}>
             <Plus size={16} /> NOVO PRODUTO
           </Link>
           <Link to="/admin/pedidos" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '0.6rem 1rem' }}>
             <ShoppingBag size={16} /> PEDIDOS
-          </Link>
-          <Link to="/admin/marketing/campanhas" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '0.6rem 1rem' }}>
-            <Megaphone size={16} /> CAMPANHAS
           </Link>
         </div>
       </div>
@@ -243,10 +243,10 @@ export default function AdminDashboard() {
       </div>
 
       {/* Pedidos Recentes & Alertas de Estoque */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '2rem' }}>
+      <div className="responsive-two-col" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
         {/* Tabela de Pedidos Recentes */}
         <div className="admin-card" style={{ marginBottom: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)' }}>
                 Últimos Pedidos Recebidos
@@ -265,48 +265,50 @@ export default function AdminDashboard() {
               <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Assim que um cliente concluir uma compra, o pedido aparecerá aqui automaticamente.</div>
             </div>
           ) : (
-            <table className="table-custom">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Cliente</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map(ord => (
-                  <tr key={ord.id}>
-                    <td><strong style={{ color: 'var(--primary-burgundy)' }}>#{ord.id}</strong></td>
-                    <td>
-                      <div style={{ fontWeight: 'bold' }}>{ord.customerName}</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{ord.customerEmail}</div>
-                    </td>
-                    <td style={{ fontWeight: '800', color: 'var(--primary-burgundy)' }}>R$ {ord.total.toFixed(2).replace('.', ',')}</td>
-                    <td>
-                      <span style={{ padding: '4px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 'bold', background: ord.status === 'shipped' || ord.status === 'delivered' ? '#10B981' : ord.status === 'cancelled' ? '#EF4444' : 'var(--primary-burgundy)', color: '#FFF' }}>
-                        {ord.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        value={ord.status}
-                        onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
-                        style={{ padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', fontSize: '0.78rem', fontWeight: 'bold', background: '#FAF8F4', cursor: 'pointer' }}
-                      >
-                        <option value="received">Recebido</option>
-                        <option value="payment_approved">Aprovado</option>
-                        <option value="in_preparation">Em Preparação</option>
-                        <option value="shipped">Enviado</option>
-                        <option value="delivered">Entregue</option>
-                        <option value="cancelled">Cancelado</option>
-                      </select>
-                    </td>
+            <div className="table-responsive-wrapper">
+              <table className="table-custom" style={{ minWidth: '500px' }}>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {recentOrders.map(ord => (
+                    <tr key={ord.id}>
+                      <td><strong style={{ color: 'var(--primary-burgundy)' }}>#{ord.id}</strong></td>
+                      <td>
+                        <div style={{ fontWeight: 'bold' }}>{ord.customerName}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{ord.customerEmail}</div>
+                      </td>
+                      <td style={{ fontWeight: '800', color: 'var(--primary-burgundy)' }}>R$ {Number(ord.total || 0).toFixed(2).replace('.', ',')}</td>
+                      <td>
+                        <span style={{ padding: '4px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 'bold', background: ord.status === 'shipped' || ord.status === 'delivered' ? '#10B981' : ord.status === 'cancelled' ? '#EF4444' : 'var(--primary-burgundy)', color: '#FFF', whiteSpace: 'nowrap' }}>
+                          {(ord.status || 'RECEBIDO').toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        <select
+                          value={ord.status}
+                          onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
+                          style={{ padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)', fontSize: '0.78rem', fontWeight: 'bold', background: '#FAF8F4', cursor: 'pointer' }}
+                        >
+                          <option value="received">Recebido</option>
+                          <option value="payment_approved">Aprovado</option>
+                          <option value="in_preparation">Em Preparação</option>
+                          <option value="shipped">Enviado</option>
+                          <option value="delivered">Entregue</option>
+                          <option value="cancelled">Cancelado</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 

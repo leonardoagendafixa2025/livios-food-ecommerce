@@ -334,9 +334,11 @@ function mapProductToSupabase(p) {
 }
 
 function mapOrderToSupabase(o) {
+  const db = getDb();
+  const validCustomerId = (o.customerId && o.customerId.startsWith('usr_') && (db.users || []).some(u => u.id === o.customerId)) ? o.customerId : null;
   return {
     id: o.id,
-    customer_id: o.customerId || 'usr_guest',
+    customer_id: validCustomerId,
     customer_name: o.customerName || '',
     customer_email: o.customerEmail || '',
     customer_phone: o.customerPhone || '',
@@ -350,7 +352,7 @@ function mapOrderToSupabase(o) {
     total: Number(o.total || 0),
     payment_method: o.paymentMethod || 'pix',
     payment_status: o.paymentStatus || 'approved',
-    status: o.status || 'payment_approved',
+    status: o.status || 'received',
     status_history: o.statusHistory || [],
     created_at: o.createdAt || new Date().toISOString()
   };
@@ -1535,7 +1537,7 @@ app.post('/api/coupons/validate', (req, res) => {
 // ==========================================
 // CHECKOUT & PEDIDOS
 // ==========================================
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', async (req, res) => {
   const db = getDb();
   const { customer, items, shipping, payment, couponCode, subtotal, discount, shippingFee, total } = req.body;
 
@@ -1600,6 +1602,7 @@ app.post('/api/orders', (req, res) => {
     if (prod) {
       const prevStock = prod.stock;
       prod.stock -= item.quantity;
+      if (!db.inventoryMovements) db.inventoryMovements = [];
       db.inventoryMovements.push({
         id: generateId('mov'),
         productId: prod.id,
@@ -1630,7 +1633,7 @@ app.post('/api/orders', (req, res) => {
 
   const newOrder = {
     id: orderId,
-    customerId: customer.id || generateId('usr'),
+    customerId: customer.id || null,
     customerName: customer.name,
     customerEmail: customer.email,
     customerPhone: customer.phone,
@@ -1653,7 +1656,8 @@ app.post('/api/orders', (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  db.orders.push(newOrder);
+  if (!db.orders) db.orders = [];
+  db.orders.unshift(newOrder);
 
   // Se o cupom foi utilizado, incrementa contagem
   if (couponCode) {
@@ -1663,34 +1667,35 @@ app.post('/api/orders', (req, res) => {
 
   saveDb();
 
-  // Persistência Transacional no Supabase PostgreSQL
+  // Persistência Transacional no Supabase PostgreSQL (AWAIT obrigatório para ambiente Serverless Vercel)
   const supabase = getSupabase();
   if (supabase) {
-    (async () => {
-      try {
-        const { error: orderErr } = await supabase.from('orders').insert(mapOrderToSupabase(newOrder));
-        if (orderErr) console.error("Erro ao gravar pedido no Supabase:", orderErr.message);
-        else console.log("🟢 Pedido gravado no Supabase PostgreSQL com sucesso:", newOrder.id);
-
-        // Atualizar estoque de cada produto no Supabase
-        for (const item of calculatedItems) {
-          const prod = db.products.find(p => p.id === item.productId);
-          if (prod) {
-            await supabase.from('products').update({ stock: prod.stock }).eq('id', prod.id);
-          }
-        }
-
-        // Se cupom foi usado, atualiza no Supabase
-        if (couponCode) {
-          const c = db.coupons.find(cp => cp.code === couponCode);
-          if (c) {
-            await supabase.from('coupons').update({ used_count: c.usedCount }).eq('code', couponCode);
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao sincronizar pedido/estoque no Supabase:", err);
+    try {
+      const { error: orderErr } = await supabase.from('orders').insert(mapOrderToSupabase(newOrder));
+      if (orderErr) {
+        console.error("⚠️ Erro ao gravar pedido no Supabase:", orderErr.message);
+      } else {
+        console.log("🟢 Pedido gravado no Supabase PostgreSQL com sucesso:", newOrder.id);
       }
-    })();
+
+      // Atualizar estoque de cada produto no Supabase
+      for (const item of calculatedItems) {
+        const prod = db.products.find(p => p.id === item.productId);
+        if (prod) {
+          await supabase.from('products').update({ stock: prod.stock }).eq('id', prod.id);
+        }
+      }
+
+      // Se cupom foi usado, atualiza no Supabase
+      if (couponCode) {
+        const c = db.coupons.find(cp => cp.code === couponCode);
+        if (c) {
+          await supabase.from('coupons').update({ used_count: c.usedCount }).eq('code', couponCode);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao sincronizar pedido/estoque no Supabase:", err);
+    }
   }
 
   res.json({
@@ -2736,24 +2741,36 @@ app.get('/api/admin/dashboard', async (req, res) => {
   const supabase = getSupabase();
   if (supabase) {
     try {
-      const { data: ords } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-      if (ords && Array.isArray(ords)) {
-        db.orders = ords.map(mapOrderFromSupabase);
+      const [ordsRes, prodsRes] = await Promise.all([
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        supabase.from('products').select('*')
+      ]);
+
+      if (ordsRes.data && Array.isArray(ordsRes.data)) {
+        db.orders = ordsRes.data.map(mapOrderFromSupabase);
       }
-    } catch (err) {}
+      if (prodsRes.data && Array.isArray(prodsRes.data)) {
+        db.products = prodsRes.data.map(mapProductFromSupabase);
+      }
+    } catch (err) {
+      console.warn("⚠️ Aviso ao sincronizar dashboard do Supabase:", err.message);
+    }
   }
 
-  const totalRevenue = db.orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total : 0), 0);
-  const totalOrders = db.orders.length;
+  // Ordena os pedidos mais recentes primeiro
+  const sortedOrders = [...(db.orders || [])].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const totalRevenue = sortedOrders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? Number(o.total || 0) : 0), 0);
+  const totalOrders = sortedOrders.length;
   const avgTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-  const totalCustomers = db.users.filter(u => u.role === 'customer').length;
+  const totalCustomers = (db.users || []).filter(u => u.role === 'customer').length;
 
-  const lowStockProducts = db.products.filter(p => p.stock <= p.minStock);
-  const outOfStockProducts = db.products.filter(p => p.stock === 0);
-  const pendingOrders = db.orders.filter(o => o.status === 'received' || o.status === 'in_preparation');
+  const lowStockProducts = (db.products || []).filter(p => (p.stock || 0) <= (p.minStock || 5));
+  const outOfStockProducts = (db.products || []).filter(p => (p.stock || 0) <= 0);
+  const pendingOrders = sortedOrders.filter(o => o.status === 'received' || o.status === 'in_preparation' || o.status === 'payment_approved');
 
-  const totalProducts = db.products.length;
-  const activeProducts = db.products.filter(p => p.active).length;
+  const totalProducts = (db.products || []).length;
+  const activeProducts = (db.products || []).filter(p => p.active).length;
   const activeCoupons = (db.coupons || []).filter(c => c.active).length;
   const totalWaitlist = (db.waitlist || []).filter(w => w.status === 'Aguardando').length;
   const activeCampaigns = (db.campaigns || []).filter(c => c.status === 'Ativa').length;
@@ -2762,10 +2779,10 @@ app.get('/api/admin/dashboard', async (req, res) => {
   const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const dayTotals = { Dom: 0, Seg: 0, Ter: 0, Qua: 0, Qui: 0, Sex: 0, Sáb: 0 };
 
-  db.orders.forEach(o => {
+  sortedOrders.forEach(o => {
     if (o.status !== 'cancelled' && o.createdAt) {
       const dayName = daysOfWeek[new Date(o.createdAt).getDay()];
-      if (dayName) dayTotals[dayName] += (o.total || 0);
+      if (dayName) dayTotals[dayName] += Number(o.total || 0);
     }
   });
 
@@ -2796,7 +2813,7 @@ app.get('/api/admin/dashboard', async (req, res) => {
       activeCampaigns
     },
     lowStockProducts,
-    recentOrders: db.orders.slice(0, 8),
+    recentOrders: sortedOrders.slice(0, 10),
     salesChartData
   });
 });
