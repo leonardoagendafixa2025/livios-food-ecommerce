@@ -1889,21 +1889,27 @@ app.get('/api/orders/track/:query', async (req, res) => {
   );
 
   // 2. Busca por Telefone / WhatsApp (se tiver pelo menos 8 dígitos)
-  if (!found && cleanDigits.length >= 8) {
-    found = db.orders.slice().reverse().find(o => {
+  let matchedOrders = [];
+  if (cleanDigits.length >= 8) {
+    matchedOrders = db.orders.filter(o => {
       const orderPhoneDigits = (o.customerPhone || '').replace(/\D/g, '');
       return orderPhoneDigits.includes(cleanDigits) || cleanDigits.includes(orderPhoneDigits);
     });
+    if (!found && matchedOrders.length > 0) {
+      found = matchedOrders[0];
+    }
   }
 
   // 3. Busca por CPF
   if (!found && cleanDigits.length === 11) {
-    found = db.orders.slice().reverse().find(o => (o.customerCpf || '').replace(/\D/g, '') === cleanDigits);
+    matchedOrders = db.orders.filter(o => (o.customerCpf || '').replace(/\D/g, '') === cleanDigits);
+    if (matchedOrders.length > 0) found = matchedOrders[0];
   }
 
   // 4. Busca por E-mail
   if (!found && queryLower.includes('@')) {
-    found = db.orders.slice().reverse().find(o => (o.customerEmail || '').toLowerCase() === queryLower);
+    matchedOrders = db.orders.filter(o => (o.customerEmail || '').toLowerCase() === queryLower);
+    if (matchedOrders.length > 0) found = matchedOrders[0];
   }
 
   // Fallback Supabase
@@ -1915,10 +1921,11 @@ app.get('/api/orders/track/:query', async (req, res) => {
           .from('orders')
           .select('*')
           .or(`id.ilike.%${query}%,customer_phone.ilike.%${cleanDigits}%,customer_email.ilike.%${query}%`)
-          .limit(1);
+          .limit(5);
 
         if (data && data.length > 0) {
-          found = mapOrderFromSupabase(data[0]);
+          matchedOrders = data.map(mapOrderFromSupabase);
+          found = matchedOrders[0];
         }
       } catch (err) {
         console.warn("Aviso ao buscar rastreio no Supabase:", err.message);
@@ -1933,7 +1940,7 @@ app.get('/api/orders/track/:query', async (req, res) => {
     });
   }
 
-  res.json({ success: true, order: found });
+  res.json({ success: true, order: found, orders: matchedOrders.length > 0 ? matchedOrders : [found] });
 });
 
 app.put('/api/orders/:id/status', async (req, res) => {
