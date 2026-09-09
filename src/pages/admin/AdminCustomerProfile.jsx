@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { User, Phone, Mail, MapPin, Calendar, Award, ShoppingBag, DollarSign, Clock, ShieldCheck, Tag, Plus, Check, ArrowLeft, Send } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { User, Phone, Mail, MapPin, Calendar, Award, ShoppingBag, DollarSign, Clock, ShieldCheck, Tag, Plus, Check, ArrowLeft, Send, Trash2, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 export default function AdminCustomerProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newNote, setNewNote] = useState('');
   const [newTagInput, setNewTagInput] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { user } = useAuth();
   const { addToast } = useToast();
@@ -75,6 +78,26 @@ export default function AdminCustomerProfile() {
     }
   };
 
+  const handleDeleteCustomer = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/crm/customers/${id}`, {
+        method: 'DELETE'
+      });
+      const result = await res.json();
+      if (result.success) {
+        addToast(result.message || "Cliente excluído com sucesso!", "success");
+        navigate('/admin/crm');
+      } else {
+        addToast(result.message || "Erro ao excluir cliente.", "error");
+      }
+    } catch (err) {
+      addToast("Erro na comunicação com o servidor.", "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading || !data) {
     return <div style={{ padding: '3rem', textAlign: 'center', fontWeight: 'bold' }}>Carregando perfil 360° do cliente...</div>;
   }
@@ -86,7 +109,7 @@ export default function AdminCustomerProfile() {
         <Link to="/admin/crm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--primary-burgundy)', fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
           <ArrowLeft size={16} /> Voltar para Central CRM
         </Link>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: '800', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)' }}>
               {data.name}
@@ -99,9 +122,18 @@ export default function AdminCustomerProfile() {
             </div>
           </div>
 
-          <Link to={`/admin/marketing/campanhas`} className="btn btn-gold" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Send size={16} /> CRIAR CAMPANHA PARA ESTE CLIENTE
-          </Link>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="btn"
+              style={{ background: '#FEE2E2', color: '#DC2626', border: '1px solid #FECACA', display: 'flex', alignItems: 'center', gap: '6px', padding: '0.65rem 1.15rem' }}
+            >
+              <Trash2 size={16} /> EXCLUIR CLIENTE
+            </button>
+            <Link to={`/admin/marketing/campanhas`} className="btn btn-gold" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Send size={16} /> CRIAR CAMPANHA
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -169,30 +201,34 @@ export default function AdminCustomerProfile() {
 
       {/* Grid Duplo: Linha do Tempo & Notas Internas Privadas */}
       <div className="grid-2" style={{ marginBottom: '2rem' }}>
-        {/* 5.7 TIMELINE CRONOLÓGICA */}
+        {/* TIMELINE CRONOLÓGICA */}
         <div className="admin-card">
           <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)', marginBottom: '1.25rem', color: 'var(--text-dark)' }}>
-            Timeline Cronológica de Interações (5.7)
+            Timeline Cronológica de Interações
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '2px solid var(--light-border)', paddingLeft: '1.25rem' }}>
-            {(data.timelineEvents || []).map(ev => (
-              <div key={ev.id} style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '-1.65rem', top: '2px', width: '12px', height: '12px', borderRadius: '50%', background: 'var(--primary-burgundy)' }} />
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>
-                  {new Date(ev.date).toLocaleString('pt-BR')}
+            {(data.timelineEvents || []).length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Nenhum evento registrado ainda.</div>
+            ) : (
+              (data.timelineEvents || []).map(ev => (
+                <div key={ev.id} style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: '-1.65rem', top: '2px', width: '12px', height: '12px', borderRadius: '50%', background: 'var(--primary-burgundy)' }} />
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+                    {new Date(ev.date).toLocaleString('pt-BR')}
+                  </div>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.92rem', color: 'var(--text-dark)' }}>{ev.title}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{ev.description}</div>
                 </div>
-                <div style={{ fontWeight: 'bold', fontSize: '0.92rem', color: 'var(--text-dark)' }}>{ev.title}</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{ev.description}</div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
-        {/* 5.8 NOTAS INTERNAS DOS ADMINISTRADORES */}
+        {/* NOTAS INTERNAS DOS ADMINISTRADORES */}
         <div className="admin-card">
           <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', fontFamily: 'var(--font-serif)', marginBottom: '1.25rem', color: 'var(--text-dark)' }}>
-            Notas Internas Privadas da Equipe (5.8)
+            Notas Internas Privadas da Equipe
           </h3>
 
           <form onSubmit={handleAddNote} style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.5rem' }}>
@@ -201,26 +237,78 @@ export default function AdminCustomerProfile() {
               required
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Escreva uma nota interna sobre as preferências do cliente..."
+              placeholder="Escreva uma nota interna sobre o cliente..."
               style={{ flexGrow: 1, padding: '0.65rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}
             />
             <button type="submit" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>SALVAR</button>
           </form>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {(data.notes || []).map(n => (
-              <div key={n.id} style={{ background: '#FAF8F4', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}>
-                <div style={{ fontSize: '0.88rem', color: 'var(--text-dark)', fontWeight: '500', marginBottom: '4px' }}>
-                  "{n.note}"
+            {(data.notes || []).length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Nenhuma nota interna adicionada.</div>
+            ) : (
+              (data.notes || []).map(n => (
+                <div key={n.id} style={{ background: '#FAF8F4', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--light-border)' }}>
+                  <div style={{ fontSize: '0.88rem', color: 'var(--text-dark)', fontWeight: '500', marginBottom: '4px' }}>
+                    "{n.note}"
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Por: <strong>{n.author}</strong> em {new Date(n.createdAt).toLocaleString('pt-BR')}
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Por: <strong>{n.author}</strong> em {new Date(n.createdAt).toLocaleString('pt-BR')}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{ background: '#FFF', borderRadius: 'var(--radius-lg)', padding: '2rem', maxWidth: '480px', width: '100%', boxShadow: 'var(--shadow-lg)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem', color: '#DC2626' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <AlertTriangle size={26} color="#DC2626" />
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>
+                  Excluir Cliente Permanentemente?
+                </h3>
+              </div>
+
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+                Tem certeza de que deseja excluir o cliente <strong>{data.name}</strong> ({data.email})? Esta ação removerá a conta e todos os dados associados.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeleting}
+                  className="btn btn-outline"
+                  style={{ padding: '0.65rem 1.25rem' }}
+                >
+                  CANCELAR
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteCustomer}
+                  disabled={isDeleting}
+                  className="btn"
+                  style={{ background: '#DC2626', color: '#FFF', padding: '0.65rem 1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Trash2 size={16} /> {isDeleting ? "EXCLUINDO..." : "SIM, EXCLUIR"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

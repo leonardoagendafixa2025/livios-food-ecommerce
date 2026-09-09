@@ -15,7 +15,7 @@ import {
   ChefHat
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext.jsx';
-import { createWhatsAppUrl } from '../../utils/whatsapp.js';
+import { createWhatsAppUrl, formatNewOrderMessage } from '../../utils/whatsapp.js';
 
 export default function OrderConfirmation() {
   const { id } = useParams();
@@ -54,7 +54,29 @@ export default function OrderConfirmation() {
 
   const trackingUrl = `${window.location.origin}/rastreio/${order.id}`;
 
-  const waReopenText = `Olá, equipe Livio's Food! Realizei o Pedido #${order.id} no valor de R$ ${order.total.toFixed(2).replace('.', ',')} no site e gostaria de confirmar o envio dos dados de pagamento e acompanhar o preparo!`;
+  const paymentLabel = 
+    order.paymentMethod === 'pix' ? 'PIX Direto (5% de Desconto)' :
+    order.paymentMethod === 'credit_card' ? 'Cartão de Crédito (Link Seguro)' :
+    order.paymentMethod || 'A Combinar';
+
+  const waReopenText = formatNewOrderMessage({
+    orderId: order.id,
+    customer: {
+      name: order.customerName,
+      phone: order.customerPhone,
+      email: order.customerEmail,
+      cpf: order.customerCpf
+    },
+    address: order.shippingAddress || {},
+    items: order.items || [],
+    subtotal: order.subtotal || order.total,
+    discount: order.discountAmount || 0,
+    shippingFee: order.shippingFee || 0,
+    total: order.total,
+    paymentMethod: paymentLabel,
+    notes: order.customerNotes || '',
+    trackingUrl
+  });
   const waReopenUrl = createWhatsAppUrl(WHATSAPP_NUMBER, waReopenText);
 
   return (

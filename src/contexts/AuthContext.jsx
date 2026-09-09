@@ -50,10 +50,13 @@ export function AuthProvider({ children }) {
       if (data.success) {
         setUser(data.user);
         localStorage.setItem('livios_user', JSON.stringify(data.user));
-        addToast(data.message, 'success');
-        return true;
+        if (data.token) {
+          localStorage.setItem('livios_token', data.token);
+        }
+        addToast(data.message || 'Cadastro realizado com sucesso!', 'success');
+        return data.user;
       } else {
-        addToast(data.message, 'error');
+        addToast(data.message || 'Erro ao efetuar cadastro', 'error');
         return false;
       }
     } catch (err) {

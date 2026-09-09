@@ -163,7 +163,7 @@ export default function App() {
                     <Route path="/admin/estoque/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/lista-espera" element={<ProtectedAdminRoute><AdminLayout><AdminWaitlist /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/pedidos" element={<ProtectedAdminRoute><AdminLayout><AdminOrders /></AdminLayout></ProtectedAdminRoute>} />
-                    <Route path="/admin/clientes" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
+                    <Route path="/admin/clientes" element={<ProtectedAdminRoute><AdminLayout><AdminCustomers /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/crm" element={<ProtectedAdminRoute><AdminLayout><AdminCRMDashboard /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/crm/cliente/:id" element={<ProtectedAdminRoute><AdminLayout><AdminCustomerProfile /></AdminLayout></ProtectedAdminRoute>} />
                     <Route path="/admin/crm/segmentos" element={<ProtectedAdminRoute><AdminLayout><AdminCRMSegments /></AdminLayout></ProtectedAdminRoute>} />

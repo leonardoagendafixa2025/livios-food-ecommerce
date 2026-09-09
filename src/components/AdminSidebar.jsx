@@ -56,7 +56,8 @@ export default function AdminSidebar() {
       title: 'VENDAS & CLIENTES',
       items: [
         { path: '/admin/pedidos', label: 'Pedidos de Venda', icon: ShoppingCart },
-        { path: '/admin/crm', label: 'CRM & Clientes', icon: Users },
+        { path: '/admin/clientes', label: 'Clientes Cadastrados', icon: Users },
+        { path: '/admin/crm', label: 'Inteligência CRM', icon: Sparkles },
         { path: '/admin/crm/segmentos', label: 'Segmentos de Clientes', icon: Layers }
       ]
     }

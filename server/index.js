@@ -246,6 +246,7 @@ app.post('/api/auth/register', async (req, res) => {
       permissions: roleInfo.permissions || ["customer"],
       addresses: []
     },
+    token: `token_${newUser.id}_${Date.now()}`,
     message: "Cadastro realizado com sucesso!"
   });
 });
@@ -3337,6 +3338,81 @@ app.post('/api/admin/crm/customers/:id/tags', (req, res) => {
   saveDb();
 
   res.json({ success: true, tags: customer.tags, message: "Tags do cliente atualizadas!" });
+});
+
+app.delete('/api/admin/crm/customers/:id', async (req, res) => {
+  const db = getDb();
+  const customerIndex = (db.users || []).findIndex(u => u.id === req.params.id);
+
+  if (customerIndex === -1) {
+    return res.status(404).json({ success: false, message: "Cliente não encontrado." });
+  }
+
+  const userToDelete = db.users[customerIndex];
+  if (userToDelete.role === 'super_admin') {
+    return res.status(403).json({ success: false, message: "Não é permitido excluir o usuário Super Administrador." });
+  }
+
+  // Remove o usuário da base local
+  db.users.splice(customerIndex, 1);
+
+  // Remove notas e eventos vinculados
+  if (db.customerNotes) {
+    db.customerNotes = db.customerNotes.filter(n => n.customerId !== req.params.id);
+  }
+  if (db.customerEvents) {
+    db.customerEvents = db.customerEvents.filter(e => e.customerId !== req.params.id);
+  }
+
+  saveDb();
+
+  // Remove do Supabase PostgreSQL se configurado
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('users').delete().eq('id', req.params.id);
+      if (error) console.error("Aviso ao excluir usuário no Supabase:", error.message);
+      else console.log("🗑️ Usuário excluído do Supabase:", req.params.id);
+    } catch (err) {
+      console.error("Erro ao sincronizar exclusão com Supabase:", err);
+    }
+  }
+
+  res.json({
+    success: true,
+    message: `Cliente ${userToDelete.name || userToDelete.email} foi excluído com sucesso!`
+  });
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  const db = getDb();
+  const customerIndex = (db.users || []).findIndex(u => u.id === req.params.id);
+
+  if (customerIndex === -1) {
+    return res.status(404).json({ success: false, message: "Usuário não encontrado." });
+  }
+
+  const userToDelete = db.users[customerIndex];
+  if (userToDelete.role === 'super_admin') {
+    return res.status(403).json({ success: false, message: "Não é permitido excluir o usuário Super Administrador." });
+  }
+
+  db.users.splice(customerIndex, 1);
+  if (db.customerNotes) db.customerNotes = db.customerNotes.filter(n => n.customerId !== req.params.id);
+  if (db.customerEvents) db.customerEvents = db.customerEvents.filter(e => e.customerId !== req.params.id);
+  saveDb();
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from('users').delete().eq('id', req.params.id);
+    } catch (err) {}
+  }
+
+  res.json({
+    success: true,
+    message: "Usuário excluído com sucesso!"
+  });
 });
 
 // ==========================================
