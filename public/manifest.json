@@ -1,0 +1,33 @@
+{
+  "name": "Livio's Food Innovation — Fine Recipe",
+  "short_name": "Livio's Food",
+  "description": "E-commerce oficial Livio's Food Innovation. Molhos especiais agridoces, picantes e artesanais.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0e15",
+  "theme_color": "#ff5500",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["shopping", "food", "lifestyle"]
+}

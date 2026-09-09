@@ -17,6 +17,7 @@ import MobileBottomNav from './components/MobileBottomNav.jsx';
 import PromotionalBar from './components/PromotionalBar.jsx';
 import PromotionalPopup from './components/PromotionalPopup.jsx';
 import CompareFloatingBar from './components/CompareFloatingBar.jsx';
+import PWAInstallPrompt from './components/PWAInstallPrompt.jsx';
 import AdminSidebar from './components/AdminSidebar.jsx';
 import AdminHeader from './components/AdminHeader.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
@@ -102,6 +103,7 @@ function StoreLayout({ children }) {
       <MobileBottomNav />
       <CompareFloatingBar />
       <PromotionalPopup activePopups={marketingData.popups} />
+      <PWAInstallPrompt />
     </div>
   );
 }

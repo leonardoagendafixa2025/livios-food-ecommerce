@@ -44,6 +44,26 @@ export default function Footer() {
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.9rem' }}>
               <li><Link to="/rastreio" style={{ color: '#C0C0D0', fontWeight: 'bold' }}>🚚 Rastrear Pedido</Link></li>
               <li><Link to="/minha-conta" style={{ color: '#C0C0D0' }}>Meus Pedidos</Link></li>
+              <li>
+                <button
+                  onClick={() => window.openPWAInstallPrompt && window.openPWAInstallPrompt()}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--accent-gold)',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  📲 Instalar Aplicativo
+                </button>
+              </li>
               <li><Link to="/politica-privacidade" style={{ color: '#C0C0D0' }}>Política de Privacidade</Link></li>
               <li><Link to="/termos-uso" style={{ color: '#C0C0D0' }}>Termos de Uso</Link></li>
               <li><Link to="/trocas-devolucoes" style={{ color: '#C0C0D0' }}>Trocas e Devoluções</Link></li>
